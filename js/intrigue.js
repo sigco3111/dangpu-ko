@@ -7,7 +7,7 @@
 const WISHES = {
   '낙패한 산수': ['pill_found', 'pill_qi'], '범인 행상': ['spirit_wine', 'jade_pendant'], '잡역 소년': ['pill_qi', 'sword_std'],
   '유방 검객': ['xian_talisman', 'pill_qi'], '복면 여수사': ['bronze_mirror', 'jade_pendant'], '외문 제자': ['sword_std', 'pill_blood'],
-  '내문 사배': ['soul_banner', 'soul_pearl'], 狐妖: ['spirit_fruit', 'yao_core'], '호랑이 요괴': ['spirit_wine', 'beast_hide'],
+  '내문 사배': ['soul_banner', 'soul_pearl'], '여우 요괴': ['spirit_fruit', 'yao_core'], '호랑이 요괴': ['spirit_wine', 'beast_hide'],
   '뱀 요괴': ['pill_found', 'wangyou'], '축기 수사': ['pill_found', 'soul_pearl'], '내문 제자': ['soul_pearl', 'iron_corpse', 'puppet_doll'],
 };
 WISHES['내문 사형'] = WISHES['내문 사배']; WISHES['복면 수사'] = WISHES['복면 여수사']; WISHES['잡역 소녀'] = WISHES['잡역 소년'];
