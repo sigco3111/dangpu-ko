@@ -2,63 +2,63 @@
 // 外头几乎见不着，偶尔有妖族客人急用钱拿来卖；功勋价按一点约五六十灵石
 'use strict';
 
-// 千年蛇蜕：蛇族自愿褪下的蜕，入药拔毒——第三样解毒的药，比血灵芝、回气丹贵，但不靠拾荒与货郎
+// 천년 사퇴：蛇族自愿褪下的蜕，入药拔毒——第三样解毒的药，比血灵芝、回气丹贵，但不靠拾荒与货郎
 defineItem({
-  id: 'snake_slough', name: '千年蛇蜕', cat: 'yao', w: 1, h: 2, base: 160,
+  id: 'snake_slough', name: '천년 사퇴', cat: 'yao', w: 1, h: 2, base: 160,
   art: "a complete shed snakeskin from an ancient jade-green serpent spirit, translucent pale celadon scales with intact diamond pattern and a faint cyan shimmer, loosely coiled on a dark wooden tray",
-  desc: '化形的老蛇妖褪下的整张蜕，鳞纹俱全，泛着青光。研末服下能拔毒，中毒即解；蛇族拿它当谢礼，从不卖给外人。',
+  desc: '화형한 늙은 뱀 요괴가 벗어놓은 온전한 허물로 비늘 무늬가 고스란하고 푸른빛이 돈다. 가루 내어 먹으면 독을 뽑아내 바로 풀린다. 뱀족은 답례로만 줄 뿐 외인에게는 팔지 않는다.',
   from: {
     sell: { yao: 0.3 },
     merit: { yao: 3 },
   },
   to: {
-    wish: ['落魄散修'],
+    wish: ['낙패한 산수'],
     dealer: ['league'],
     cure: ['poisoned'],
   },
 });
 
-// 狐火珠：狐族的信物，太平年景权贵拿来作灯——奢侈珍玩，少宗主一系办雅集要
+// 여화주：狐族的信物，太平年景权贵拿来作灯——奢侈珍玩，少宗主一系办雅集要
 defineItem({
-  id: 'fox_fire', name: '狐火珠', cat: 'wan', w: 1, h: 1, base: 480, lux: true,
+  id: 'fox_fire', name: '여화주', cat: 'wan', w: 1, h: 1, base: 480, lux: true,
   art: "a small clear glass orb holding a softly flickering ghostly blue-violet foxfire flame inside, resting on a carved dark rosewood stand with a tiny red silk tassel",
-  desc: '狐族以修为凝成的一团幽蓝狐火，封在琉璃珠里，夜里不灭也不烫手。权贵拿来作灯，内门师姐拿来压箱底——狐族说，送狐火是把你当自己人。',
+  desc: '호족이 수위를 응축한 검푸른 여우불을 유리구슬에 봉했다. 밤에도 꺼지지 않고 뜨겁지 않다. 권귀는 등불로 쓰고 내문 사배는 곳간 바닥에 깔아둔다——호족은 여우불을 주는 것이 너를 자기 사람으로 여긴다는 뜻이라 한다.',
   from: {
     sell: { yao: 0.3 },
     merit: { yao: 8 },
   },
   to: {
-    wish: ['世家小姐', '内门师姐'],
+    wish: ['세가 소저', '내문 사배'],
     order: ['heir'],
   },
 });
 
-// 血藤软甲：妖族匠人用老噬血藤编的甲——战备法器，开战后战堂订单要、魔宗弟子抢
+// 혈등 연갑：妖族匠人用老噬血藤编的甲——战备法器，开战后战堂订单要、魔宗弟子抢
 defineItem({
-  id: 'vine_armor', name: '血藤软甲', cat: 'qi', w: 2, h: 2, base: 620, war: 0.7,
+  id: 'vine_armor', name: '혈등 연갑', cat: 'qi', w: 2, h: 2, base: 620, war: 0.7,
   art: "a supple vest of armor woven from dark crimson ancient blood-vine, tightly braided cords forming overlapping plates, faint red sap gleaming in the grooves, laid flat and slightly folded",
-  desc: '万魔窟深处千年噬血藤的老藤，由妖族匠人揉软编成的软甲，刀剑难入，伤口沾上藤汁还能止血。打起仗来，魔宗弟子抢着要。',
+  desc: '만마굴 깊은 곳 천년 서혈등의 오래된 덩굴을 요족 장인이 부드럽게 주물러 엮은 연갑이다. 칼이 뚫기 어렵고 상처에 덩굴 즙이 닿으면 지혈도 된다. 싸움이 나면 마종 제자들이 서로 가지려 한다.',
   from: {
     sell: { yao: 0.2 },
     merit: { yao: 11 },
   },
   to: {
-    wish: ['外门弟子'],
+    wish: ['외문 제자'],
     order: ['war'],
   },
 });
 
-// 妖元丹：妖族长老给未化形的小妖固本的内丹——人族服炼也涨修为，仅次于筑基丹；丹房订单要，妖族客人心心念念
+// 요원단：妖族长老给未化形的小妖固本的内丹——人族服炼也涨修为，仅次于筑基丹；丹房订单要，妖族客人心心念念
 defineItem({
-  id: 'yao_yuan_dan', name: '妖元丹', cat: 'dan', w: 1, h: 1, base: 820, war: 0.3,
+  id: 'yao_yuan_dan', name: '요원단', cat: 'dan', w: 1, h: 1, base: 820, war: 0.3,
   art: "a single round elixir pill of deep amber-gold with swirling silver moonlight veins and a faint wild green aura, resting on a broad green leaf beside a few drops of dew",
-  desc: '妖族长老采月华、合百草炼成的内丹，给还没化形的小妖固本修行用。人族服下也能长修为，只是灵气里带股野性，夜里容易梦见自己在山里奔跑。',
+  desc: '요족 장로가 달빛 정기를 모으고 백초를 배합해 만든 내단으로, 아직 화형하지 못한 어린 요괴의 근본을 다지는 수련용이다. 인간이 먹어도 수위가 오르지만 영기에 야성이 섞여 있어 밤에 산속을 달리는 꿈을 꾸기 쉽다.',
   from: {
     sell: { yao: 0.2 },
     merit: { yao: 14 },
   },
   to: {
-    wish: ['狐妖', '虎妖', '蛇妖'],
+    wish: ['여우 요괴', '호랑이 요괴', '뱀 요괴'],
     order: ['dan'],
     cultivate: [80],
   },
