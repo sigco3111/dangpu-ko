@@ -470,7 +470,7 @@ function openDao() {
 const OPP_NAME = { order: '주문', auction: '압수 경매', launder: '장물을 공표한다', captive: '포로를 판다', license: '단약을 도매로 산다', supply: '진재 배급', salon: '아집 초대장', tip: '내부 소식' };
 
 function oppHTML(o) {
-  const C = CLIQUES[o.cid], left = `<span class="muted small">~에서 제 ${o.until} 日</span>`;
+  const C = CLIQUES[o.cid], left = `<span class="muted small">~에서 제 ${o.until}일까지</span>`;
   const head = `<b style="color:${o.cid === 'law' ? '#8fd3ff' : '#e0524a'}">${C.name}</b> · ${OPP_NAME[o.type]}`;
   if (o.type === 'order' || o.type === 'license') {
     const goods = oppGoods(o);
@@ -558,7 +558,7 @@ function tradePanel(c) {
 
 const TABS = [['display', '진열'], ['workshop', '공방'], ['broker', '행상'], ['people', '인물'], ['clique', '파벌'], ['rep', '시국'], ['ledger', '장부']];
 // 竖屏侧栏：五个常用页，其余收进“더 보기”；白天最后一颗是마감
-const NAV = [['store', '库房', 'ic_ledger'], ['display', '진열', 'ic_appraise'], ['workshop', '工坊', 'ic_power'], ['people', '人物', 'ic_gift'], ['more', '더 보기', 'ic_war']];
+const NAV = [['store', '창고', 'ic_ledger'], ['display', '진열', 'ic_appraise'], ['workshop', '공방', 'ic_power'], ['people', '인물', 'ic_gift'], ['more', '더 보기', 'ic_war']];
 const MORE = ['broker', 'clique', 'rep', 'ledger'];
 let lastMore = 'broker';
 
@@ -601,10 +601,10 @@ function tabDisplay() {
   const fc = forecast();
   const fn = f => `<span style="color:${FACTIONS[f].color}">${FACTIONS[f].name}</span>`;
   return `<div class="display-tab">
-    <div>${gridHTML('display', '진열柜')}
+    <div>${gridHTML('display', '진열장')}
       <p class="muted small fc-note">진열장에 올린 물건，마침 그걸 원하는 구매자를 끌지도 모른다，값도 더 후하게 부른다. 내놓지 않은 것은，손님이 우연히 물어보길 기다릴 수밖에 없다. 선문 금물, 마종 금약은 내놓지 않는 게 좋다 - 관리가 눈감아주지 않는 한。</p></div>
     <div class="forecast paper">
-      <h4>顾客群体 <span class="muted">예상 ${fc.n} 位</span></h4>
+      <h4>고객층 <span class="muted">예상 ${fc.n}명</span></h4>
       <div class="fc-sec">진열장이 끌어들인 구매자 <b>${pct(fc.pDisp)}</b></div>
       <div class="fc-list">${fc.buyers.length ? fc.buyers.map(b => `<div class="fc-row"><span>구매 요청 · ${CATS[b.cat]}</span><span>${pct(b.p)}</span></div>`).join('')
         : '<div class="fc-row muted">진열장이 비었다，이름을 듣고 오는 이가 없다</div>'}</div>
@@ -622,15 +622,15 @@ function tabWorkshop() {
   const plan = powerPlan();
   if (openMid !== 'array' && !S.machines.some(m => m.mid === openMid)) openMid = 'array';
   const status = ({ chk, powered }) => !chk.ok ? `<span class="chip warn">${esc(chk.msg)}</span>`
-    : powered ? `<span class="chip ok">${esc(chk.msg)}</span>` : '<span class="chip bad">灵力不足</span>';
+    : powered ? `<span class="chip ok">${esc(chk.msg)}</span>` : '<span class="chip bad">영력 부족</span>';
   const cards = [`<div class="m-card ${openMid === 'array' ? 'on' : ''}" data-act="m-open" data-mid="array"><img src="${asset('machines', 'm_array')}" alt="">
-      <div><b>聚灵阵</b><span class="chip ${plan.demand > plan.supply + plan.bank ? 'bad' : 'ok'}">需 ${plan.demand} / 有 ${plan.supply + plan.bank}</span></div></div>`]
+      <div><b>취령진</b><span class="chip ${plan.demand > plan.supply + plan.bank ? 'bad' : 'ok'}">필요 ${plan.demand} / 보유 ${plan.supply + plan.bank}</span></div></div>`]
     .concat(plan.rows.map(r => `<div class="m-card ${openMid === r.m.mid ? 'on' : ''} ${r.m.on ? '' : 'off'}" data-act="m-open" data-mid="${r.m.mid}">
       <img src="${asset('machines', `${MACHINES[r.m.type].icon}~${r.chk.ok && r.powered ? 'running' : 'idle'}`)}" alt=""><div><b>${MACHINES[r.m.type].name}</b>${status(r)}</div></div>`));
   let detail;
   if (openMid === 'array') detail = `<div class="machine array">
       <div class="m-head"><img class="m-icon" src="${asset('machines', 'm_array')}" alt="">
-        <div class="m-title"><b>聚灵阵</b><span class="muted">기본 영력 ${plan.supply}${S.upgrades.hijack ? '（영맥 사설 연결 6 포함)' : ''} · 灵晶储备 ${plan.bank}</span></div></div>
+        <div class="m-title"><b>취령진</b><span class="muted">기본 영력 ${plan.supply}${S.upgrades.hijack ? '（영맥 사설 연결 6 포함)' : ''} · 영정 비축 ${plan.bank}</span></div></div>
       <div class="m-grids">${gridHTML('power', '진안')}</div>
       <div class="m-desc muted small">설비는 카드 순서대로 영력을 쓴다. 기본 영력을 먼저 쓴다，부족하면 영정에서 끌어쓴다. 남은 기본 영력은 영정에 저장된다(개당 상한 ${CRYSTAL_CAP}）。</div></div>`;
   else {
@@ -638,27 +638,27 @@ function tabWorkshop() {
     const grids = def.stalls ? stallsHTML(m, r.chk.ok && r.powered) : def.pot ? potHTML(m, r.chk.ok && r.powered) : [
       def.in ? gridHTML(gridOf(m, 'in'), def.inLabel || '입력') : '',
       def.mod ? gridHTML(gridOf(m, 'mod'), def.modLabel || '모듈', 'mod') : '',
-      def.out ? gridHTML(gridOf(m, 'out'), def.outLabel || '产出', 'out') : '',
+      def.out ? gridHTML(gridOf(m, 'out'), def.outLabel || '산출', 'out') : '',
     ].join('');
-    const extra = m.type === 'puppet' ? `<div class="m-extra">돈궤 ${stoneTxt(m.cash)} <button class="btn small" data-act="collect" data-mid="${m.mid}" ${m.cash ? '' : 'disabled'}>取出</button></div>`
+    const extra = m.type === 'puppet' ? `<div class="m-extra">돈궤 ${stoneTxt(m.cash)} <button class="btn small" data-act="collect" data-mid="${m.mid}" ${m.cash ? '' : 'disabled'}>꺼낸다</button></div>`
       : def.pot ? `<div class="m-extra"><span>${m.seal ? '<b class="bad">독 단지를 봉해 고를 싸운다</b>：먹이지 않으면 부화하지 않는다，오늘 밤 가장 흉한 것이 가장 약한 것을 삼킨다' : '<b>독 단지를 열어 먹인다</b>：어린 고가 뼈를 먹고 자라고, 다 자란 고가 알을 낳는다，만독고와 고왕이 독을 뱉는다'}</span>
           <button class="btn small" data-act="gu-seal" data-mid="${m.mid}">${m.seal ? '독 단지를 열어 먹인다' : '독 단지를 봉해 고를 싸운다'}</button></div>` : '';
     detail = `<div class="machine ${m.on ? '' : 'off'}">
       <div class="m-head"><img class="m-icon" src="${asset('machines', `${def.icon}~${r.chk.ok && r.powered ? 'running' : 'idle'}`)}" alt="">
-        <div class="m-title"><b>${def.name}</b><span class="muted">${icon('ic_power')}${def.power}/夜</span> ${status(r)}</div>
+        <div class="m-title"><b>${def.name}</b><span class="muted">${icon('ic_power')}${def.power}/밤</span> ${status(r)}</div>
         <div class="m-ctrl">
           <button class="btn tiny" data-act="m-up" data-mid="${m.mid}" title="미리 가동(영력 우선 사용)">↑</button>
           <button class="btn tiny" data-act="m-down" data-mid="${m.mid}" title="가동을 미룬다">↓</button>
-          <button class="btn tiny" data-act="m-toggle" data-mid="${m.mid}">${m.on ? '停用' : '启用'}</button>
-          <button class="btn tiny ghost" data-act="m-remove" data-mid="${m.mid}" title="철거，退回三成">拆</button></div></div>
+          <button class="btn tiny" data-act="m-toggle" data-mid="${m.mid}">${m.on ? '정지' : '가동'}</button>
+          <button class="btn tiny ghost" data-act="m-remove" data-mid="${m.mid}" title="철거, 3할 반환">철거</button></div></div>
       <div class="m-grids${def.stalls ? ' stalls' : def.pot ? ' pot' : ''}">${grids}</div>${extra}
       <div class="m-desc muted small" data-act="m-desc">${def.desc}</div></div>`;
   }
   const known = Object.entries(S.forgeKnown).filter(x => x[1]).map(([id, g]) => `${ITEMS[id].name}（${GRADE_NAMES[g]}）`);
   return `<div class="workshop">
     <div class="techs">${Object.entries(TECHS).filter(([k]) => techLv(k)).map(([k, t]) => `<span class="tech on" title="${t.desc}">
-      <img src="${asset('items', t.icon)}" alt="">${t.name}<b>${cn(techLv(k))}重</b>${k === 'gumaster' && guXpNext() ? `<small class="muted">${S.guXp || 0}/${guXpNext()}</small>` : ''}</span>`).join('')}
-      <span class="muted small">감정术：${LENS_NAMES[appraiseLevel()]}${known.length ? ` · 会仿造：${known.join('、')}` : ''}</span></div>
+      <img src="${asset('items', t.icon)}" alt="">${t.name}<b>${cn(techLv(k))}중</b>${k === 'gumaster' && guXpNext() ? `<small class="muted">${S.guXp || 0}/${guXpNext()}</small>` : ''}</span>`).join('')}
+      <span class="muted small">감정술: ${LENS_NAMES[appraiseLevel()]}${known.length ? ` · 모작 가능: ${known.join(' · ')}` : ''}</span></div>
     <div class="m-cards">${cards.join('')}</div>
     ${S.machines.length ? detail : `${detail}<p class="muted">뒤뜰이 텅 비었다. 「행상」에서 설비를 구입하자。</p>`}</div>`;
 }
@@ -670,10 +670,10 @@ function stallsHTML(m, running) {
   const rows = [...Array(n).keys()].map(i => {
     const st = stallState(m, i), g = stallGrids(m, i), live = st.matched && running;
     const what = st.species ? `${ITEMS[st.species].name} ×${st.pets}` : '빈 칸';
-    const why = !st.species ? '영령 한 마리를 넣는다' : !st.fit ? `맞는 사료가 없다：${ITEMS[st.species].name}吃${petMenu(st.species).map(id => ITEMS[id].name).join('、')}`
-      : !m.on ? '설비가 멈췄다' : !running ? '灵力不足，오늘 밤은 돌리지 않는다' : `今夜吃 ${Math.min(st.fit, st.need)}/${st.need} 份`;
+    const why = !st.species ? '영령 한 마리를 넣는다' : !st.fit ? `맞는 사료가 없다：${ITEMS[st.species].name}이(가) 먹는 것: ${petMenu(st.species).map(id => ITEMS[id].name).join(' · ')}`
+      : !m.on ? '설비가 멈췄다' : !running ? '영력 부족, 오늘 밤은 돌리지 않는다' : `오늘 밤 먹이 ${Math.min(st.fit, st.need)}/${st.need}개`;
     return `<div class="stall ${live ? 'live' : ''}">
-      <div class="stall-head"><b>兽栏${cn(i + 1)}</b><span>${what}</span><span class="${live ? 'ok' : 'muted'}">${esc(why)}</span></div>
+      <div class="stall-head"><b>수란 ${cn(i + 1)}</b><span>${what}</span><span class="${live ? 'ok' : 'muted'}">${esc(why)}</span></div>
       <div class="stall-row">${gridHTML(g.feed, '', 'feed')}
         <div class="flow-to"><div class="stall-flow ${live ? 'on' : ''}" title="${esc(why)}"><i></i><i></i><i></i></div>
         ${gridHTML(g.pen, '', 'pen')}</div></div></div>`;
@@ -686,8 +686,8 @@ function stallsHTML(m, running) {
   // 列头“영령”对准영령格：사료格宽 + 箭头宽（与 .stall-flow 一致）+ 栏的内边距
   const flowW = LAYOUT === 'tall' ? 20 : 56, padW = LAYOUT === 'tall' ? 4 : 6;
   return `<div class="stall-list"><div class="stall-cols muted small"><span style="width:${def.stallSize * CELL + flowW + padW}px">사료</span><span>영령</span></div>${pg.items.join('')}
-    <div class="stall-foot"><span class="muted small">兽栏 ${n}/${def.stallMax}</span>${pg.nav}${more}</div></div>
-    ${gridHTML(gridOf(m, 'out'), def.outLabel || '产出', 'out')}`;
+    <div class="stall-foot"><span class="muted small">수란 ${n}/${def.stallMax}</span>${pg.nav}${more}</div></div>
+    ${gridHTML(gridOf(m, 'out'), def.outLabel || '산출', 'out')}`;
 }
 
 // 蛊盅：原料 → 蛊虫 → 产物，三栏一行；今夜转得起来，箭头才亮着流
@@ -703,36 +703,36 @@ const meritShown = id => !ITEMS[id].book || ITEMS[id].book.lv === techLv(ITEMS[i
 function tabBroker() {
   const goods = S.supply.map((e, i) => `<div class="shop-row">
       <img src="${asset('items', e.id === 'water' ? 'water_murky' : e.id)}" alt=""><b>${ITEMS[e.id].name}</b>
-      <span class="muted">${CATS[ITEMS[e.id].cat]} · 余 ${e.stock}</span>${stoneTxt(e.price)}
-      <button class="btn small" data-act="buy-supply" data-i="${i}" ${e.stock && S.stones >= e.price ? '' : 'disabled'}>买</button></div>`);
-  const locked = SUPPLY.filter(s => S.rep.mo < s[2]).map(s => `${ITEMS[s[0]].name}（魔宗声望 ${s[2]}）`);
+      <span class="muted">${CATS[ITEMS[e.id].cat]} · 남은 ${e.stock}</span>${stoneTxt(e.price)}
+      <button class="btn small" data-act="buy-supply" data-i="${i}" ${e.stock && S.stones >= e.price ? '' : 'disabled'}>산다</button></div>`);
+  const locked = SUPPLY.filter(s => S.rep.mo < s[2]).map(s => `${ITEMS[s[0]].name}(마종 평판 ${s[2]})`);
   const machines = Object.entries(MACHINES).map(([type, d]) => `<div class="shop-row">
       <img src="${asset('machines', d.icon)}" alt=""><b>${d.name}</b><span class="muted">${icon('ic_power')}${d.power}/夜</span>${stoneTxt(machinePrice(type))}
       <button class="btn small" data-act="buy-machine" data-type="${type}" ${S.stones >= machinePrice(type) ? '' : 'disabled'}>구입</button></div>`);
   const ups = UPGRADES.filter(u => !u.need || S.upgrades[u.need]).map(u => `<div class="shop-row">
       <b>${u.name}</b><span class="muted grow">${u.desc}</span>
-      ${S.upgrades[u.id] ? '<span class="chip ok">已有</span>' : `${stoneTxt(u.price)}<button class="btn small" data-act="buy-upgrade" data-id="${u.id}" ${S.stones >= u.price ? '' : 'disabled'}>장만</button>`}</div>`);
-  const sub = subtabs('broker', [['goods', '물품'], ['machines', '설비'], ['books', '비급'], ['intel', '소식'], ['ups', '가게'], ['merit', '功勋']]);
+      ${S.upgrades[u.id] ? '<span class="chip ok">보유</span>' : `${stoneTxt(u.price)}<button class="btn small" data-act="buy-upgrade" data-id="${u.id}" ${S.stones >= u.price ? '' : 'disabled'}>장만</button>`}</div>`);
+  const sub = subtabs('broker', [['goods', '물품'], ['machines', '설비'], ['books', '비급'], ['intel', '소식'], ['ups', '가게'], ['merit', '공훈']]);
   const books = BOOKS.filter(([, tech, lv, , rep]) => lv === techLv(tech) + 1 && (lv > BOOK_SHOP_MAX || S.rep.mo >= rep)).map(([id, tech, lv, price]) => {
     const head = `<div class="shop-row"><img src="${asset('items', ITEMS[id].icon)}" alt=""><b>${ITEMS[id].name}</b>
-      <span class="muted">${TECHS[tech].name}第${cn(lv)}重</span>`;
+      <span class="muted">${TECHS[tech].name} 제${cn(lv)}중</span>`;
     // 三四重不卖：告诉你去哪儿换、谁肯教
     if (lv > BOOK_SHOP_MAX) {
       const [f, list] = Object.entries(MERIT_SHOP).find(([, l]) => l.some(([x]) => x === id)), cost = list.find(([x]) => x === id)[1];
       const who = TEACHERS[tech].who.map(pid => CAST[pid] ? CAST[pid].name : pid).join('、');
-      return `${head}<span class="muted small grow">不卖。${CHANNEL_NAME[f]} ${cost} 공훈으로 바꾼다. 아니면 기회를 기다린다: ${who}亲厚，사람이 찾아와 기예를 전할 때까지，폐품 줍기로도 가끔 나온다</span></div>`;
+      return `${head}<span class="muted small grow">안 판다. ${CHANNEL_NAME[f]} ${cost} 공훈으로 바꾼다. 아니면 기회를 기다린다: ${who}과(와) 친해지거나, 사람이 찾아와 기예를 전할 때까지，폐품 줍기로도 가끔 나온다</span></div>`;
     }
     const p = Math.round(price * (1 + diff().markup) * warStage().supply);
     return `${head}${stoneTxt(p)}
-      <button class="btn small" data-act="buy-book" data-id="${id}" data-p="${p}" ${S.stones >= p ? '' : 'disabled'}>买</button></div>`;
+      <button class="btn small" data-act="buy-book" data-id="${id}" data-p="${p}" ${S.stones >= p ? '' : 'disabled'}>산다</button></div>`;
   });
   const intel = intelShop().map((k, i) => {
     const p = Math.round(INTEL_PRICE[k] * (1 + diff().markup));
     return `<div class="shop-row"><img src="${asset('items', 'intel')}" alt=""><b>${{ market: '시세密报', treasure: '藏宝图', clique: '파벌内幕' }[k]}</b>
-      <span class="muted small">사야 무슨 내용인지 안다</span>${stoneTxt(p)}<button class="btn small" data-act="buy-intel" data-i="${i}" ${S.stones >= p ? '' : 'disabled'}>买</button></div>`;
+      <span class="muted small">사야 무슨 내용인지 안다</span>${stoneTxt(p)}<button class="btn small" data-act="buy-intel" data-i="${i}" ${S.stones >= p ? '' : 'disabled'}>산다</button></div>`;
   });
   const merit = Object.keys(MERIT_SHOP).map(f => `<div class="merit-row">
-      <b style="color:${FACTIONS[f].color}">${CHANNEL_NAME[f]}</b><span class="muted small">${FACTIONS[f].name}功勋 ${S.merit[f]}${channelOpen(f) ? '' : ` · 未搭上线（${channelHint(f)}）`}</span>
+      <b style="color:${FACTIONS[f].color}">${CHANNEL_NAME[f]}</b><span class="muted small">${FACTIONS[f].name}功勋 ${S.merit[f]}${channelOpen(f) ? '' : ` · 연줄 없음(${channelHint(f)})`}</span>
       <div class="merit-goods">${MERIT_SHOP[f].map(([id, cost], i) => meritShown(id) ? `<button class="btn tiny" data-act="redeem" data-f="${f}" data-i="${i}"
         ${channelOpen(f) && S.merit[f] >= cost ? '' : 'disabled'} title="${esc(ITEMS[id].desc)}"><img src="${asset('items', ITEMS[id].icon || id)}" alt="">${ITEMS[id].name} ${cost}</button>` : '').join('')}</div></div>`);
   const rows = { goods, machines, books, intel, ups, merit }[sub.cur];
@@ -753,27 +753,27 @@ function tabRep() {
     const k = priceMul(sample);
     return [cat, k, sample];
   }).sort((a, b) => b[1] - a[1]);
-  const news = S.world.news.slice(-5).reverse().map(n => `<li class="${n.cls}"><span class="muted">第${n.d}日</span> ${esc(n.t)}</li>`).join('');
-  const sub = subtabs('rep', [['world', '大势'], ['market', '시세와 역법'], ['power', '势力'], ['rep', '声望']]);
+  const news = S.world.news.slice(-5).reverse().map(n => `<li class="${n.cls}"><span class="muted">제${n.d}일</span> ${esc(n.t)}</li>`).join('');
+  const sub = subtabs('rep', [['world', '대세'], ['market', '시세와 역법'], ['power', '세력'], ['rep', '평판']]);
   const body = {
     world: () => `<div class="world-head paper"><div><h4>${icon('ic_war')}천하 대세 · <span class="stage st${S.world.stage}">${st.name}</span></h4>
       <p class="small">${st.text}</p>
       <div class="stage-track">${WAR_STAGES.map((w, i) => `<span class="${i <= S.world.stage ? 'on' : ''}" style="left:${w.at}%">${w.name}</span>`).join('')}
         <i style="width:${t}%"></i></div>
-      <p class="small muted">사방이 긴장한다 ${t}/100 · 손님 형편 ×${st.econ} · 행상进价 ×${st.supply}${st.levy ? ` · 전시 기부금 매주 ${levyAmount()}` : ''}</p></div>
+      <p class="small muted">사방이 긴장한다 ${t}/100 · 손님 형편 ×${st.econ} · 행상 매입가 ×${st.supply}${st.levy ? ` · 전시 기부금 매주 ${levyAmount()}` : ''}</p></div>
       <div class="rels">${rels}</div></div>
-      <h4>世事</h4><ul class="log">${news || '<li class="muted">아직 큰일이 없다</li>'}</ul>`,
+      <h4>세상사</h4><ul class="log">${news || '<li class="muted">아직 큰일이 없다</li>'}</ul>`,
     market: () => `<div class="world-cols">
-      <div><h4>历法</h4><p class="small">${cal.yearText} · ${cal.text}</p><p class="small muted">${seasonOf().text}</p>
+      <div><h4>역법</h4><p class="small">${cal.yearText} · ${cal.text}</p><p class="small muted">${seasonOf().text}</p>
         <p class="small muted">${weekdayOf().text}${annualOf() ? `<br><b>${annualOf().name}</b>：${annualOf().text}` : `<br>${na.d} 이후${na.a.name}`}</p></div>
-      <div><h4>시세</h4><table class="quotes">${cats.map(([cat, k, sample]) => `<tr title="以${ITEMS[sample].name}为例"><td>${CATS[cat]}</td>
+      <div><h4>시세</h4><table class="quotes">${cats.map(([cat, k, sample]) => `<tr title="${ITEMS[sample].name}을(를) 예로"><td>${CATS[cat]}</td>
         <td class="${k > 1.02 ? 'good' : k < 0.98 ? 'bad' : ''}">${k > 1.02 ? '▲' : k < 0.98 ? '▼' : '—'} ×${k.toFixed(2)}</td></tr>`).join('')}</table></div></div>`,
-    power: () => `<h4>势力 · ${playerPower()}</h4><div class="power-parts">${powerParts().map(([k, v]) => `<span class="${v > 0 ? 'good' : 'bad'}">${k} ${v > 0 ? '+' : ''}${v}</span>`).join('')}</div>
+    power: () => `<h4>세력 · ${playerPower()}</h4><div class="power-parts">${powerParts().map(([k, v]) => `<span class="${v > 0 ? 'good' : 'bad'}">${k} ${v > 0 ? '+' : ''}${v}</span>`).join('')}</div>
       <p class="small muted">너에게 손해 본 사람，대부분 상황을 본다: 네 세력이 크면，그들은 분을 삼킨다. 네 세력이 약하면，그들이 항의하고 보복한다. 친분이 깊은 이는，너를 더 봐준다。</p>
-      <h4>${icon('ic_merit')}功勋</h4><div class="power-parts">${Object.keys(S.merit).map(f => `<span>${FACTIONS[f].name} ${S.merit[f]}</span>`).join('')}</div>
-      <h4>善名 · ${VIRTUE_NAME(S.virtue)}（${S.virtue}）</h4>
+      <h4>${icon('ic_merit')}공훈</h4><div class="power-parts">${Object.keys(S.merit).map(f => `<span>${FACTIONS[f].name} ${S.merit[f]}</span>`).join('')}</div>
+      <h4>선명 · ${VIRTUE_NAME(S.virtue)}(${S.virtue})</h4>
       <p class="small muted">사실대로 말하고, 공정하게 거래하고, 약자를 도우면 선명이 오른다，하지만 이 세상은 이치를 따지지 않는다: 정직한 사람이 연 가게가，파는 사람이 더 많이 부를 수 있다，선명만 높고 수련이 받쳐주지 않으면，모두 너를 만만하게 본다(세력 -${softPenalty()}）。
-        다만 네가 도운 사람은 너를 기억한다 - 아주 드물게，그 보답은 네 목숨을 살릴 만큼 크다。${S.flags.savior ? `<b class="good">네 손에 있다 ${S.flags.savior} 道护身符。</b>` : ''}</p>`,
+        다만 네가 도운 사람은 너를 기억한다 - 아주 드물게, 그 보답은 네 목숨을 살릴 만큼 크다.${S.flags.savior ? `<b class="good">네 손에 호신부 ${S.flags.savior}장이 있다.</b>` : ''}</p>`,
     rep: () => repSection(),
   }[sub.cur]();
   return `<div class="world-tab">${sub.html}${body}</div>`;
