@@ -150,7 +150,7 @@ const STORIES = {
         choices: () => [
           { label: '施一碗热粥', hint: costHint(5), req: needStones(5), run: (st, p) => {
             spend(5); st.flags.met = true; st.flags.kind = (st.flags.kind || 0) + 1;
-            remember(p, '你施了他一碗热粥。', 8, 'helped');
+            remember(p, '네가 그에게 따뜻한 죽 한 그릇을 베풀었다.', 8, 'helped');
             return beggarNext(st, '老乞丐捧着粥，那只好眼睛盯着你看了许久。“好人……好人呐。”');
           } },
           { label: '给他一块灵石', hint: costHint(20), req: needStones(20), run: (st, p) => {
@@ -166,7 +166,7 @@ const STORIES = {
           { label: '轰出去', hint: '인족 평판 -1', run: (st, p) => {
             st.flags.met = true; st.flags.kicked = (st.flags.kicked || 0) + 1;
             adjustRep('ren', -1);
-            remember(p, '你把他轰出了门。', -12);
+            remember(p, '네가 그를 문 밖으로 쫓아냈다.', -12);
             return beggarNext(st, '老乞丐被推出门，摔在泥水里，一声没吭，慢慢爬起来走了。');
           } },
         ],
@@ -180,8 +180,8 @@ const STORIES = {
               addHeat(25); payUpTo(200, '窝藏要犯，被执法堂罚银。');
               p.status = 'jailed';
               lifeNote(p, '在你的铺子里被执法堂搜出，锁拿而去。');
-              remember(p, '你冒险藏他，却没能藏住。', 10);
-              return { text: '巡查踹开门，从柜台底下拖出了老乞丐。他被铁链锁着拖走时回头看了你一眼——那只好眼睛里没有怨，只有一丝说不清的东西。', end: true, summary: '你冒险藏他，没藏住。他被执法堂锁走了。' };
+              remember(p, '네가 위험을 무릅쓰고 그를 숨겼지만 숨기지 못했다.', 10);
+              return { text: '巡查踹开门，从柜台底下拖出了老乞丐。他被铁链锁着拖走时回头看了你一眼——那只好眼睛里没有怨，只有一丝说不清的东西。', end: true, summary: '네가 위험을 무릅쓰고 그를 숨겼지만 못 숨겼다. 그가 집법당에 끌려갔다.' };
             }
             remember(p, '那一夜，你把他藏在柜台底下。', 40, 'helped');
             return { text: '巡查踹开门搜了一圈，骂骂咧咧地走了。天亮前，老乞丐对你深深一揖，消失在晨雾里。', go: ['return', [5, 7]], summary: '那一夜，你藏下了被执法堂追捕的老乞丐。' };
@@ -189,9 +189,9 @@ const STORIES = {
           { label: '把他交给执法堂', sin: ['betray', 3], hint: '得赏银，魔宗声望 +6；人族声望 -8', run: (st, p) => {
             earn(200, '늙은 거지를 넘기고 상금 200 영석을 받았다.');
             adjustRep('mo', 6); adjustRep('ren', -8); addHeat(-10);
-            remember(p, '你把他交给了执法堂。', -100, 'betrayed');
+            remember(p, '네가 그를 집법당에 넘겼다.', -100, 'betrayed');
             p.status = 'jailed';
-            return { text: '你打开门，朝巡查指了指柜台。老乞丐没有挣扎，只是被拖走时笑了一声，笑得你后背发凉。', go: ['sold', [3, 5]], summary: '你把他交给了执法堂。' };
+            return { text: '네가 문을 열어 순찰에게 카운터를 가리켰다. 늙은 거지는 저항하지 않았다. 끌려가며 한 번 웃었는데, 그 웃음에 네 등골이 서늘해졌다.', go: ['sold', [3, 5]], summary: '네가 그를 집법당에 넘겼다.' };
           } },
           { label: '闩紧门，装没听见', run: (st, p) => {
             remember(p, '그가 문을 열어달라 애원했지만 너는 열지 않았다.', -25);
@@ -231,7 +231,7 @@ const STORIES = {
             giveItem('broken_bowl', { q: 10 });
             lifeNote(p, '被押入血狱，三日后暴毙狱中。');
             p.status = 'dead';
-            return { text: '巡查走后，你拿起那只破钵。钵底刻着一行小字，被磨得几乎看不清了：“血手陈枭，恩怨分明。”', end: true, summary: '你出卖了他。他死在了血狱里。' };
+            return { text: '巡查走后，你拿起那只破钵。钵底刻着一行小字，被磨得几乎看不清了：“血手陈枭，恩怨分明。”', end: true, summary: '네가 그를 팔았다. 그가 혈옥에서 죽었다.' };
           } },
         ],
       },
@@ -270,7 +270,7 @@ const STORIES = {
             spend(60);
             keepCounterItem({ cost: 60, boughtDay: S.day });
             st.flags.partner = true;
-            remember(p, '你看穿了假镜子，却压价收下，好转手坑别人。', 25);
+            remember(p, '네가 가짜 거울임을 간파하고도 깎아서 받아, 되팔아 남을 속이려 했다.', 25);
             return { text: '\\"육십?\\" 호불귀가 멈칫하더니 눈을 빛내며 다가와 낮게 말했다: \\"주인장도 같은 길의 사람이었군! 앞으로 좋은 장거리가 있으면 제가 제일 먼저 찾겠습니다.\\"', go: ['venture', [4, 6]], summary: '너희는 \\"같은 길의 사람\\"이 됐다.' };
           } },
           { label: '사지 않는다', run: () => ({ text: '胡不归也不恼，摇着扇子走了。', go: ['venture', [5, 7]] }) },
@@ -287,16 +287,16 @@ const STORIES = {
           { label: '投三百灵石', hint: costHint(300), req: needStones(300), run: (st, p) => {
             spend(300, '投给胡不归三百灵石。');
             st.flags.invested = true;
-            remember(p, '你投了他三百灵石。', 10);
-            return { text: '\\"주인장, 대단한 배포요!\\" 호불귀가 영석을 소매에 넣었다, \\"닷새 뒤, 좋은 소식을 기다리시오.\\"', go: ['payout', 5], summary: '你投给他三百灵石，等着五日后的回报。' };
+            remember(p, '네가 그에게 삼백 영석을 투자했다.', 10);
+            return { text: '\\"주인장, 대단한 배포요!\\" 호불귀가 영석을 소매에 넣었다, \\"닷새 뒤, 좋은 소식을 기다리시오.\\"', go: ['payout', 5], summary: '네가 그에게 삼백 영석을 투자하고 닷새 뒤의 회수를 기다린다.' };
           } },
           { label: '婉拒', run: () => ({ text: '\\"아쉽군, 아쉬워.\\" 호불귀가 한숨 쉬며 떠났다.', go: ['caught', [6, 9]] }) },
           ...(st.flags.exposed ? [{ label: '扭送执法堂', hint: '得赏银 150，魔宗声望 +3', run: (st, p) => {
             earn(150, '扭送骗子胡不归，得赏银 150 灵石。'); adjustRep('mo', 3);
-            remember(p, '你把他扭送了执法堂。', -60, 'betrayed');
+            remember(p, '네가 그를 붙잡아 집법당에 넘겼다.', -60, 'betrayed');
             p.status = 'jailed';
             lifeNote(p, '被你扭送执法堂，发配矿上。');
-            return { text: '巡查给胡不归上了枷。他被拖出门时还在回头喊：“掌柜的，后会有期！”', end: true, summary: '你把他扭送了执法堂。' };
+            return { text: '巡查给胡不归上了枷。他被拖出门时还在回头喊：“掌柜的，后会有期！”', end: true, summary: '네가 그를 붙잡아 집법당에 넘겼다.' };
           } }] : []),
         ],
       },
@@ -318,7 +318,7 @@ const STORIES = {
           { label: '收下', sin: ['fraud', 2], run: (st, p) => {
             earn(450, '胡不归分来四百五十灵石。');
             remember(p, '这票买卖，你们赚了。', 10);
-            return { text: '你收下了这笔来路不正的钱。城南有好几户人家，这几天哭得很惨。', go: ['caught', [4, 6]], summary: '너희가 함께 성남 사람들을 속였다.' };
+            return { text: '네가 이 출처가 바르지 않은 돈을 받았다. 성남의 몇 집이 요며칠 처절하게 울고 있다.', go: ['caught', [4, 6]], summary: '너희가 함께 성남 사람들을 속였다.' };
           } },
         ] : [
           { label: '讨回本钱，再加利息', hint: '+600 영석', run: (st, p) => {
@@ -329,8 +329,8 @@ const STORIES = {
           { label: '收他为己用', hint: '+300 영석; 앞으로 그가 진품을 찾아준다', run: (st, p) => {
             earn(300, '胡不归退回三百灵石。');
             st.flags.agent = true;
-            remember(p, '你没要他的命，反倒收他为己用。', 35, 'helped');
-            return { text: '\\"앞으로 그 입으로 나를 위해 진짜 물건을 좀 찾아오게.\\" 호불귀가 한참 멍하니 있다가, 부러진 부채를 허리에 꽂고 깊이 절했다: \\"주인장... 호모가 졌습니다.\\"', go: ['deal', [5, 7]], summary: '你收服了这个骗子，让他替你寻货。' };
+            remember(p, '네가 그의 목숨을 거두지 않고 도리어 거둬 썼다.', 35, 'helped');
+            return { text: '\\"앞으로 그 입으로 나를 위해 진짜 물건을 좀 찾아오게.\\" 호불귀가 한참 멍하니 있다가, 부러진 부채를 허리에 꽂고 깊이 절했다: \\"주인장... 호모가 졌습니다.\\"', go: ['deal', [5, 7]], summary: '네가 이 사기꾼을 휘하에 거둬 물건을 찾게 했다.' };
           } },
         ],
       },
@@ -355,9 +355,9 @@ const STORIES = {
             lifeNote(p, '被执法堂发配矿上做苦役。');
             if (st.flags.partner) {
               addHeat(25); payUpTo(200, '被胡不归供出，罚银。'); adjustRep('mo', -5);
-              return { text: '\\"좋아, 좋아!\\" 호불귀가 끌려가며 크게 웃었다, \\"그럼 같이 죽자고! 성남의 그 수십 장 보물 지도, 전부 이 사람 가게에서 나온 거다!\\"', end: true, summary: '你撇清关系，他把你供了出来。' };
+              return { text: '\\"좋아, 좋아!\\" 호불귀가 끌려가며 크게 웃었다, \\"그럼 같이 죽자고! 성남의 그 수십 장 보물 지도, 전부 이 사람 가게에서 나온 거다!\\"', end: true, summary: '네가 관계를 끊자, 그가 너를 불었다.' };
             }
-            return { text: '胡不归被拖走了。你听见他一路都在喊冤。', end: true, summary: '你没有管他。他被发配去了矿上。' };
+            return { text: '胡不归被拖走了。你听见他一路都在喊冤。', end: true, summary: '네가 그를 거들지 않았다. 그는 광산으로 유배됐다.' };
           } },
         ],
       },
@@ -375,13 +375,13 @@ const STORIES = {
               spend(price, `호불귀에게서 ${itemName(it)} 하나를 받았다.`);
               const kept = keepCounterItem({ cost: price, boughtDay: S.day });
               if (kept.fake) st.flags.burned = (st.flags.burned || 0) + 1;
-              remember(p, `你收了他送来的${itemName(kept)}。`, 3);
+              remember(p, `네가 그가 보낸 ${itemName(kept)}을(를) 받았다.`, 3);
               return { text: '胡不归拱拱手：“下回再来。”', go: ['deal', [6, 8]] };
             } },
             { label: '사양한다', run: () => ({ text: '\\"그럼 다음에 더 좋은 걸 찾아오지.\\"', go: ['deal', [6, 8]] }) },
             { label: '断了来往', run: (st, p) => {
-              remember(p, '你断了和他的来往。', -10);
-              return { text: '胡不归怔了怔，收起东西，没说什么就走了。', end: true, summary: '你断了和他的来往。' };
+              remember(p, '네가 그와의 왕래를 끊었다.', -10);
+              return { text: '胡不归怔了怔，收起东西，没说什么就走了。', end: true, summary: '네가 그와의 왕래를 끊었다.' };
             } },
           ];
         },
@@ -426,25 +426,25 @@ const STORIES = {
             st.flags.met = true;
             const w = ownWeapon();
             if (fightRoll()) {
-              remember(p, `你拿${itemName(w)}逼退了他。`, -15);
-              return { text: `你把${itemName(w)}往柜上一拍。对方盯着看了半晌，啐了一口：“有种。”转身走了。可走到门口，他回头看了你一眼。`, go: ['gang', [4, 6]] };
+              remember(p, `네가 ${itemName(w)}(으)로 그를 물러나게 했다.`, -15);
+              return { text: `네가 ${itemName(w)}을(를) 카운터에 탁 올려놓았다. 상대가 한참 노려보다 침을 뱉었다: \"배짱 좋군.\" 돌아서서 갔다. 그런데 문 앞에서 너를 돌아보았다.`, go: ['gang', [4, 6]] };
             }
             const lost = payUpTo(120, '被打了一顿，抢走灵石。');
             const disp = itemsIn('display');
             if (disp.length) takeItem(pick(disp));
-            remember(p, '你想动手，被他打趴下了。', -5);
+            remember(p, '네가 덤비려다 그에게 깔려버렸다.', -5);
             return { text: `你还没摆好架势就被一拳撂倒，他们抢走 ${lost} 灵石，还顺走了陈列柜里一件货。`, go: ['fee', 7] };
           } });
           if (!st.flags.rival) list.push({ label: '报执法堂', hint: '魔宗声望需 15，打点 100 灵石', req: () => S.rep.mo >= 15 && S.stones >= 100 || '魔宗声望或灵石不足', run: (st, p) => {
             spend(100, '打点执法堂，抓了刘癞子。');
-            remember(p, '你把他告到了执法堂。', -50, 'betrayed');
+            remember(p, '네가 그를 집법당에 고했다.', -50, 'betrayed');
             p.status = 'jailed';
             lifeNote(p, '被执法堂关了十天。');
-            return { text: '第二天，刘癞子就被执法堂锁走了。街坊们看你的眼神有些复杂。', go: ['release', 10], summary: '你把他告进了执法堂大牢。' };
+            return { text: '第二天，刘癞子就被执法堂锁走了。街坊们看你的眼神有些复杂。', go: ['release', 10], summary: '네가 그를 고해 집법당 대옥에 넣었다.' };
           } });
           list.push({ label: '주지 않는다', hint: '그가 순순히 물러나지 않을 것이다', run: (st, p) => {
             st.flags.met = true; st.flags.refused = true;
-            remember(p, '你拒绝交保护费。', -10);
+            remember(p, '네가 보호비 내기를 거절했다.', -10);
             return { text: '\\"좋아, 좋아.\\" 상대가 고개를 끄덕였다, \\"두고 보자고.\\"', go: ['smash', [1, 2]] };
           } });
           return list;
@@ -464,7 +464,7 @@ const STORIES = {
             if (fightRoll(-0.1)) {
               remember(p, '那一夜你抄家伙打散了他的弟兄。', -10);
               st.flags.feared = true;
-              return { text: '你提着家伙冲出去，几个混混一哄而散。刘癞子站在巷口看了你很久，转身走了。', go: ['gang', [5, 7]] };
+              return { text: '네가 무기를 들고 뛰쳐나가자 건달 몇이 우르르 흩어졌다. 류라자가 골목 어귀에서 너를 오래 보다가 돌아서서 갔다.', go: ['gang', [5, 7]] };
             }
             const lost = payUpTo(150, '被一群混混打劫。');
             return { text: `你被围在巷子里打得爬不起来，身上 ${lost} 灵石被搜了个干净。`, go: ['fee', 6] };
@@ -487,7 +487,7 @@ const STORIES = {
           } },
           { label: '摆一桌酒，讲和', hint: costHint(80), req: needStones(80), run: (st, p) => {
             spend(80, '摆酒与刘癞子讲和。');
-            remember(p, '你摆酒讲和，给足了他面子。', 45, 'helped');
+            remember(p, '네가 술자리를 베풀어 화해하며 그의 체면을 세워줬다.', 45, 'helped');
             return { text: '술 세 사발이 들어가자, 류라자가 탁자를 내리쳤다: \\"네놈이 내 심금에 드는군! 싸워보지 않으면 모르는 법이지!\\"', go: ['ally', [2, 3]] };
           } },
           { label: '拼了', hint: '需要法器', req: () => !!ownWeapon() || '手边没有法器', run: (st, p) => {
@@ -499,7 +499,7 @@ const STORIES = {
             payUpTo(200, '混战落败，赔了汤药费。');
             const disp = itemsIn('display');
             disp.slice(0, 2).forEach(takeItem);
-            return { text: '你寡不敌众，铺子被砸，陈列柜里的货也被抢走了。', go: ['fee', 6] };
+            return { text: '네가 중과부적으로 밀려 가게가 부서지고, 진열장의 물건도 약탈당했다.', go: ['fee', 6] };
           } },
         ],
       },
@@ -510,12 +510,12 @@ const STORIES = {
           { label: '结为兄弟', hint: '铺子有人守夜；人族声望 -5，执法堂关注 +5', run: (st, p) => {
             st.flags.ally = true; S.flags.guard = true;
             adjustRep('ren', -5); addHeat(5);
-            remember(p, '你和他拜了把子。', 30, 'helped');
-            return { text: '너희가 관공상에 절을 했다. 이웃들이 멀리서 지켜봤고, 누군가는 고개를 저으며 한숨 쉬었다 - 류라자가 평소 괴롭히던 이들이 바로 그들이었다.', go: ['war', [6, 9]], summary: '你和他拜了把子。他的弟兄夜里替你守铺子。' };
+            remember(p, '네가 그와 의형제를 맺었다.', 30, 'helped');
+            return { text: '너희가 관공상에 절을 했다. 이웃들이 멀리서 지켜봤고, 누군가는 고개를 저으며 한숨 쉬었다 - 류라자가 평소 괴롭히던 이들이 바로 그들이었다.', go: ['war', [6, 9]], summary: '네가 그와 의형제를 맺었다. 그의 부하들이 밤에 네 가게를 지켜준다.' };
           } },
           { label: '只做朋友，不入帮', run: (st, p) => {
             st.flags.fee = 0;
-            remember(p, '你没入帮，但他也不再收你的钱。', 5);
+            remember(p, '너는 패거리에 들지 않았지만, 그도 더 이상 네 돈을 받지 않는다.', 5);
             return { text: '\\"알았어, 너는 정직한 장사를 하는군.\\" 류라자도 더 강요하지 않았다, \\"일 있으면 말해.\\"', end: true, summary: '너희는 서로 침범하지 않기로 했고, 그는 더 이상 보호비를 받지 않는다.' };
           } },
         ],
@@ -576,13 +576,13 @@ const STORIES = {
             S.flags.rentExtra = (S.flags.rentExtra || 0) + owed;
             S.flags.rentExtraAt = S.rentIndex + 1;
             S.flags.rentMul *= 0.85;
-            remember(p, '你替他销赃。', 30);
-            return { text: `그가 만족스럽게 네 어깨를 두드렸다: \"사정을 아는군.\" 보따리 안에는 ${got.map(itemName).join('·')}이(가) 있다. 다다음 임대료 납부 때, 원금에 이자를 붙여 ${owed} 영석을 거둬간다.`, go: ['audit', [7, 9]], summary: '你替钱执事销赃，成了他的人。' };
+            remember(p, '네가 그를 위해 장물을 팔았다.', 30);
+            return { text: `그가 만족스럽게 네 어깨를 두드렸다: \"사정을 아는군.\" 보따리 안에는 ${got.map(itemName).join('·')}이(가) 있다. 다다음 임대료 납부 때, 원금에 이자를 붙여 ${owed} 영석을 거둬간다.`, go: ['audit', [7, 9]], summary: '네가 전 집사를 위해 장물을 팔아 그의 사람이 됐다.' };
           } },
           { label: '婉拒', hint: '그가 앙심을 품는다: 이후 임대료가 반 할 오른다', run: (st, p) => {
             S.flags.rentMul *= 1.05;
-            remember(p, '你拒绝替他销赃。', -25);
-            return { text: '钱执事的笑僵了一瞬，又堆了回去：“年轻人，有骨气。”下期起，你的租子涨了半成。', go: ['audit', [7, 9]], summary: '你拒绝替钱执事销赃，他给你涨了租。' };
+            remember(p, '네가 그를 위해 장물 팔기를 거절했다.', -25);
+            return { text: '钱执事的笑僵了一瞬，又堆了回去：“年轻人，有骨气。”下期起，你的租子涨了半成。', go: ['audit', [7, 9]], summary: '네가 전 집사를 위해 장물 팔기를 거절하자, 그가 임대료를 올렸다.' };
           } },
         ],
       },
@@ -597,8 +597,8 @@ const STORIES = {
             let extra = '';
             if (st.flags.complicit) { payUpTo(300, '증언에서 장물 판매를 자백해 벌금을 물었다.'); addHeat(15); extra = '너도 그를 위해 장물을 팔았음을 자백해 벌금을 물었다.'; }
             else { earn(200, '孙管事奖励举证。'); extra = '孙管事给了你二百灵石的举证赏。'; }
-            remember(sun, '你如实作证。', 30, 'honest');
-            remember(qian, '你在孙管事面前作证告了他。', -100, 'betrayed');
+            remember(sun, '네가 사실대로 증언했다.', 30, 'honest');
+            remember(qian, '네가 손 관리 앞에서 그를 고하는 증언을 했다.', -100, 'betrayed');
             qian.status = 'jailed'; lifeNote(qian, '贪墨事发，被革去执事之职，押入血狱。');
             S.flags.landlord = 'sun'; S.flags.rentMul = 0.8; S.flags.deedMul = 0.85; S.flags.inspectMul *= 1.2; S.flags.rentExtra = 0;
             return { text: `钱执事当天就被锁走了。${extra}\n孙管事接管了杂役区：“租子按规矩来，不多收一文。但规矩就是规矩——违禁的东西，别让我查到。”`, go: ['revenge', [2, 3]], summary: '네 증언으로 전 집사를 무너뜨렸다. 손 관리가 잡역 구역을 접수했다.' };
@@ -607,16 +607,16 @@ const STORIES = {
             const sun = S.people.sun, qian = S.people.qian;
             if (lieCaught(sun.savvy)) {
               addHeat(25); S.flags.inspectMul *= 1.4;
-              remember(sun, '你当着她的面撒谎，被她识破。', -40, 'lied');
-              return { text: '孙管事的笔尖停了。“你的账，和钱执事的账，对不上。”她合上账册，“我会盯着你的铺子。”\n钱执事最终没倒，可执法堂来得越来越勤了。', end: true, summary: '你包庇钱执事，被孙管事识破。她盯上了你的铺子。' };
+              remember(sun, '네가 그녀 앞에서 거짓말하다 들켰다.', -40, 'lied');
+              return { text: '孙管事的笔尖停了。“你的账，和钱执事的账，对不上。”她合上账册，“我会盯着你的铺子。”\n钱执事最终没倒，可执法堂来得越来越勤了。', end: true, summary: '네가 전 집사를 비호하다 손 관리에게 들켰다. 그녀가 네 가게를 주목하기 시작했다.' };
             }
             S.flags.deedMul *= 0.8; S.flags.rentMul *= 0.9;
-            remember(qian, '你在孙管事面前替他遮掩。', 50, 'helped');
+            remember(qian, '네가 손 관리 앞에서 그를 감싸줬다.', 50, 'helped');
             remember(sun, '你说你什么都没见过。', -5);
-            return { text: '孙管事查了半月，无功而返。钱执事亲自登门，笑得眼睛都没了：“自己人！铺契的价钱，我给你让两成。”', end: true, summary: '你替钱执事遮掩过去，他许你铺契让价两成。' };
+            return { text: '孙管事查了半月，无功而返。钱执事亲自登门，笑得眼睛都没了：“自己人！铺契的价钱，我给你让两成。”', end: true, summary: '네가 전 집사를 감싸 넘기자, 그가 가게 문서 값의 2할을 깎아주기로 했다.' };
           } },
           { label: '推说不知（明哲保身）', run: st => {
-            remember(S.people.sun, '你推说不知。', -5);
+            remember(S.people.sun, '네가 모른다고 둘러댔다.', -5);
             if (Math.random() < 0.5) {
               const qian = S.people.qian;
               qian.status = 'jailed'; lifeNote(qian, '贪墨事发，被押入血狱。');
@@ -666,14 +666,14 @@ const STORIES = {
               spend(150, '150 영석에 아목의 옥패를 받았다.');
               keepCounterItem({ cost: 150, boughtDay: S.day, amu: true });
               st.flags.under = true; st.flags.paid = 150;
-              remember(p, '你照他开的价，一百五十灵石收了玉佩。', 10);
+              remember(p, '네가 그가 부른 값대로 백오십 영석에 옥패를 받았다.', 10);
               return amuGo('阿木千恩万谢地走了。他不知道那块玉值多少。');
             } },
             { label: '压到八十', sin: ['fraud', 1], hint: costHint(80), req: needStones(80), run: (st, p) => {
               spend(80, '80 영석으로 깎아 아목의 옥패를 받았다.');
               keepCounterItem({ cost: 80, boughtDay: S.day, amu: true });
               st.flags.low = true; st.flags.paid = 80;
-              remember(p, '你只给了八十灵石，他拜师的钱还差一截。', -15, 'lowballed');
+              remember(p, '네가 팔십 영석만 줘서, 그의 입문 비용이 모자랐다.', -15, 'lowballed');
               return amuGo('阿木咬着嘴唇收下了。走出门时，他的肩膀一抽一抽的。');
             } },
             { label: '借他一百五，玉佩他留着', hint: costHint(150), req: needStones(150), run: (st, p) => {
@@ -684,7 +684,7 @@ const STORIES = {
             } },
             { label: '받지 않는다', run: (st, p) => {
               st.flags.refused = true;
-              remember(p, '你没收他的玉佩。', -5);
+              remember(p, '네가 그의 옥패를 받지 않았다.', -5);
               return amuGo('阿木低着头，攥着玉佩出去了。');
             } },
           ];
@@ -710,7 +710,7 @@ const STORIES = {
           const f = st.flags, held = ownItem(it => it.amu);
           if (f.refused) return [{ label: '目送他离开', run: (st, p) => {
             lifeNote(p, '没凑够拜师礼，跟着刘癞子混日子。');
-            return { text: '你看着他瘦削的背影消失在巷口。', end: true, summary: '你没帮他，他没能拜入外门。' };
+            return { text: '네가 그의 야윈 뒷모습이 골목 어귀로 사라지는 것을 지켜보았다.', end: true, summary: '네가 돕지 않아 그는 외문에 들지 못했다.' };
           } }];
           const pre = (st, p) => {
             if (f.under) remember(p, '그 옥을 네가 헐값에 받았다는 걸 그가 알게 됐다.', -25, 'lowballed');
@@ -731,7 +731,7 @@ const STORIES = {
             } },
             { label: '送还给他', run: (st, p) => {
               pre(st, p); takeItem(held);
-              remember(p, '你把娘的玉佩白送还给了他。', 40, 'helped');
+              remember(p, '네가 어머니의 옥패를 공짜로 돌려줬다.', 40, 'helped');
               return { text: '\\"주인장...\\" 아목이 옥패를 꽉 쥐고 한참 만에 한마디 했다, \\"이 아목, 평생 은혜를 입었습니다.\\"', go: ['fate', [8, 10]] };
             } },
             { label: '要赎回，得按市价', sin: ['fraud', 1], hint: '多赚一笔', run: (st, p) => {
@@ -765,7 +765,7 @@ const STORIES = {
         ] : p.aff <= -10 ? [
           { label: '赔礼道歉，奉上三百灵石', hint: costHint(300), req: needStones(300), run: (st, p) => {
             spend(300, '向阿木赔礼。');
-            remember(p, '你拿三百灵石赔礼。', 15);
+            remember(p, '네가 삼백 영석으로 사례했다.', 15);
             addHeat(5); S.flags.inspectMul *= 1.1;
             lifeNote(p, '进了执法堂。');
             return { text: '阿木看着那堆灵石，收下了，又像是没收下：“有些东西，灵石买不回来。”他走了，可来得没那么勤了。', end: true, summary: '阿木进了执法堂。你赔了礼，他没再为难你，也没原谅你。' };
@@ -801,13 +801,13 @@ const STORIES = {
         choices: st => owns('yao_core') ? [
           { label: '无偿还给她', hint: '失去妖丹；妖族声望 +8', run: (st, p) => {
             takeItem(owns('yao_core')); adjustRep('yao', 8);
-            remember(p, '你把族人的妖丹还给了她，分文未取。', 40, 'helped');
-            return { text: '白绡把妖丹捧在手心，眼泪啪嗒啪嗒落在上面。“谢谢你……人族。”', go: ['hunted', [4, 6]], summary: '你把族人的妖丹无偿还给了她。' };
+            remember(p, '네가 일족의 요단을 그녀에게 돌려주고 한 푼도 받지 않았다.', 40, 'helped');
+            return { text: '白绡把妖丹捧在手心，眼泪啪嗒啪嗒落在上面。“谢谢你……人族。”', go: ['hunted', [4, 6]], summary: '네가 일족의 요단을 대가 없이 그녀에게 돌려줬다.' };
           } },
           { label: '半价卖给她', hint: '+35 영석', run: (st, p) => {
             takeItem(owns('yao_core')); earn(35, '把妖丹半价卖给白绡。');
-            remember(p, '你把妖丹半价卖给了她。', 10);
-            return { text: '白绡把一把碎灵石数在柜上，那是她全部的家当。', go: ['hunted', [4, 6]], summary: '你把妖丹卖给了她。' };
+            remember(p, '네가 요단을 반값에 그녀에게 팔았다.', 10);
+            return { text: '白绡把一把碎灵石数在柜上，那是她全部的家当。', go: ['hunted', [4, 6]], summary: '네가 요단을 그녀에게 팔았다.' };
           } },
           { label: '주지 않는다', run: (st, p) => {
             remember(p, '네가 일족의 요단을 그녀에게 주기를 거부했다.', -20);
@@ -817,12 +817,12 @@ const STORIES = {
             earn(150, '设计诱捕狐妖，得赏银。'); adjustRep('mo', 5); adjustRep('yao', -20);
             remember(p, '你设局把她交给了执法堂。', -100, 'betrayed');
             p.status = 'dead'; lifeNote(p, '被执法堂擒获，剖丹炼药。');
-            return { text: '你笑着请她喝茶。半炷香后，执法堂的人堵住了门。她被拖走时死死盯着你，一双琥珀色的眼睛里全是血。', go: ['sister', [3, 5]], summary: '你出卖了她。' };
+            return { text: '네가 웃으며 그녀에게 차를 권했다. 반 주사(半炷香) 후, 집법당 사람들이 문을 막았다. 그녀가 끌려가며 너를 매섭게 노려보았다. 호박색 두 눈이 온통 피빛이었다.', go: ['sister', [3, 5]], summary: '네가 그녀를 팔았다.' };
           } },
         ] : [
           { label: '答应替她留意', run: (st, p) => {
             st.flags.asked = (st.flags.asked || 0) + 1;
-            remember(p, '你答应替她留意妖丹。', 5);
+            remember(p, '네가 요단을 살펴주기로 그녀와 약속했다.', 5);
             return { text: '\\"약속이다.\\" 그녀의 꼬리가 살랑 흔들렸다.', go: st.flags.asked >= 3 ? ['hunted', [3, 5]] : ['seek', [5, 7]] };
           } },
           { label: '妖族的事与我无关', run: (st, p) => {
@@ -843,7 +843,7 @@ const STORIES = {
               return { text: '猎妖人循着血迹找上门，白绡撞破后窗逃了。你被执法堂盘问到天亮。', go: ['repay', [6, 8]] };
             }
             remember(p, '那一夜你收留了她。', 35, 'helped');
-            return { text: '你把她藏在米缸后面。号角声在门外停了很久，终于远去。天亮前，她舔干净了伤口，从后窗跃上了屋顶。', go: ['repay', [6, 8]], summary: '你收留了被猎妖人追杀的她。' };
+            return { text: '네가 그녀를 쌀독 뒤에 숨겼다. 뿔피리 소리가 문 밖에 오래 머물다가 마침내 멀어졌다. 날이 밝기 전, 그녀가 상처를 핥고 뒷창으로 지붕 위에 올라갔다.', go: ['repay', [6, 8]], summary: '네가 요괴 사냥꾼에게 쫓기는 그녀를 거뒀다.' };
           } },
           { label: '关上窗', run: (st, p) => {
             remember(p, '那一夜，你关上了窗。', -30);
@@ -878,7 +878,7 @@ const STORIES = {
             const store = itemsIn('store');
             const lost = store.sort(() => Math.random() - 0.5).slice(0, 3).map(it => { const n = itemName(it); takeItem(it); return n; });
             adjustRep('yao', -30);
-            return { text: `天亮后，库房被翻得一片狼藉${lost.length ? `，${lost.join('·')}不见了` : ''}. 그 후로 요족은 다시 네 가게에 발을 들이지 않았다.`, end: true, summary: '你出卖了白绡，她的姐姐来复仇了。' };
+            return { text: `天亮后，库房被翻得一片狼藉${lost.length ? `，${lost.join('·')}不见了` : ''}. 그 후로 요족은 다시 네 가게에 발을 들이지 않았다.`, end: true, summary: '네가 백초를 팔았고, 그녀의 언니가 복수하러 왔다.' };
           } },
         ],
       },
@@ -900,24 +900,24 @@ const STORIES = {
             spend(300, '收下顾青崖的青霄剑。');
             keepCounterItem({ cost: 300, boughtDay: S.day });
             st.flags.bought = true;
-            remember(p, '你收了他的剑，给了他逃命的钱。', 20, 'helped');
-            return { text: '顾青崖朝你一揖，拉低斗笠，消失在人群里。', go: ['hunter', [3, 5]], summary: '你收了他的剑，给了他逃命的钱。' };
+            remember(p, '네가 그의 검을 받고 도망칠 돈을 줬다.', 20, 'helped');
+            return { text: '顾青崖朝你一揖，拉低斗笠，消失在人群里。', go: ['hunter', [3, 5]], summary: '네가 그의 검을 받고 도망칠 돈을 줬다.' };
           } },
           { label: '赠他一百灵石路费，剑不收', hint: costHint(100), req: needStones(100), run: (st, p) => {
             spend(100, '赠顾青崖一百灵石路费。');
             st.flags.helped = true;
-            remember(p, '你白送他路费，剑也没要。', 40, 'helped');
-            return { text: '\\"가게 주인...\\" 그가 영석을 꽉 쥐고 한참 만에 말했다, \\"구모, 기억하겠습니다.\\"', go: ['hunter', [3, 5]], summary: '你白送他路费，没要他的剑。' };
+            remember(p, '네가 여비를 그냥 주고 검도 받지 않았다.', 40, 'helped');
+            return { text: '\\"가게 주인...\\" 그가 영석을 꽉 쥐고 한참 만에 말했다, \\"구모, 기억하겠습니다.\\"', go: ['hunter', [3, 5]], summary: '네가 여비를 그냥 주고 그의 검은 받지 않았다.' };
           } },
           { label: '받지 않고 다른 곳을 알아보라 한다', run: (st, p) => {
-            remember(p, '你没收他的剑。', -5);
+            remember(p, '네가 그의 검을 받지 않았다.', -5);
             return { text: '그가 말없이 검을 싸서 떠났다.', go: ['hunter', [3, 5]] };
           } },
           { label: '稳住他，报执法堂', sin: ['betray', 3], hint: '赏银 250；仙门声望 -15', run: (st, p) => {
             earn(250, '선문 간첩을 신고해 상금을 받았다.'); adjustRep('mo', 5); adjustRep('xian', -15);
-            remember(p, '你把他交给了魔宗执法堂。', -100, 'betrayed');
+            remember(p, '네가 그를 마종 집법당에 넘겼다.', -100, 'betrayed');
             p.status = 'dead'; lifeNote(p, '被魔宗执法堂擒获，死在血狱。');
-            return { text: '그가 끌려갈 때 발버둥 치지 않고 너에게 말했다: \\"원망하지 않아. 이 세상, 누구나 살고 싶으니까.\\"', end: true, summary: '你把他交给了执法堂。' };
+            return { text: '그가 끌려갈 때 발버둥 치지 않고 너에게 말했다: \\"원망하지 않아. 이 세상, 누구나 살고 싶으니까.\\"', end: true, summary: '네가 그를 집법당에 넘겼다.' };
           } },
         ],
       },
@@ -933,19 +933,19 @@ const STORIES = {
           { label: '说出他的去向', sin: ['betray', 3], hint: '+300 영석, 선문 평판 +10', run: st => {
             earn(300, '向仙门追缉使出卖顾青崖。'); adjustRep('xian', 10);
             const p = S.people.defector, spy = S.people.spy;
-            remember(spy, '你告诉了她叛徒的去向。', 20);
-            remember(p, '你出卖了他的去向。', -100, 'betrayed');
+            remember(spy, '네가 그녀에게 배신자의 행방을 알려줬다.', 20);
+            remember(p, '네가 그의 행방을 팔았다.', -100, 'betrayed');
             p.status = 'dead'; lifeNote(p, '在去南疆的路上被仙门追上，废去修为，押回山门。');
             let t = '寒霜收起名册：“多谢。”她走后第三天，你听说南疆官道上发生了一场恶斗。';
             const sword = owns('xian_sword');
             if (sword) { takeItem(sword); t += '\\n떠나기 전, 그녀가 네 창고를 힐끗 보았다: \\"청소검은 선문이 회수했다.\\"'; }
-            return { text: t, end: true, summary: '你向仙门出卖了他的去向。' };
+            return { text: t, end: true, summary: '네가 선문에 그의 행방을 팔았다.' };
           } },
           { label: '谎称没见过', hint: '她未必信', run: st => {
             const spy = S.people.spy;
             if (lieCaught(spy.savvy - (owns('xian_sword') ? 0 : 0.25))) {
               adjustRep('xian', -15); addHeat(10);
-              remember(spy, '你当面撒谎，被她识破。', -30, 'lied');
+              remember(spy, '네가 눈앞에서 거짓말하다 그녀에게 들켰다.', -30, 'lied');
               return { text: '\\"너에게서 청소검의 검기가 난다.\\" 한상의 목소리가 차가워졌다, \\"배신자를 숨겨준 것, 선문이 기억하겠다.\\" 그녀가 떠난 뒤, 집법당에도 무슨 소문이 들어간 모양이다.', go: ['letter', [6, 9]] };
             }
             remember(spy, '你说你没见过他。', 0);
@@ -962,7 +962,7 @@ const STORIES = {
             earn(600, '顾青崖从南疆捎来六百灵石。');
             giveItem('xian_talisman', { q: 90 }); giveItem('xian_talisman', { q: 90 });
             lifeNote(p, '在南疆隐姓埋名，开了间小小的剑铺，只卖菜刀。');
-            return { text: '你把信在灯上烧了。那两张符箓，最好也藏好。', end: true, summary: '그가 남강으로 달아나 사례를 보내왔다.' };
+            return { text: '네가 편지를 등불에 태웠다. 그 부적 두 장도 잘 숨겨두는 게 좋다.', end: true, summary: '그가 남강으로 달아나 사례를 보내왔다.' };
           } },
         ],
       },
@@ -1017,7 +1017,7 @@ function beggarNext(st, text) {
 function chenReward(p, text) {
   p.name = '血手陈枭'; p.portrait = 'beggar_master'; p.title = '前魔宗长老'; p.faction = 'mo';
   lifeNote(p, '恢复修为，重回血煞宗。');
-  remember(p, '你救过他的命，他报了恩。', 20, 'helped');
+  remember(p, '네가 그의 목숨을 구해줬고, 그가 은혜를 갚았다.', 20, 'helped');
   return { text: text + '\\n\\"후회유기.\\" 말이 끝나기도 전에 사람은 사라졌다.', end: true, summary: '老乞丐原来是前魔宗长老血手陈枭，他报答了你的救命之恩。' };
 }
 
@@ -1030,7 +1030,7 @@ function warWin(st, p, pay, extra = '') {
   st.flags.boss = true; S.flags.thugBoss = true;
   remember(p, '그가 패싸움할 때 네가 한손 거들었다.', 40, 'helped');
   lifeNote(p, '火并黑狗帮大胜，成了杂役区一霸。');
-  return { text: `${extra}날이 밝을 때, 류라자가 온몸 피투성이로 돌아와 입을 찢으며 웃었다: \"형제여, 흑구방은 끝났다. 앞으로 이 잡역 구역은 우리가 주인이다!\"`, end: true, summary: '你助他火并黑狗帮，他成了杂役区一霸。' };
+  return { text: `${extra}날이 밝을 때, 류라자가 온몸 피투성이로 돌아와 입을 찢으며 웃었다: \"형제여, 흑구방은 끝났다. 앞으로 이 잡역 구역은 우리가 주인이다!\"`, end: true, summary: '네가 흑구방과의 패싸움을 도와 그가 잡역 구역의 패자가 됐다.' };
 }
 
 // ───────────── 开局与每日 ─────────────
