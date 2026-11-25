@@ -14,9 +14,9 @@ const ACTION_COST = {
   talk: [0, 6], erase: [3, 12], seal: [1, 5], bottle: [1, 0], retreat: [30, 10],
   cultivate: [0, 4], breakthrough: [20, 30], kill: [25, 10], soulmark: [5, 20], flatter: [0, 6], command: [0, 5],
 };
-const ACTION_NAME = { appraise: '鉴定', inspect: '验货', probe: '神识探查', haggle: '议价', dispute: '挑毛病', dig: '翻找', market: '去鬼市',
-  talk: '话术', erase: '抹印', seal: '贴封印', bottle: '装瓶', retreat: '闭关',
-  cultivate: '服炼', breakthrough: '破境', kill: '动手', soulmark: '种魂印', flatter: '吹捧', command: '差遣' };
+const ACTION_NAME = { appraise: '감정', inspect: '검품', probe: '신식 탐지', haggle: '흥정', dispute: '흠 잡기', dig: '뒤지기', market: '귀시 가기',
+  talk: '말솜씨', erase: '낙인 지우기', seal: '봉인 부착', bottle: '병에 담기', retreat: '폐관',
+  cultivate: '복용 수련', breakthrough: '돌파', kill: '손 쓰기', soulmark: '혼인 심기', flatter: '띄우기', command: '부리기' };
 
 // 服用后恢复的 [体力, 精神]：中品（品质 50）的数，品质高低按 potency 增减
 const RESTORE = {
@@ -35,8 +35,8 @@ const potency = it => hasQuality(it) ? 0.6 + it.q / 125 : 1;
 function initVitality() { S.vit = S.vit || { st: VIT_MAX, sp: VIT_MAX }; }
 
 function vitShort(st, sp) {
-  if (S.vit.st < st) return '体力不支';
-  if (S.vit.sp < sp) return '精神不济';
+  if (S.vit.st < st) return '체력 부족';
+  if (S.vit.sp < sp) return '정신 부족';
   return null;
 }
 
@@ -49,7 +49,7 @@ function drain(st, sp) {
 function exert(key, mult = 1) {
   const [st, sp] = ACTION_COST[key].map(v => Math.round(v * mult));
   const why = vitShort(st, sp);
-  if (why) return `${why}，${ACTION_NAME[key]}不动了（需体力 ${st}、精神 ${sp}）`;
+  if (why) return `${why}: ${ACTION_NAME[key]}할 수 없다(필요 체력 ${st}, 정신 ${sp})`;
   drain(st, sp);
   const acts = S.stats.acts = S.stats.acts || {};
   acts[key] = (acts[key] || 0) + 1;
@@ -58,7 +58,7 @@ function exert(key, mult = 1) {
 
 function costText(key, mult = 1) {
   const [st, sp] = ACTION_COST[key].map(v => Math.round(v * mult));
-  return [st ? `体${st}` : '', sp ? `精${sp}` : ''].filter(Boolean).join(' ');
+  return [st ? `체${st}` : '', sp ? `정${sp}` : ''].filter(Boolean).join(' ');
 }
 
 // 服用
@@ -66,22 +66,22 @@ function consume(it) {
   const cure = cureBy(it);
   if (cure) {
     const left = easeCond('me', cure, cureGrades(bodyOf(it)));
-    log(`服下${itemName(it)}，${left ? `${CONDS[cure].name}减轻到${CONDS[cure].grade[left - 1]}——药力不够，没能除根` : `${CONDS[cure].name}好了`}。`, 'gain');
+    log(`${itemName(it)}을(를) 복용했다. ${left ? `${CONDS[cure].name}이(가) ${CONDS[cure].grade[left - 1]}(으)로 줄었다. 약력이 부족해 뿌리를 뽑지 못했다` : `${CONDS[cure].name}이(가) 나았다`}.`, 'gain');
   }
   // 吃下别人掺过料的货：自己吃这个亏（药效先到，料后发作）；自己掺的料、蛊，自己吃了不算数
   if (it.laced && it.laced !== 'tonic' && it.laced !== 'love' && it.lacedBy !== 'me') {
     it.lacedSeen = true;
-    if (it.laced === 'poison') addCond('me', 'poisoned', 2, `${itemName(it)}里掺了尸毒`);
-    else if (it.laced === 'control') addCond('me', 'injured', 1, `${itemName(it)}里藏着别人的蛊，你运功把它逼了出来，没有中蛊`);
+    if (it.laced === 'poison') addCond('me', 'poisoned', 2, `${itemName(it)}에 시독이 섞여 있었다`);
+    else if (it.laced === 'control') addCond('me', 'injured', 1, `${itemName(it)}에 남의 고가 숨어 있었다. 운공해서 몰아냈고 고에 걸리지 않았다`);
     else if (LACE[it.laced].onMe) LACE[it.laced].onMe(it);
-    else { drain(0, 30); log(`${itemName(it)}里掺了忘忧散，你飘飘然了半晌，精神 -30。`, 'loss'); }
+    else { drain(0, 30); log(`${itemName(it)}에 망우산이 섞여 있었다. 한참 몽롱했다. 정신 -30.`, 'loss'); }
   }
   const r = restoreOf(it);
-  if (!r) { if (cure) { tasteFake(it); destroyItem(it); return null; } return '这东西补不了气力。'; }
+  if (!r) { if (cure) { tasteFake(it); destroyItem(it); return null; } return '이것으로는 기력을 보충할 수 없다.'; }
   const before = { ...S.vit };
   S.vit.st = Math.min(VIT_MAX, S.vit.st + r[0]);
   S.vit.sp = Math.min(VIT_MAX, S.vit.sp + r[1]);
-  log(`服下${itemName(it)}，体力 +${S.vit.st - before.st}，精神 +${S.vit.sp - before.sp}。`, 'gain');
+  log(`${itemName(it)}을(를) 복용했다. 체력 +${S.vit.st - before.st}, 정신 +${S.vit.sp - before.sp}.`, 'gain');
   tasteFake(it);
   destroyItem(it);
   return null;
@@ -96,7 +96,7 @@ function restNight() {
   S.vit.st = clamp(S.vit.st + st, 0, VIT_MAX);
   S.vit.sp = clamp(S.vit.sp + sp, 0, VIT_MAX);
   const xp = retreatXp();
-  return { icon: 'ic_stamina', title: '歇息', text: `${S.retreat ? `闭关一夜，修为 +${xp}，` : hurt ? '伤口疼得睡不安稳，' : '一夜好眠，'}体力恢复到 ${S.vit.st}，精神恢复到 ${S.vit.sp}` };
+  return { icon: 'ic_stamina', title: '휴식', text: `${S.retreat ? `폐관한 밤, 수위 +${xp}. ` : hurt ? '상처가 아파 설쳤다. ' : '푹 잤다. '}체력이 ${S.vit.st}, 정신이 ${S.vit.sp}(으)로 회복됐다` };
 }
 
 // 闭关：当夜亲自坐镇炉火，地火炉可炼神兵胚料，诸炉出品更精
