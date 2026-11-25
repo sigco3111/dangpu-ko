@@ -438,7 +438,7 @@ function lifeTick() {
         startScandal(p, 'fakepill');
       } else if (riseBlocked(p)) {
         // 丹是真丹，人却带着伤毒——冲关不成，丹力白费
-        const t = `${p.name}服了你卖的${ITEMS[b.id].name}冲关，可${condList(p).map(c => c.label).join('、')}在身，没能冲开。`;
+        const t = `${p.name}이(가) 네가 판 ${ITEMS[b.id].name}을(를) 먹고 관문을 두드렸지만, ${condList(p).map(c => c.label).join('·')} 탓에 뚫지 못했다.`;
         lifeNote(p, t);
         news.push({ text: t, cls: 'warn' });
       } else if (Math.random() < (b.id === 'pill_found' ? 0.85 : 0.35) * (0.6 + b.q / 200)) {
@@ -453,7 +453,7 @@ function lifeTick() {
     const ev = weighted(LIFE[p.faction].map(e => [e, e.w]));
     // 出头的机会落在带伤、中毒、病弱的人身上，多半是败下阵来
     if (ev.id === 'rise' && riseBlocked(p)) {
-      const t = `${p.name}${condList(p).map(c => c.label).join('、')}，硬撑着去争一个出头的机会，败下阵来。`;
+      const t = `${p.name}${condList(p).map(c => c.label).join('·')}. 무리해서 출세의 기회를 노렸다가 패하고 돌아왔다.`;
       lifeNote(p, t); addCond(p, 'injured', 1); p.budgetMul = Math.max(0.3, p.budgetMul * 0.8);
       news.push({ text: t, cls: 'warn' });
       continue;
