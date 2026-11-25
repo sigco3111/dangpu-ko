@@ -86,7 +86,7 @@ function guTakes(p, it, name, knew) {
   // 执法堂的人：察觉了，关注大涨；没被当场锁拿，过几日执法堂会换一位新巡查来
   if (isLawman(p) && Math.random() < lawSpotOdds()) {
     addHeat(45);
-    text = `${text ? text + '\n' : ''}${p.name}察觉吃下的东西不对，执法堂的卷宗上添了你的名字（关注 +45）。`;
+    text = `${text ? text + '\n' : ''}${p.name}이(가) 먹은 것이 이상하다는 걸 알아챘다. 집법당 문서에 네 이름이 올랐다(주목 +45).`;
     cls = 'bad';
     if (p.pid === 'enforcer' && !S.flags.guCaught) S.flags.guCaught = S.day;
     checkHeat();
