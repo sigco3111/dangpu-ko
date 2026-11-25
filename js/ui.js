@@ -1412,7 +1412,7 @@ function openFate() {
   modalHTML(`<h3>${icon('ic_heat')}인과</h3>
     <p>악행 하나마다 빚 하나씩 진다，며칠 뒤 판가름 난다: 절반은 무사히，절반은 보복이 찾아온다. 보복에 물어야 할 원금은 네가 저지른 악행만큼 불어난다，배상하지 못하면 사람들이 쳐들어오고, 물건을 압수당하고, 집법당을 부른다。
       선행이 옛 빚을 흐린다，한동안 악행을 저지르지 않으면，빚도 서서히 옅어진다。</p>
-    <p>너는 모두 ~을 저질렀다 <b>${F.total}</b>건의 악행을 저질렀다: <span class="good">${F.buried} 건은 캐묻는 이가 없다</span>, <span class="bad">${F.erupted} 건은 보복을 당했다${F.busts ? `（${F.busts} 회 배상 불가)` : ''}</span>。</p>
+    <p>너는 모두 <b>${F.total}</b>건의 악행을 저질렀다: <span class="good">${F.buried} 건은 캐묻는 이가 없다</span>, <span class="bad">${F.erupted} 건은 보복을 당했다${F.busts ? `(${F.busts}회 배상 불가)` : ''}</span>。</p>
     <p>지금 다시 작은 악행 하나를 저지르면，들통나면 약 ~을 배상 <b>${fateStake(1)}</b> 영석. 배신, 장물 판매는 약 <b>${fateStake(2)}</b>；사람 목숨을 해치면 약 <b>${fateStake(3)}</b>。</p>
     ${F.infamy ? `<p class="bad">악명 ${F.infamy}: ${[fateCustomerLoss() ? `날마다 손님 ${fateCustomerLoss()}명 감소` : '', `손님이 깎는다 ${Math.round(infamyDiscount() * 100)}%`,
       fateTrusted() ? '' : '더는 맡기거나 도움을 청하는 이가 없다', fateClean() ? '' : '보답은 좀처럼 오지 않는다'].filter(Boolean).join('；')}。</p>` : ''}
@@ -1479,8 +1479,8 @@ function tiredOr(key, fn, mult = 1) {
 }
 
 function showIntel(r) {
-  openModal(() => modalHTML(`<h3>${icon('ic_secret')}天机</h3><div class="h-result ${r.cls || ''}">${r.text.split('\n').join('<br>')}</div>
-    <div class="h-btns"><button class="btn primary" data-act="modal-close">好</button></div>`));
+  openModal(() => modalHTML(`<h3>${icon('ic_secret')}천기</h3><div class="h-result ${r.cls || ''}">${r.text.split('\n').join('<br>')}</div>
+    <div class="h-btns"><button class="btn primary" data-act="modal-close">좋아</button></div>`));
 }
 
 function openMarket(key) {
@@ -1490,24 +1490,24 @@ function openMarket(key) {
   const tabs = Object.entries(DEALERS).map(([k, x]) => `<button class="tab ${k === key ? 'on' : ''}" data-act="mk-tab" data-k="${k}" ${x.need && !x.need() ? 'disabled title="마종 평판 15 또는 마종 공훈 5 필요"' : ''}>${x.name}</button>`).join('');
   const offers = st.offers.map((o, i) => {
     const unit = dealerBuyPrice(key, o.id), mk = Math.round(rawValue({ id: o.id, q: 60 }) * priceMul(o.id));
-    return `<div class="shop-row" title="市价约 ${mk}/件"><img src="${asset('items', ITEMS[o.id].icon || (o.id === 'water' ? 'water_murky' : o.id))}" alt=""><b>${ITEMS[o.id].name}</b>
-      <span class="muted small">${o.lot}件×${o.lots}배치 · 시가${mk}</span>${stoneTxt(unit)}
-      <button class="btn small" data-act="mk-buy" data-k="${key}" data-i="${i}" ${o.lots > 0 && S.stones >= unit * o.lot ? '' : 'disabled'}>进一批 ${unit * o.lot}</button></div>`;
+    return `<div class="shop-row" title="시가 약 ${mk}/건"><img src="${asset('items', ITEMS[o.id].icon || (o.id === 'water' ? 'water_murky' : o.id))}" alt=""><b>${ITEMS[o.id].name}</b>
+      <span class="muted small">${o.lot}건×${o.lots}배치 · 시가 ${mk}</span>${stoneTxt(unit)}
+      <button class="btn small" data-act="mk-buy" data-k="${key}" data-i="${i}" ${o.lots > 0 && S.stones >= unit * o.lot ? '' : 'disabled'}>한 배치 매입 ${unit * o.lot}</button></div>`;
   }).join('');
   const goods = sellable(key);
   const wants = st.wants.filter(w => w.left > 0).map(w => ITEMS[w.id].name + `（${w.left}）`).join('、');
   const sells = goods.map(it => `<div class="shop-row">${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}<b>${esc(itemName(it))}</b>
-      <span class="muted small">${it.stolen > 0 ? '장물 · ' : ''}${isFlawed(it) && knownFlaw(it) ? '有问题 · ' : ''}</span>${stoneTxt(dealerSellPrice(key, it))}
-      <button class="btn small" data-act="mk-sell" data-k="${key}" data-uid="${it.uid}">出手</button></div>`).join('');
+      <span class="muted small">${it.stolen > 0 ? '장물 · ' : ''}${isFlawed(it) && knownFlaw(it) ? '문제 있음 · ' : ''}</span>${stoneTxt(dealerSellPrice(key, it))}
+      <button class="btn small" data-act="mk-sell" data-k="${key}" data-uid="${it.uid}">처분</button></div>`).join('');
   openModal(() => modalHTML(`<div class="market">
     <div class="mk-head"><img src="${asset('scene', 'ghost_market')}" alt=""><div class="mk-who"><img src="${asset('chars', dd.portrait)}" alt="">
       <div><h3>${dd.name}</h3><p class="small">${dd.desc}</p>
       <p class="small muted">${isGhostNight() ? '오늘 밤 귀시가 열린다，물건이 많다。' : ''}${st.mod < 1 ? '너는 오늘 밤 좋은 값을 받아냈다。' : st.mod > 1 ? '상대가 너를 경계한다，값이 1할 비싸다。' : ''}</p>
-      <button class="btn small" data-act="mk-talk" data-k="${key}" ${st.talked ? 'disabled' : ''}>话术博弈（${costText('talk')}）</button></div></div></div>
+      <button class="btn small" data-act="mk-talk" data-k="${key}" ${st.talked ? 'disabled' : ''}>말솜씨 승부(${costText('talk')})</button></div></div></div>
     <nav class="mk-tabs">${tabs}</nav>
     <div class="mk-cols"><div><h4>상품 매입</h4>${offers}</div>
-      <div><h4>出货</h4><p class="muted small">收：${wants || '오늘 밤은 그만 받는다'}</p>${sells || '<p class="muted small">네 손에 그가 원하는 물건이 없다。</p>'}</div></div>
-    <div class="h-btns"><button class="btn primary" data-act="mk-leave">回铺</button></div></div>`, 'm-market'));
+      <div><h4>처분</h4><p class="muted small">산다: ${wants || '오늘 밤은 그만 받는다'}</p>${sells || '<p class="muted small">네 손에 그가 원하는 물건이 없다.</p>'}</div></div>
+    <div class="h-btns"><button class="btn primary" data-act="mk-leave">가게로</button></div></div>`, 'm-market'));
 }
 
 function showInspectResult(res) {
@@ -1516,16 +1516,16 @@ function showInspectResult(res) {
     <div><h3>${esc(e.name)} · 집법당 순찰</h3>${res.ignored ? '<p>그가 진열장 앞에 잠시 섰다，눈이 네 물건을 훑고 지나갔다，아무것도 못 본 척한다。“……行，깨끗하다。”</p>'
       : res.bribed ? '<p>“……오늘 이 가게는，깨끗하다。”</p>'
       : res.found.length ? `<p>“찾아냈다${res.found.map(esc).join('、')}！充公，罚 ${res.fine} 영석. 다음에 또 저지르면，목을 들고 온다。”</p>`
-        : '<p>“哼，사정을 아는군.” 순찰이 한 바퀴 뒤지고，빈손으로 떠났다。</p>'}
-    <div class="h-btns"><button class="btn primary" data-act="inspect-done">送走巡查</button></div></div></div>`, 'm-npc'));
+        : '<p>“흥, 사정을 아는군.” 순찰이 한 바퀴 뒤지고 빈손으로 떠났다.</p>'}
+    <div class="h-btns"><button class="btn primary" data-act="inspect-done">순찰을 보낸다</button></div></div></div>`, 'm-npc'));
 }
 
 function openScavengeSelect() {
   openModal(() => modalHTML(`<h3>${icon('ic_scavenge')}밖에 나가 폐품을 줍는다</h3><div class="locs">
     ${allLocations().map(l => `<div class="loc" data-act="scav-go" data-id="${l.id}"><img src="${asset('scene', l.bg)}" alt="">
-      <b>${l.name}</b><p class="small">${l.desc}</p><p class="muted small">可뒤진다 ${l.tries} 회 · 처음 위험 ${pct(l.danger)}${l.hazard.cond ? ` · 위험에 처함可能${CONDS[l.hazard.cond[0]].name}<b class="bad">${deathWarn(l.hazard.cond[0])}</b>` : ''}</p></div>`).join('')}</div>
+      <b>${l.name}</b><p class="small">${l.desc}</p><p class="muted small">뒤질 수 있다 ${l.tries}회 · 처음 위험 ${pct(l.danger)}${l.hazard.cond ? ` · 위험 가능: ${CONDS[l.hazard.cond[0]].name}<b class="bad">${deathWarn(l.hazard.cond[0])}</b>` : ''}</p></div>`).join('')}</div>
     ${condText('me') ? `<p class="bad small">${condText('me')}상처와 독을 안고 뒤진다，힘이 더 들고 사고가 나기 쉽다。</p>` : ''}
-    <div class="h-btns"><button class="btn ghost" data-act="modal-close">还是算了</button></div>`, 'm-locs'));
+    <div class="h-btns"><button class="btn ghost" data-act="modal-close">그만둔다</button></div>`, 'm-locs'));
 }
 
 function renderScavenge() {
@@ -1533,14 +1533,14 @@ function renderScavenge() {
   const pend = pendingScavItem();
   modalHTML(`<h3>${icon('ic_scavenge')}${loc.name}</h3>
     <div class="scav"><div class="scav-bg"><img src="${asset('scene', loc.bg)}" alt="">
-      <div class="scav-stats"><span>剩余 ${sc.tries} 次</span><span class="good">发现 ${pct(loc.find)}</span><span class="bad">위험에 처함 ${pct(o.danger)}</span></div></div>
+      <div class="scav-stats"><span>남은 ${sc.tries}회</span><span class="good">발견 ${pct(loc.find)}</span><span class="bad">위험에 처함 ${pct(o.danger)}</span></div></div>
       <div class="scav-side">
         ${gridHTML('basket', '바구니')}
         ${pend && !pend.pos ? `<div class="grid-label">손에(바구니에 넣기，아니면 버린다)</div><div class="hand">${itemHTML(pend)}</div>` : ''}
         <ul class="log">${sc.lines.slice(-6).reverse().map(l => `<li class="${l.cls || ''}">${esc(l.text)}</li>`).join('')}</ul>
         <div class="h-btns">
           <button class="btn primary" data-act="scav-search" ${sc.tries > 0 && !sc.ended && !(pend && !pend.pos) ? '' : 'disabled'}>뒤진다</button>
-          <button class="btn" data-act="scav-home">回铺</button>
+          <button class="btn" data-act="scav-home">가게로</button>
           <span class="trash" data-drop="trash">버림</span></div></div></div>`, 'm-scav');
 }
 
@@ -1552,17 +1552,17 @@ function showEnding() {
     <img class="seal" src="${asset('ui', S.over.win ? 'ic_deed' : 'seal')}" alt="">
     <h2>${S.over.title}</h2><p>${S.over.text}</p>
     <div class="stats">
-      <div><span>开局</span><b>${start.name} · ${d.name}</b></div>
-      <div><span>坚持</span><b>${S.day} 日</b></div>
-      <div><span>总수입</span><b>${st.income}</b></div>
+      <div><span>시작</span><b>${start.name} · ${d.name}</b></div>
+      <div><span>버틴 날</span><b>${S.day}일</b></div>
+      <div><span>총수입</span><b>${st.income}</b></div>
       <div><span>거래 건수</span><b>${st.sales}</b></div>
       <div><span>자산 평가</span><b>${netWorth()}</b></div>
-      <div><span>감정委托</span><b>${st.appraisals}</b></div>
-      <div><span>遭遇巡查</span><b>${st.inspections}</b></div>
+      <div><span>감정 의뢰</span><b>${st.appraisals}</b></div>
+      <div><span>순찰 조우</span><b>${st.inspections}</b></div>
       <div><span>경지 · 선명</span><b>${realmName()} · ${VIRTUE_NAME(S.virtue)}</b></div>
       <div><span>손에 묻은 목숨</span><b>${st.kills || 0}</b></div>
       <div><span>뒷배</span><b>${S.cliques.joined ? CLIQUES[S.cliques.joined].name : '—'}</b></div>
-      <div><span>최고 한 건</span><b>${st.bestSale ? `${st.bestSale.name} ${st.bestSale.price}（第${st.bestSale.day}일)` : '—'}</b></div>
+      <div><span>최고 한 건</span><b>${st.bestSale ? `${st.bestSale.name} ${st.bestSale.price}(제${st.bestSale.day}일)` : '—'}</b></div>
       <div><span>최고의 되팔기</span><b>${st.bestFlip ? `${st.bestFlip.name}：${st.bestFlip.cost}→${st.bestFlip.price}` : '—'}</b></div>
     </div>
     ${profileHTML()}
@@ -1588,9 +1588,9 @@ function profileHTML() {
       </div></div>
     <div class="pf">
       ${pts.length > 1 ? `<div class="pf-wealth"><h4>자산 추이</h4>${wealthSVG(pts)}<div class="pf-read" id="wl-read">${wealthRead(pts)}</div>
-        <details class="wl-table"><summary>逐日明细</summary><table><tr><th>일</th><th>수입</th><th>지출</th><th>잔액</th></tr>
+        <details class="wl-table"><summary>일별 명세</summary><table><tr><th>일</th><th>수입</th><th>지출</th><th>잔액</th></tr>
           ${S.stats.days.map(d => `<tr><td>제 ${d.day}일</td><td>+${d.income}</td><td>-${d.expense}</td><td>${d.stones}</td></tr>`).join('')}</table></details></div>` : ''}
-      <div class="pf-text"><h4>下一局</h4>
+      <div class="pf-text"><h4>다음 판</h4>
         <ul class="pf-tips">${nextTips(sc).map(t => `<li><b>${t.head}</b>${esc(t.text)}</li>`).join('')}</ul></div></div></div>`;
 }
 
@@ -1633,10 +1633,10 @@ function wealthSVG(pts) {
   const hi = pts.reduce((m, p) => p.v > m.v ? p : m, pts[0]);
   const line = pts.map((p, i) => `${i ? 'L' : 'M'}${s.x(p.day).toFixed(1)},${s.y(p.v).toFixed(1)}`).join('');
   const base = s.y(0).toFixed(1);
-  return `<svg class="wealth" viewBox="0 0 ${WL.w} ${WL.h}" role="img" aria-label="자산 추이: 최고 ${hi.v} 영석（第 ${hi.day} 일)，마무리 ${last.v} 영석">
+  return `<svg class="wealth" viewBox="0 0 ${WL.w} ${WL.h}" role="img" aria-label="자산 추이: 최고 ${hi.v} 영석(제 ${hi.day}일), 마무리 ${last.v} 영석">
     ${s.ticks.map(v => `<line class="rd-grid" x1="${WL.l}" x2="${WL.w - WL.r}" y1="${s.y(v)}" y2="${s.y(v)}"/><text class="wl-tick" x="${WL.l - 6}" y="${s.y(v)}" text-anchor="end" dominant-baseline="middle">${v}</text>`).join('')}
-    <text class="wl-tick" x="${WL.l}" y="${WL.h - 4}">第 ${pts[0].day} 日</text>
-    <text class="wl-tick" x="${WL.w - WL.r}" y="${WL.h - 4}" text-anchor="end">第 ${last.day} 日</text>
+    <text class="wl-tick" x="${WL.l}" y="${WL.h - 4}">제 ${pts[0].day}일</text>
+    <text class="wl-tick" x="${WL.w - WL.r}" y="${WL.h - 4}" text-anchor="end">제 ${last.day}일</text>
     <path class="wl-area" d="${line}L${s.x(last.day).toFixed(1)},${base}L${s.x(pts[0].day).toFixed(1)},${base}Z"/>
     <path class="wl-line" d="${line}"/>
     ${hi !== last ? `<text class="wl-note" x="${s.x(hi.day)}" y="${s.y(hi.v) - 7}" text-anchor="middle">최고 ${hi.v}</text>` : ''}
@@ -1648,9 +1648,9 @@ function wealthSVG(pts) {
 }
 
 function wealthRead(pts, p) {
-  if (p) return `<b>第 ${p.day} 日</b> · 영석 ${p.v}`;
+  if (p) return `<b>제 ${p.day}일</b> · 영석 ${p.v}`;
   const hi = pts.reduce((m, q) => q.v > m.v ? q : m, pts[0]);
-  return `최고 <b>${hi.v}</b>（第 ${hi.day} 일) · 끝 <b>${pts[pts.length - 1].v}</b>`;
+  return `최고 <b>${hi.v}</b>(제 ${hi.day}일) · 끝 <b>${pts[pts.length - 1].v}</b>`;
 }
 
 // 点选蛛网图的顶点、名字或下面那一行：亮起这一样，读出依据
@@ -1695,7 +1695,7 @@ function showTitle() {
   $('#title-screen').classList.remove('hidden');
   closeModal();
   $('#title-screen').innerHTML = `<img class="title-bg" src="${asset('scene', 'title_bg')}" alt="">
-    <div class="title-box"><h1>魔门当铺</h1><h2>· 来路不明 ·</h2>
+    <div class="title-box"><h1>마문 전당포</h1><h2>· 출처 불명 ·</h2>
       <p>인, 선, 마, 요 네 세력이 다툰다. 너는 혈살종 잡역 구역에 전당포를 열었다。<br>임대료가 계속 오른다 - 가게 문서를 사기 전까지，집법당에 끌려가지 마。</p>
       <div class="title-btns">${hasSave() ? '<button class="btn primary big" data-act="continue">续上前缘</button>' : ''}
         <button class="btn big ${hasSave() ? '' : 'primary'}" data-act="new">새 판을 시작한다</button></div></div>`;
@@ -1703,13 +1703,13 @@ function showTitle() {
 
 function showSetup() {
   const pickd = { diff: 'normal', start: 'apprentice' };
-  const render = () => modalHTML(`<h3>开局</h3>
-    <h4>世道</h4><div class="cards">${DIFFICULTIES.map(d => `<div class="card ${pickd.diff === d.id ? 'on' : ''}" data-act="set-diff" data-id="${d.id}">
+  const render = () => modalHTML(`<h3>새 판 시작</h3>
+    <h4>세도</h4><div class="cards">${DIFFICULTIES.map(d => `<div class="card ${pickd.diff === d.id ? 'on' : ''}" data-act="set-diff" data-id="${d.id}">
       <b>${d.name}</b><p class="small">${d.desc}</p><p class="muted small">가게 문서 ${d.deed} · 임대료 ×${d.rent}</p></div>`).join('')}</div>
-    <h4>出身</h4><div class="cards starts">${STARTS.map(s => `<div class="card ${pickd.start === s.id ? 'on' : ''}" data-act="set-start" data-id="${s.id}">
+    <h4>출신</h4><div class="cards starts">${STARTS.map(s => `<div class="card ${pickd.start === s.id ? 'on' : ''}" data-act="set-start" data-id="${s.id}">
       <b>${s.name}${s.tag ? `<span class="tag real">${s.tag}</span>` : ''}</b><p class="small">${s.desc}</p>
       <p class="muted small">시작 수 ${s.stones} 영석${(s.machines || []).length ? ' · ' + s.machines.map(m => MACHINES[m].name).join('、') : ''}</p></div>`).join('')}</div>
-    <div class="h-btns"><button class="btn ghost" data-act="modal-close">돌아가기</button><button class="btn primary" data-act="start">入局</button></div>`, 'm-setup');
+    <div class="h-btns"><button class="btn ghost" data-act="modal-close">돌아가기</button><button class="btn primary" data-act="start">입국</button></div>`, 'm-setup');
   openModal(render);
   HANDLERS['set-diff'] = el => { pickd.diff = el.dataset.id; render(); };
   HANDLERS['set-start'] = el => { pickd.start = el.dataset.id; render(); };
