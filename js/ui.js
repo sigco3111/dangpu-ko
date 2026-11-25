@@ -855,13 +855,13 @@ function selActions(s, inCard = false) {
   if (cultXp(seem)) out.push(`<button class="btn tiny" data-act="cultivate" data-uid="${s.uid}">복용 제련 +${cultXp(seem)}</button>`);
   if (canBottle(s)) out.push('<button class="btn tiny" data-act="bottle">병에 담는다</button>');
   if (s.mark && markVisible(s)) out.push(`<button class="btn tiny" data-act="erase" ${canErase(s) ? '' : `disabled title="낙인 지우기술 ${cn(s.mark.str)}중 필요"`}>낙인 지우기(${costText('erase', s.mark.str)})</button>`);
-  if (canSeal(s)) out.push('<button class="btn tiny" data-act="seal">贴封印</button>');
+  if (canSeal(s)) out.push('<button class="btn tiny" data-act="seal">봉인 부착</button>');
   if ((dressable(s) || isLaceable(s.id)) && !s.forged && s.lacedBy !== 'me' && !s.lacedSeen) out.push('<button class="btn tiny" data-act="inspect-own">검품</button>');
   if (knownFlaw(s) && !s.forged && (s.fake ? COUNTERFEITS[s.id] : isDressed(s))) out.push('<button class="btn tiny" data-act="study">뜯어서 연구한다</button>');
   // 验出了别人掺的料：吃下这个亏、贱행상에게 판다、当好货转手骗人（값을 흥정时照常卖）、或者拆开学他的手法
   if (s.laced && s.lacedSeen && s.lacedBy !== 'me' && !laceSkill(s.laced)) out.push(`<button class="btn tiny" data-act="study">수법 배우기(${LACE[s.laced].name} 섞는 법)</button>`);
   out.push(`<button class="btn tiny" data-act="sell-broker">행상에게 판다 ${brokerPrice(s)}</button>`);
-  if (inCard) out.push('<button class="btn tiny ghost" data-act="trash-sel">丢弃</button>');
+  if (inCard) out.push('<button class="btn tiny ghost" data-act="trash-sel">버린다</button>');
   return out.join('');
 }
 
@@ -998,48 +998,48 @@ function openDeal() {
   const safe = () => dealPresets(c, d, range())[2][1];
   h.net = safe();
   const TA = ta(personOf(c));
-  const netTxt = n => n >= 0 ? `${TA}付你 <b>${n}</b>` : `你付${TA} <b>${-n}</b>`;
+  const netTxt = n => n >= 0 ? `${TA}이(가) 너에게 <b>${n}</b>` : `네가 ${TA}에게 <b>${-n}</b>`;
   const giveRow = g => {
     const it = g.it, canLie = knownFlaw(it) && !c.wantFake;
     return `<div class="d-row">${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}<span>${esc(itemName(it))}
-      <small class="${ROLE_CLS[g.role]}">${ROLE_TXT[g.role]}</small></span><span class="muted">${g.role === 'extra' ? '压价收' : '心理价'} ${Math.round(g.v)}</span>
-      ${canLie ? `<span class="d-claim"><label class="${claimOf(c, it) !== 'honest' ? 'on' : ''}" data-act="d-claim" data-uid="${it.uid}" data-v="genuine">当真货</label><label class="${claimOf(c, it) === 'honest' ? 'on' : ''}" data-act="d-claim" data-uid="${it.uid}" data-v="honest">실정을 알린다</label></span>` : ''}</div>`;
+      <small class="${ROLE_CLS[g.role]}">${ROLE_TXT[g.role]}</small></span><span class="muted">${g.role === 'extra' ? '깎아서 산다' : '심리가'} ${Math.round(g.v)}</span>
+      ${canLie ? `<span class="d-claim"><label class="${claimOf(c, it) !== 'honest' ? 'on' : ''}" data-act="d-claim" data-uid="${it.uid}" data-v="genuine">진품이라 한다</label><label class="${claimOf(c, it) === 'honest' ? 'on' : ''}" data-act="d-claim" data-uid="${it.uid}" data-v="honest">실정을 알린다</label></span>` : ''}</div>`;
   };
   let gp, tp;
   const render = () => {
     const [lo, hi] = range();
     let body;
-    if (h.result) body = `<div class="h-result ${h.result.cls}">${c.portrait ? `<img class="h-face" src="${asset('chars', portraitOf(c))}" alt="">` : ''}<span>${h.result.text}</span></div><div class="h-btns"><button class="btn primary" data-act="haggle-close">好</button></div>`;
+    if (h.result) body = `<div class="h-result ${h.result.cls}">${c.portrait ? `<img class="h-face" src="${asset('chars', portraitOf(c))}" alt="">` : ''}<span>${h.result.text}</span></div><div class="h-btns"><button class="btn primary" data-act="haggle-close">좋아</button></div>`;
     else if (h.counter != null) body = `<div class="h-result">“${voice(c.faction, h.counter >= 0 ? 'counterSell' : 'counterBuy', { n: Math.abs(h.counter) })}”<br><small>（${netTxt(h.counter)}）</small></div>
         <div class="h-btns"><button class="btn primary" data-act="h-accept">받아들인다</button>
-        <button class="btn" data-act="h-again" ${c.patience > 0 ? '' : 'disabled'}>再议</button>
-        <button class="btn ghost" data-act="h-quit">作罢</button></div>`;
+        <button class="btn" data-act="h-again" ${c.patience > 0 ? '' : 'disabled'}>다시 흥정</button>
+        <button class="btn ghost" data-act="h-quit">그만둔다</button></div>`;
     else body = `<div class="h-presets">${dealPresets(c, d, [lo, hi]).map(([n, v]) => `<button class="btn small" data-act="h-preset" data-v="${v}">${n} ${v}</button>`).join('')}</div>
         <div class="h-slider"><input type="range" id="h-range" min="${lo}" max="${hi}" value="${clamp(h.net, lo, hi)}"><b id="h-price">${netTxt(h.net)}</b></div>
         <div id="h-odds">${oddsBar(dealOdds(c, d, h.net))}</div>
-        <div class="h-btns"><span class="muted small">每回부른 값 ${costText('haggle', dealEffort(d))}</span><button class="btn primary" data-act="h-offer">부른 값</button><button class="btn ghost" data-act="haggle-close">再想想</button></div>`;
+        <div class="h-btns"><span class="muted small">한 번 부를 때마다 ${costText('haggle', dealEffort(d))}</span><button class="btn primary" data-act="h-offer">부른 값</button><button class="btn ghost" data-act="haggle-close">더 생각한다</button></div>`;
     modalHTML(`<h3>값을 흥정 · ${esc(c.name)} <span class="muted small">${FACTIONS[c.faction].name} ${patienceHTML(c)}</span></h3>
-      <div class="deal"><div class="d-col"><h4>卖给${TA}</h4>${(gp = pager(d.give, 4, 'deal-give')).items.map(giveRow).join('') || '<p class="muted small">진열판에 그가 원하는 게 없다。</p>'}${gp.nav}
-          ${d.reject.length ? `<p class="muted small">${TA}不要：${d.reject.map(itemName).join('、')}</p>` : ''}</div>
-        <div class="d-col"><h4>받는다${TA}的</h4>${(tp = pager(d.take, 4, 'deal-take')).items.map(t => `<div class="d-row">${itemHTML(Object.assign({}, t.it, { pos: null }), 'preview mini')}<span>${esc(itemName(t.it))}</span>
-          <span class="muted">开价 ${t.a} · 你估 ${Math.round(knownValue(t.it) * priceMul(t.it.id))}</span></div>`).join('') || '<p class="muted small">그의 물건은 받지 않는다。</p>'}${tp.nav}</div></div>
-      ${c.wantCat ? `<div class="tip-row"><span>${TA}要 ${needText(c)}</span><span>${trayTally(c, d)}</span></div>` : ''}
-      ${compliant(c) ? `<div class="tip-row laced-txt"><span>${TA}네가 정한다摆布</span><span>어떤 값을 불러도 인정한다，다만 돈주머니에 없는 건 낼 수 없다</span></div>` : ''}
+      <div class="deal"><div class="d-col"><h4>${TA}에게 판다</h4>${(gp = pager(d.give, 4, 'deal-give')).items.map(giveRow).join('') || '<p class="muted small">진열판에 그가 원하는 게 없다.</p>'}${gp.nav}
+          ${d.reject.length ? `<p class="muted small">${TA}이(가) 안 산다: ${d.reject.map(itemName).join(' · ')}</p>` : ''}</div>
+        <div class="d-col"><h4>${TA}에게서 받는다</h4>${(tp = pager(d.take, 4, 'deal-take')).items.map(t => `<div class="d-row">${itemHTML(Object.assign({}, t.it, { pos: null }), 'preview mini')}<span>${esc(itemName(t.it))}</span>
+          <span class="muted">개시가 ${t.a} · 네 추정 ${Math.round(knownValue(t.it) * priceMul(t.it.id))}</span></div>`).join('') || '<p class="muted small">그의 물건은 받지 않는다.</p>'}${tp.nav}</div></div>
+      ${c.wantCat ? `<div class="tip-row"><span>${TA}이(가) 원한다: ${needText(c)}</span><span>${trayTally(c, d)}</span></div>` : ''}
+      ${compliant(c) ? `<div class="tip-row laced-txt"><span>${TA}은(는) 네 뜻에 따른다</span><span>어떤 값을 불러도 인정한다, 다만 돈주머니에 없는 건 낼 수 없다</span></div>` : ''}
       <div class="tip-row"><span>${TA}마음속 공정 차액</span><span>${netTxt(d.N0)}</span></div>
-      ${d.give.length ? `<div class="tip-row"><span>상대 예산</span><span>约 ${Math.round(c.budget * 0.85 / 10) * 10}–${Math.round(c.budget * 1.15 / 10) * 10}${d.N0 > c.budget * PURSE_OFFER ? '<span class="bad">，공정한 값을 못 낸다</span>' : ''}</span></div>` : ''}
+      ${d.give.length ? `<div class="tip-row"><span>상대 예산</span><span>약 ${Math.round(c.budget * 0.85 / 10) * 10}–${Math.round(c.budget * 1.15 / 10) * 10}${d.N0 > c.budget * PURSE_OFFER ? '<span class="bad">, 공정한 값을 못 낸다</span>' : ''}</span></div>` : ''}
       <hr>${body}`, 'm-deal');
     const r = $('#h-range');
     if (r) r.oninput = () => { h.net = +r.value; $('#h-price').innerHTML = netTxt(h.net); $('#h-odds').innerHTML = oddsBar(dealOdds(c, d, h.net)); };
   };
   const ready = net => {
-    if (net < 0 && S.stones < -net) { toast('영석不够', 'bad'); return false; }
+    if (net < 0 && S.stones < -net) { toast('영석이 모자란다', 'bad'); return false; }
     return true;
   };
   const finish = net => {
     const out = settleDeal(c, d, net);
     h.result = out.caught === 'stolen' ? { cls: 'bad', text: '상대가 물건 속에서 같은 문파의 도난품을 알아봤다，그 자리에서 가져간다，나머지 거래도 하지 않는다！' }
       : out.caught === 'laced' ? { cls: 'bad', text: `“네가 이 안에 손을 댔다！”${esc(c.name)}물건을 카운터에 내던졌다，떠나갔다. 이 일은 이대로 끝나지 않는다。` }
-        : { cls: 'good', text: `성사！${out.sold.length ? `卖出${out.sold.join('、')}，수입 ${out.income}` : ''}${out.sold.length && out.bought.length ? '；' : ''}${out.bought.length ? `받는다${out.bought.join('、')}，付出 ${out.paid}` : ''}。` };
+        : { cls: 'good', text: `성사! ${out.sold.length ? `판 ${out.sold.join(' · ')}, 수입 ${out.income}` : ''}${out.sold.length && out.bought.length ? '; ' : ''}${out.bought.length ? `산 ${out.bought.join(' · ')}, 지출 ${out.paid}` : ''}.` };
     if (sel && !S.items[sel]) sel = null;
     // 被你狠宰了一刀还是买了：心里不痛快
     const k = (net - d.N0) / d.scale;
@@ -1051,7 +1051,7 @@ function openDeal() {
     // 네가 정한다摆布的人看出货不对也不敢声张
     const caught = !compliant(c) && dealInspect(c, d);
     if (caught) {
-      h.result = { cls: 'bad', text: `“拿${esc(itemName(caught))}나를 속여?” 상대가 한눈에 간파했다，소매를 뿌리며 떠난다。` };
+      h.result = { cls: 'bad', text: `“${esc(itemName(caught))}(으)로 나를 속여?” 상대가 한눈에 간파하고 소매를 뿌리며 떠났다.` };
       feel(c, 'angry');
       dismissCustomer(false);
       return;
@@ -1068,7 +1068,7 @@ function openDeal() {
   HANDLERS['h-offer'] = () => tiredOr('haggle', () => { respond(); render(); renderAll(); }, dealEffort(d));
   HANDLERS['h-accept'] = () => { if (!ready(h.counter)) return; finish(h.counter); h.counter = null; render(); renderAll(); };
   HANDLERS['h-again'] = () => { h.net = h.counter; h.counter = null; render(); };
-  HANDLERS['h-quit'] = () => { h.counter = null; h.result = { cls: 'bad', text: '谈崩了，상대가 풀이 죽어 떠났다。' }; feel(c, 'angry'); dismissCustomer(true); render(); renderAll(); };
+  HANDLERS['h-quit'] = () => { h.counter = null; h.result = { cls: 'bad', text: '흥정이 깨졌다. 상대가 풀이 죽어 떠났다.' }; feel(c, 'angry'); dismissCustomer(true); render(); renderAll(); };
 }
 
 // 来客此刻的神情：갈아 끼운다表情（null 为不变）；随后被送走的，带着这副神情在카운터前留一会儿
@@ -1096,20 +1096,20 @@ function openAppraise(mode, uid) {
       <button class="btn ghost" data-act="modal-close">내려놓는다</button>`;
     if (mode === 'story') return `<button class="btn" data-act="ap-mark-real">알고 있다: 진품</button><button class="btn danger" data-act="ap-mark-fake">알고 있다: 위작</button>
       <button class="btn ghost" data-act="story-reopen">내려놓는다</button>`;
-    if (mode === 'commission') return `<button class="btn" data-act="ap-real">告诉${ta(personOf(c))}：진품</button><button class="btn danger" data-act="ap-fake">告诉${ta(personOf(c))}：위작</button>
-      <button class="btn ghost" data-act="modal-close">再想想</button>`;
-    return `${it.told ? '' : `<button class="btn danger" data-act="ap-dispute">위작이라 지적한다，压价</button>`}
+    if (mode === 'commission') return `<button class="btn" data-act="ap-real">${ta(personOf(c))}에게 말한다: 진품</button><button class="btn danger" data-act="ap-fake">${ta(personOf(c))}에게 말한다: 위작</button>
+      <button class="btn ghost" data-act="modal-close">더 생각한다</button>`;
+    return `${it.told ? '' : `<button class="btn danger" data-act="ap-dispute">위작이라 지적하고 깎는다</button>`}
       <button class="btn ghost" data-act="modal-close">태연하다</button>`;
   };
   const render = () => {
-    modalHTML(`<h3>${icon('ic_appraise')}照妖镜 · ${spec.name}</h3>
+    modalHTML(`<h3>${icon('ic_appraise')}조요경 · ${spec.name}</h3>
       <div class="appraise">
         <div class="ap-stage" id="ap-stage" style="width:${V}px;height:${V}px">
           <div class="ap-view">${appraiseImg(kind, [], it.flip)}</div>${loupe}</div>
         <div class="viewer">
-          <p class="ap-tip">${lv ? '거울 손잡이를 눌러 조요경을 움직인다，물건 전체를 비춰본다. 거울 아래가 온통 검보랏빛이다，위조한 부분이<b class="uv-txt">泛出荧光</b>；진품은 온통 한 빛이다，빛나는 곳이 한 곳도 없다。'
+          <p class="ap-tip">${lv ? '거울 손잡이를 눌러 조요경을 움직여 물건 전체를 비춰본다. 거울 아래가 온통 검보랏빛이면 위조한 부분이<b class="uv-txt">형광을 낸다</b>. 진품은 온통 한 빛이고 빛나는 곳이 한 곳도 없다.'
             : '감보대에 조요경이 없다，손에 든 건 돋보기 하나뿐: 무늬는 잘 보인다，위조를 비추지 못한다。'}</p>
-          <p class="muted small">네 감정술：<b>${LENS_NAMES[lv]}</b>（第${cn(lv) || '零'}중) - 그것보다 솜씨가 좋은 위작은 빛나지 않는다。</p>
+          <p class="muted small">네 감정술: <b>${LENS_NAMES[lv]}</b>(제${cn(lv) || '0'}중) - 그것보다 솜씨가 좋은 위작은 빛나지 않는다。</p>
           ${mode === 'own' || mode === 'story' ? '' : talkHTML(c)}
           <div class="h-btns">${buttons()}</div></div></div>`, 'm-appraise');
     const stage = $('#ap-stage'), lens = $('#ap-lens'), arm = $('#lens-arm'), content = $('#lens-content');
@@ -1143,15 +1143,15 @@ function openAppraise(mode, uid) {
     const fee = c.fee, res = finishAppraisal(c, fake);
     modal = null;
     if (res.caught) {
-      modalHTML(`<h3>被간파了</h3><p>${esc(c.name)}냉소했다: “누구를 속이려고?” 소매를 뿌리며 떠났다，수고비를 한 푼도 못 받았다。
+      modalHTML(`<h3>들통났다</h3><p>${esc(c.name)}냉소했다: “누구를 속이려고?” 소매를 뿌리며 떠났다. 수고비를 한 푼도 못 받았다.
         <span class="bad">${FACTIONS[c.faction].name}평판 -6</span></p>
         <div class="h-btns"><button class="btn primary" data-act="ap-done">손님을 보낸다</button></div>`);
     } else {
       const offer = !res.ask ? '' : fake ? `<p>“위작이라니，둬봤자 자리만 차지한다。<b>${res.ask}</b> 영석，주인장이 받아주시오？”</p>`
         : `<p>“알고 보니 진품……주인장이 뜻이 있으면，<b>${res.ask}</b> 영석에 너에게 넘긴다。”</p>`;
-      modalHTML(`<h3>감정已毕</h3><p>你告诉${esc(c.name)}：此物是<b>${fake ? '위작' : '진품'}</b>。상대가 믿었다，付了 ${fee} 영석수고비。</p>${offer}
+      modalHTML(`<h3>감정 완료</h3><p>${esc(c.name)}에게 말했다: 이것은 <b>${fake ? '위작' : '진품'}</b>. 상대가 믿고 수고비 ${fee} 영석을 냈다.</p>${offer}
         <div class="h-btns">${res.ask ? `<button class="btn primary" data-act="ap-buyback">회수(흥정)</button>` : ''}
-        <button class="btn ${res.ask ? 'ghost' : 'primary'}" data-act="ap-done">${res.ask ? '不收，손님을 보낸다' : '손님을 보낸다'}</button></div>`);
+        <button class="btn ${res.ask ? 'ghost' : 'primary'}" data-act="ap-done">${res.ask ? '안 받고 손님을 보낸다' : '손님을 보낸다'}</button></div>`);
     }
     renderAll();
   };
@@ -1166,7 +1166,7 @@ function openAppraise(mode, uid) {
     feel(c, caught ? 'angry' : 'afraid');
     closeModal();
     if (caught && c.patience <= 0) { dismissCustomer(false); toast(`${c.name}네 술수를 간파했다，소매를 뿌리며 떠난다`, 'bad'); }
-    else if (caught) toast(`被간파了！${FACTIONS[c.faction].name}평판 -6，상대가 도리어 값을 올렸다`, 'bad');
+    else if (caught) toast(`들통났다! ${FACTIONS[c.faction].name} 평판 -6, 상대가 도리어 값을 올렸다`, 'bad');
     else toast(`상대가 믿었다，개시가를 낮췄다 ${customerItem().ask} 영석`, 'good');
     renderAll();
   };
@@ -1179,10 +1179,10 @@ function talkHTML(c) {
 }
 
 function showReport(rep) {
-  openModal(() => modalHTML(`<h3>${icon('ic_night')}야간 보고 · 제 ${S.day - 1} 夜</h3>
+  openModal(() => modalHTML(`<h3>${icon('ic_night')}야간 보고 · 제 ${S.day - 1}일 밤</h3>
     <div class="report">${rep.map(r => `<div class="rp-row ${r.cls || ''}">
       <img src="${asset(r.icon.startsWith('m_') ? 'machines' : 'ui', r.icon)}" alt=""><b>${r.title}</b><span>${esc(r.text)}</span></div>`).join('')}</div>
-    <div class="h-btns"><button class="btn primary" data-act="report-ok">迎接第 ${S.day} 日</button></div>`, 'm-report'));
+    <div class="h-btns"><button class="btn primary" data-act="report-ok">제 ${S.day}일을 맞는다</button></div>`, 'm-report'));
 }
 
 function showLandlord() {
@@ -1190,15 +1190,15 @@ function showLandlord() {
   const qianMood = mood(S.people.qian ? S.people.qian.aff : 0);
   const line = sun
     ? owed ? `“임대료 체납 <b>${S.rentOwed}</b> 영석. 종문 규정이다，이틀 유예한다. 이틀 뒤에도 못 내면，규정대로 가게를 거둔다.” 그녀가 장부에 한 줄 적었다，“나는 한 푼도 더 받지 않아，한 푼도 덜 받지 않는다。”`
-      : `“임대료 완납. 다음 회차 <b>${rentAmount()}</b> 영석，第 ${S.rentDue} 일.” 그녀가 고개도 들지 않았다，“账目清楚，더 말할 필요 없다。”`
-    : owed ? `“哟，못 내겠다고? 종문 규정이야，이틀 유예，连本带罚 <b>${S.rentOwed}</b> 영석. 이틀 뒤에도 못 내놓으면……嘿嘿，이 가게의 주인이 바뀐다。”`
-      : qianMood === 'close' || qianMood === 'warm' ? `“自己人，임대료는 받았다. 다음 <b>${rentAmount()}</b> 영석，第 ${S.rentDue} 일에 가지러 온다.” 그가 싱글벙글하며 너를 두드렸다，“有好事，늙은 전을 생각해줘。”`
-        : qianMood === 'hostile' || qianMood === 'cold' ? `“임대료는 받았다.” 그가 겉으로만 웃었다，“下回 <b>${rentAmount()}</b> 영석，第 ${S.rentDue} 일. 젊은이，잡역 구역의 가게，아무나 빌릴 수 있는 게 아니다。”`
-          : `“임대료는 받았다. 다음은 <b>${rentAmount()}</b> 영석，第 ${S.rentDue} 일에 가지러 온다. 잡역 구역의 가게는，그런데 해마다 몸값이 오른다니까。”`;
+      : `“임대료 완납. 다음 회차 <b>${rentAmount()}</b> 영석, 제 ${S.rentDue}일.” 그녀가 고개도 들지 않고 말했다. “장부는 깨끗하군. 더 말할 필요 없다.”`
+    : owed ? `“어머, 못 내겠다고? 종문 규정이야. 이틀 유예, 원금에 벌금을 얹어 <b>${S.rentOwed}</b> 영석. 이틀 뒤에도 못 내놓으면…… 후후, 이 가게의 주인이 바뀐다.”`
+      : qianMood === 'close' || qianMood === 'warm' ? `“우리 사이에, 임대료는 받았다. 다음 <b>${rentAmount()}</b> 영석, 제 ${S.rentDue}일에 가지러 온다.” 그가 싱글벙글하며 너를 두드렸다，“좋은 일 있으면 늙은 전을 생각해줘.”`
+        : qianMood === 'hostile' || qianMood === 'cold' ? `“임대료는 받았다.” 그가 겉으로만 웃었다，“다음은 <b>${rentAmount()}</b> 영석, 제 ${S.rentDue}일. 젊은이, 잡역 구역의 가게를 아무나 빌릴 수 있는 게 아니다.”`
+          : `“임대료는 받았다. 다음은 <b>${rentAmount()}</b> 영석, 제 ${S.rentDue}일에 가지러 온다. 잡역 구역의 가게는，그런데 해마다 몸값이 오른다니까。”`;
   openModal(() => modalHTML(`<div class="npc-talk"><img src="${asset('chars', landlordPerson().portrait)}" alt="">
     <div><h3>${landlordName()}</h3><p>${line}</p>
     <p class="muted small">가게 문서를 사들이고 싶다？${deedPrice()} 영석，한 푼도 깎을 수 없다。</p>
-    <div class="h-btns"><button class="btn primary" data-act="modal-close">知道了</button></div></div></div>`, 'm-npc'));
+    <div class="h-btns"><button class="btn primary" data-act="modal-close">알겠다</button></div></div></div>`, 'm-npc'));
 }
 
 // ───────────── 故事对话 ─────────────
