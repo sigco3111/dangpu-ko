@@ -9,7 +9,7 @@ const pct = p => `${Math.round(p * 100)}%`;
 
 let scale = 1;
 let tab = 'display';
-let sel = null;        // 선택됨物品 uid
+let sel = null;        // 선택된 물건 uid
 let modal = null;      // 현재 팝업 렌더 함수
 let toastTimer = null;
 
@@ -59,43 +59,43 @@ function toast(text, cls = '') {
 function itemTags(it) {
   const tags = [];
   if (ITEMS[it.id].contra) tags.push(['contra', '선문 금물']);
-  if (ITEMS[it.id].illicit) tags.push(['stolen', '魔宗금약']);
+  if (ITEMS[it.id].illicit) tags.push(['stolen', '마종 금약']);
   if (lacedKnown(it)) tags.push(['laced', it.lacedBy === 'me' ? `몰래${LACE[it.laced].verb}` : `남에게${LACE[it.laced].verb}（걸러냈다)`]);
-  if (it.mark) tags.push(['stolen', markVisible(it) ? `원주인의 낙인 · ${cn(it.mark.str)}重` : '남은 신식이 있는 듯하다，看不真切']);
+  if (it.mark) tags.push(['stolen', markVisible(it) ? `원주인의 낙인 · ${cn(it.mark.str)}重` : '남은 신식이 있는 듯하다, 제대로 보이지 않는다']);
   if (it.sealed) tags.push(['laced', `정파 봉인을 붙임 · 솜씨${GRADE_NAMES[it.grade]}`]);
-  if (it.bottled) tags.push(['real', '玉净瓶装']);
-  if (restoreOf(seemOf(it))) { const r = restoreOf(seemOf(it)); tags.push(['', `可복용：${r[0] ? `体力+${r[0]} ` : ''}${r[1] ? `정신+${r[1]}` : ''}`]); }
+  if (it.bottled) tags.push(['real', '옥정병에 담음']);
+  if (restoreOf(seemOf(it))) { const r = restoreOf(seemOf(it)); tags.push(['', `복용 가능: ${r[0] ? `체력+${r[0]} ` : ''}${r[1] ? `정신+${r[1]}` : ''}`]); }
   const cures = Object.entries(CONDS).filter(([, C]) => C.cure.includes(bodyOf(seemOf(it)).id)).map(([, C]) => C.name);
-  if (cures.length && it.id !== 'water') tags.push(['', `治${cures.join('、')}：${CURE_TEXT[cureGrades(it)]}`]);
-  if (it.forged) tags.push(['laced', `你做的${it.fake ? '위작' : '하급을 상급으로'} · ${GRADE_NAMES[it.grade]}`]);
+  if (cures.length && it.id !== 'water') tags.push(['', `치료: ${cures.join(' · ')} · ${CURE_TEXT[cureGrades(it)]}`]);
+  if (it.forged) tags.push(['laced', `네가 만든 ${it.fake ? '위작' : '하급을 상급으로'} · ${GRADE_NAMES[it.grade]}`]);
   else if (isDressed(it) && knownFlaw(it)) tags.push(['fake', `하급을 상급으로 · 솜씨${GRADE_NAMES[it.grade]}`]);
-  else if (dressable(it) && it.seen != null) tags.push(['', `已검품（${LENS_NAMES[it.seen]}）`]);
-  if (it.fake && knownFlaw(it) && it.grade && !it.forged) tags.push(['', `做工${GRADE_NAMES[it.grade]}`]);
-  if (ITEMS[it.id].additive) tags.push(['laced', `可作料：${LACE[ITEMS[it.id].additive].name}`]);
+  else if (dressable(it) && it.seen != null) tags.push(['', `검품함(${LENS_NAMES[it.seen]})`]);
+  if (it.fake && knownFlaw(it) && it.grade && !it.forged) tags.push(['', `만듦새 ${GRADE_NAMES[it.grade]}`]);
+  if (ITEMS[it.id].additive) tags.push(['laced', `재료로 사용: ${LACE[ITEMS[it.id].additive].name}`]);
   if ((ITEMS[it.id].war || 0) >= 0.5) tags.push(['', '전비']);
   if (it.stolen > 0) tags.push(['stolen', `출처 불명 · 남은 ${it.stolen} 日`]);
   if (it.revealed) tags.push(['fake', '위작(간파됨)']);
   else if (it.verdict === 'fake') tags.push(['fake', '네가 위작으로 판정했다']);
   else if (it.verdict === 'real') tags.push(['real', '네가 진품으로 판정했다']);
-  else if (ITEMS[it.id].appraise) tags.push(['', '未감정']);
+  else if (ITEMS[it.id].appraise) tags.push(['', '미감정']);
   return tags;
 }
 
 function itemStats(it) {
   const rows = [];
   if (hasQuality(it)) {
-    if (isDressed(it) && knownFlaw(it)) rows.push(['겉면品质', `${qualityName(it.sq)} · ${it.sq}`], ['실제 품질', `${qualityName(it.q)} · ${it.q}`]);
-    else rows.push(['品质', `${qualityName(shownQ(it))} · ${shownQ(it)}`]);
+    if (isDressed(it) && knownFlaw(it)) rows.push(['겉면 품질', `${qualityName(it.sq)} · ${it.sq}`], ['실제 품질', `${qualityName(it.q)} · ${it.q}`]);
+    else rows.push(['품질', `${qualityName(shownQ(it))} · ${shownQ(it)}`]);
   }
-  if (ITEMS[it.id].tool) rows.push(['감정术', `第${cn(ITEMS[it.id].tool)}重`]);
-  if (ITEMS[it.id].book) { const b = ITEMS[it.id].book; rows.push(['현재 경지', `${TECHS[b.tech].name}第${cn(techLv(b.tech) || 0) || '零'}重`]); }
+  if (ITEMS[it.id].tool) rows.push(['감정술', `第${cn(ITEMS[it.id].tool)}重`]);
+  if (ITEMS[it.id].book) { const b = ITEMS[it.id].book; rows.push(['현재 경지', `${TECHS[b.tech].name} 제${cn(techLv(b.tech) || 0) || '0'}중`]); }
   if (it.id === 'water') rows.push(['순도', `${it.purity}%`]);
-  if (it.id === 'gu') rows.push(['성장', `${it.growth}/100`], ['독성', it.tox], ...(it.eat ? [['吞噬', `${it.eat} 只`]] : []), ['진화', guNext(it)]);
+  if (it.id === 'gu') rows.push(['성장', `${it.growth}/100`], ['독성', it.tox], ...(it.eat ? [['삼킴', `${it.eat}마리`]] : []), ['진화', guNext(it)]);
   if (it.id === 'gu_egg' || it.id === 'gu_venom') rows.push(['독성', it.tox]);
-  if (it.id === 'spirit_crystal') rows.push(['充能', `${it.charge || 0}/${CRYSTAL_CAP}`]);
+  if (it.id === 'spirit_crystal') rows.push(['충전', `${it.charge || 0}/${CRYSTAL_CAP}`]);
   if (isSeed(it) && it.growth) rows.push(['생장', `${it.growth}%`]);
   if (it.id === 'corpse') rows.push(['신선', `还能放 ${Math.max(0, Math.ceil(it.fresh / seasonOf().rot))} 日`]);
-  if (it.cost != null) rows.push(['购入价', `${it.cost}`]);
+  if (it.cost != null) rows.push(['매입가', `${it.cost}`]);
   return rows;
 }
 
@@ -105,7 +105,7 @@ function itemTip(it) {
   return `<h4>${esc(itemName(it))}</h4>
     <div class="tip-sub">${CATS[d.cat]} · ${d.w}×${d.h}</div>
     ${pileLine(it)}
-    <div class="tip-val">估值 ${stoneTxt(v)}${Math.abs(priceMul(it.id) - 1) > 0.005 ? `<span class="${priceMul(it.id) > 1 ? 'good' : 'bad'}">시세 ×${priceMul(it.id).toFixed(2)}</span>` : ''}</div>
+    <div class="tip-val">추정가 ${stoneTxt(v)}${Math.abs(priceMul(it.id) - 1) > 0.005 ? `<span class="${priceMul(it.id) > 1 ? 'good' : 'bad'}">시세 ×${priceMul(it.id).toFixed(2)}</span>` : ''}</div>
     ${priceBreakdown(it.id).map(([k, x]) => `<div class="tip-row small muted"><span>· ${k}</span><span>${x > 0 ? '+' : ''}${Math.round(x * 100)}%</span></div>`).join('')}
     ${itemStats(it).map(([k, val]) => `<div class="tip-row"><span>${k}</span><span>${val}</span></div>`).join('')}
     <div class="tags">${itemTags(it).map(([c, t]) => `<span class="tag ${c}">${t}</span>`).join('')}</div>
@@ -116,9 +116,9 @@ function itemTip(it) {
 function pileLine(it) {
   const pile = stackOf(it);
   if (pile.length < 2) return '';
-  const each = pile.map(o => hasQuality(o) ? qualityName(o.q) : o.tox != null ? `毒${o.tox}` : '').filter(Boolean);
+  const each = pile.map(o => hasQuality(o) ? qualityName(o.q) : o.tox != null ? `독 ${o.tox}` : '').filter(Boolean);
   const kinds = Object.entries(each.reduce((c, k) => (c[k] = (c[k] || 0) + 1, c), {})).map(([k, n]) => `${k}${n > 1 ? `×${n}` : ''}`);
-  return `<div class="tip-row small"><span>이 칸에 겹쳐 있다 ${pile.length} 份</span><span>${kinds.join('、')}</span></div>`;
+  return `<div class="tip-row small"><span>이 칸에 겹쳐 있다 ${pile.length}개</span><span>${kinds.join(' · ')}</span></div>`;
 }
 
 function itemHTML(it, extraCls = '', attrs = '') {
@@ -128,8 +128,8 @@ function itemHTML(it, extraCls = '', attrs = '') {
   if (it.stolen > 0) badges.push(`<img class="badge b-tl" src="${asset('ui', 'ic_stolen')}" alt="">`);
   if (it.mark && markVisible(it)) badges.push(`<img class="badge b-bl" src="${asset('ui', 'ic_mark')}" alt="">`);
   if (it.sealed) badges.push(`<img class="badge b-br" src="${asset('ui', 'ic_seal')}" alt="">`);
-  if (it.revealed || it.verdict === 'fake' || (it.forged && it.fake)) badges.push(`<span class="stamp">赝</span>`);
-  else if (isDressed(it) && knownFlaw(it)) badges.push(`<span class="stamp dressed">次</span>`);
+  if (it.revealed || it.verdict === 'fake' || (it.forged && it.fake)) badges.push(`<span class="stamp">위</span>`);
+  else if (isDressed(it) && knownFlaw(it)) badges.push(`<span class="stamp dressed">하</span>`);
   if (it.id === 'water') badges.push(`<span class="num">${Math.floor(it.purity)}%</span>`);
   if (it.id === 'gu' && it.growth < 100) badges.push(`<span class="bar"><i style="width:${it.growth}%"></i></span>`);
   if (isSeed(it) && it.growth) badges.push(`<span class="bar"><i style="width:${it.growth}%"></i></span>`);
