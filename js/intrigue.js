@@ -5,12 +5,12 @@
 
 // 各身份最想得到的东西
 const WISHES = {
-  落魄散修: ['pill_found', 'pill_qi'], 凡人行商: ['spirit_wine', 'jade_pendant'], 杂役少年: ['pill_qi', 'sword_std'],
-  游方剑客: ['xian_talisman', 'pill_qi'], 蒙面女修: ['bronze_mirror', 'jade_pendant'], 外门弟子: ['sword_std', 'pill_blood'],
-  内门师姐: ['soul_banner', 'soul_pearl'], 狐妖: ['spirit_fruit', 'yao_core'], 虎妖: ['spirit_wine', 'beast_hide'],
-  蛇妖: ['pill_found', 'wangyou'], 筑基修士: ['pill_found', 'soul_pearl'], 内门弟子: ['soul_pearl', 'iron_corpse', 'puppet_doll'],
+  '낙패한 산수': ['pill_found', 'pill_qi'], '범인 행상': ['spirit_wine', 'jade_pendant'], '잡역 소년': ['pill_qi', 'sword_std'],
+  '유방 검객': ['xian_talisman', 'pill_qi'], '복면 여수사': ['bronze_mirror', 'jade_pendant'], '외문 제자': ['sword_std', 'pill_blood'],
+  '내문 사배': ['soul_banner', 'soul_pearl'], 狐妖: ['spirit_fruit', 'yao_core'], '호랑이 요괴': ['spirit_wine', 'beast_hide'],
+  '뱀 요괴': ['pill_found', 'wangyou'], '축기 수사': ['pill_found', 'soul_pearl'], '내문 제자': ['soul_pearl', 'iron_corpse', 'puppet_doll'],
 };
-WISHES.内门师兄 = WISHES.内门师姐; WISHES.蒙面修士 = WISHES.蒙面女修; WISHES.杂役少女 = WISHES.杂役少年;
+WISHES['내문 사형'] = WISHES['내문 사배']; WISHES['복면 수사'] = WISHES['복면 여수사']; WISHES['잡역 소녀'] = WISHES['잡역 소년'];
 const WAR_WISHES = { mo: ['sword_std', 'pill_blood', 'soul_pearl', 'iron_corpse', 'puppet_doll', 'vine_fruit'], ren: ['vine_fruit', 'pill_qi'], yao: ['vine_fruit', 'herb_blood'] };
 const GREED = { ren: 0.5, mo: 0.65, xian: 0.3, yao: 0.4 };
 const CAUTION = { ren: 0.6, mo: 0.2, xian: 0.9, yao: 0.5 };
@@ -82,12 +82,12 @@ const isAddictive = it => it.id === 'wangyou' || it.laced === 'addict';
 function personPriceRows(c, it) {
   const p = personOf(c), rows = [];
   if (!p) return rows;
-  if (c.wishId === it.id) rows.push(['正是他想要的', '+60%']);
-  if (c.noble) rows.push(['权贵的排场', `+${10 + 12 * (c.flatter || 0)}%`]);
-  if (c.craving && isAddictive(it)) rows.push(['瘾头上来了', `+${p.addict * 40}%`]);
+  if (c.wishId === it.id) rows.push(['바로 그가 원하던 것', '+60%']);
+  if (c.noble) rows.push(['권귀의 보디가드', `+${10 + 12 * (c.flatter || 0)}%`]);
+  if (c.craving && isAddictive(it)) rows.push(['중독이 올라온다', `+${p.addict * 40}%`]);
   const cure = cureFor(c, it);
-  if (cure) rows.push([`急着${cure === 'injured' ? '治伤' : cure === 'poisoned' ? '解毒' : '镇住心魔'}`, `+${Math.round(CURE_MUL * 100) * cureSev(c, cure)}%`]);
-  if (p.aff) rows.push(['好感', `${p.aff > 0 ? '+' : ''}${Math.round(p.aff / 5)}%`]);
+  if (cure) rows.push([`급히 ${cure === 'injured' ? '상처를 치료' : cure === 'poisoned' ? '해독' : '심마를 진정'}하려 한다`, `+${Math.round(CURE_MUL * 100) * cureSev(c, cure)}%`]);
+  if (p.aff) rows.push(['호감', `${p.aff > 0 ? '+' : ''}${Math.round(p.aff / 5)}%`]);
   return rows;
 }
 
@@ -109,11 +109,11 @@ function personValueMul(c, it) {
 // ───────────── 加料 ─────────────
 
 const LACE = {
-  addict:  { name: '忘忧散', verb: '掺了忘忧散', detect: 0.35, desc: '服者成瘾：越来越常来、越来越肯出钱，也越来越虚、越来越穷，直到油尽灯枯。' },
-  control: { name: '蛊虫',   verb: '藏了蛊虫',   detect: 0.5,  desc: '吃下去的人中蛊：听你差遣，不从就蛊噬其心、重伤（要不了命）。只有养蛊人掺得进去；吃的人修为高过你的蛊、或身上已有蛊，蛊种不上。蛊越毒越难察觉。' },
-  love:    { name: '情蛊',   verb: '藏了情蛊',   detect: 0.2,  desc: '只认成年女子：她吃下去，好感锁在顶上、事事顺着你；她死你也活不成，一生只认一人。男子、孩子吃下去，蛊不认，白白死在肚里。' },
-  tonic:   { name: '血灵芝', verb: '添了血灵芝', detect: 0,    desc: '实打实的滋补：气血大补，更易破境，对方念你的好。' },
-  poison:  { name: '尸毒',   verb: '下了尸毒',   detect: 0.4,  desc: '服者数日内暴毙。亲友若起疑，必追查到底。' },
+  addict:  { name: '망우산', verb: '망우산을 섞었다', detect: 0.35, desc: '복용자가 중독된다. 점점 자주 오고, 점점 돈을 잘 내고, 점점 허약해지고 가난해지다가 기름이 다하고 등불이 꺼질 때까지.' },
+  control: { name: '고충',   verb: '고충을 숨겼다',   detect: 0.5,  desc: '먹은 사람이 고에 걸린다. 네 지시를 따르고, 거역하면 고가 심장을 갉아먹어 중상(목숨은 건진다). 고를 기르는 사람만 섞을 수 있다. 먹는 사람의 수련이 네 고보다 높거나 이미 고가 있으면 고가 자리 잡지 못한다. 고가 독할수록 알아채기 어렵다.' },
+  love:    { name: '정고',   verb: '정고를 숨겼다',   detect: 0.2,  desc: '성인 여자만 인정한다. 그녀가 먹으면 호감이 최고치로 고정되고 모든 일이 네 뜻대로 된다. 그녀가 죽으면 너도 살 수 없으며, 일생에 한 사람만 인정한다. 남자나 아이가 먹으면 고가 인정하지 않아 헛되이 죽는다.' },
+  tonic:   { name: '혈영지', verb: '혈영지를 추가했다', detect: 0,    desc: '확실한 보양: 기혈이 크게 보강되고 경지 돌파가 쉬워진다. 상대가 너를 고마워한다.' },
+  poison:  { name: '시독',   verb: '시독을 넣었다',   detect: 0.4,  desc: '복용자가 며칠 내로 급사한다. 친족이 의심하면 끝까지 추적한다.' },
 };
 // 能掺料的：服得下、对人有好处的吃食与药——补气力、涨修为、治伤毒的丹药、灵饮、灵果、草药、妖材入药都算；
 // 吞魂饮血的魂魄精血妖丹（不是丹药的）、点的香、本身就是料的（蛊虫也是料）、废料不算。货品册写 to.lace 的另补进 LACEABLE。
@@ -144,7 +144,7 @@ const laceSkill = kind => !!(S.laceKnown && S.laceKnown[kind]);
 
 // 能不能把这味料掺进这件货：能返回 null，否则返回缘由；蛊只有养蛊人掺得进去
 function laceBlock(target, add) {
-  if (!canLace(target)) return `${itemName(target)}掺不了料`;
+  if (!canLace(target)) return `${itemName(target)}에는 섞을 수 없다`;
   return isGuLace(ITEMS[add.id].additive) ? guLaceBlock(add) : null;
 }
 
@@ -158,7 +158,7 @@ function laceWith(target, add) {
   if (add.id === 'gu') { target.laceTox = add.tox + [0, 40, 55, 70][guStage(add)]; target.laceStage = guStage(add); }
   destroyItem(add);
   tally('cruel');
-  log(`你在${itemName(target)}里${LACE[target.laced].verb}。`, 'warn');
+  log(`네가 ${itemName(target)}에 ${LACE[target.laced].verb}.`, 'warn');
   return null;
 }
 
@@ -182,7 +182,7 @@ function applyLace(p, it, via, pass = false) {
   // 明知掺了料还卖、还送，才算你作的恶；不知情的，只是替别人背了锅
   const knew = lacedKnown(it);
   if (Math.random() < laceDetectChance(p, it)) {
-    remember(p, `发现你${via === 'gift' ? '送' : '卖'}的${name}里${LACE[it.laced].verb}。`, -45, 'poisoned');
+    remember(p, `네가 ${via === 'gift' ? '준' : '판'} ${name}에 ${LACE[it.laced].verb}.`, -45, 'poisoned');
     adjustRep(p.faction, -6); addHeat(8);
     startScandal(p, 'laced', { item: name, lace: it.laced });
     return { caught: true };
@@ -205,7 +205,7 @@ function eatStash(p) {
     const eater = other || p;
     const r2 = laceEffect(eater, x, x.name, x.knew);
     // 你亲手掺的才知道下落：转了手的告诉你吃的是谁
-    if (x.lacedBy === 'me' && eater !== p) out.push({ text: `${p.name}把${x.name}转送给了${eater.name}，${eater.name}吃了下去。${r2.text ? `\n${r2.text}` : ''}`, cls: r2.cls || 'warn' });
+    if (x.lacedBy === 'me' && eater !== p) out.push({ text: `${p.name}이(가) ${x.name}을(를) ${eater.name}에게 건네줬고, ${eater.name}이(가) 먹어치웠다.${r2.text ? `\n${r2.text}` : ''}`, cls: r2.cls || 'warn' });
     else if (r2.text) out.push({ text: r2.text, cls: r2.cls });
     return false;
   });
@@ -222,13 +222,13 @@ function laceEffect(p, it, name, knew) {
       // 补多少看那株血灵芝的品质
       p.health = Math.min(130, (p.health || 100) + Math.round(25 * potency({ id: 'herb_blood', q: it.laceQ != null ? it.laceQ : 60 })));
       p.boost = { id: 'pill_qi', fake: false, q: it.laceQ != null ? clamp(it.laceQ + 20, 5, 100) : 80, day: S.day };
-      remember(p, `你在${name}里添了血灵芝，他气血大补。`, 10, 'pillHelped');
+      remember(p, `네가 ${name}에 혈영지를 넣었다. 그의 기혈이 크게 보강된다.`, 10, 'pillHelped');
       return {};
     case 'poison':
       p.health = (p.health || 100) - 85;
       p.poisonedDay = S.day;
-      remember(p, `你在${name}里下了尸毒。`, 0);
-      if (knew) commitSin('harm', { p, w: 3, what: `给${p.name}下尸毒`, virtue: 9 });
+      remember(p, `네가 ${name}에 시독을 넣었다.`, 0);
+      if (knew) commitSin('harm', { p, w: 3, what: `${p.name}에게 시독을 넣는다`, virtue: 9 });
       return {};
   }
   return {};
@@ -239,8 +239,8 @@ function hook(p, name, knew = true) {
   p.addict = Math.min(5, (p.addict || 0) + (knew && laceSkill('addict') ? 2 : 1));
   p.health = (p.health || 100) - 6;
   p.lastFix = S.day;
-  if (knew) commitSin('harm', { p, w: 1, what: `让${p.name}吃上忘忧散`, virtue: 3 });
-  remember(p, `吃了你的${name}，飘飘欲仙。`, 6, 'hooked');
+  if (knew) commitSin('harm', { p, w: 1, what: `${p.name}에게 망우산을 먹인다`, virtue: 3 });
+  remember(p, `네 ${name}을(를) 먹고 황홀해졌다.`, 6, 'hooked');
   return {};
 }
 
@@ -267,7 +267,7 @@ function giveGift(p, it) {
   const wish = p.wish === it.id;
   if (wish) { gain += 10; p.wish = null; }
   p.giftedDay = S.day;
-  remember(p, `你送了他${name}${wish ? '——正是他想要的' : ''}。`, gain, wish ? 'helped' : null);
+  remember(p, `네가 그에게 ${name}을(를) 줬다${wish ? ' - 바로 그가 원하던 것' : ''}.`, gain, wish ? 'helped' : null);
   if (['pill_qi', 'pill_blood', 'pill_found'].includes(it.id)) p.boost = { id: it.id, fake: !!it.fake, q: it.q, day: S.day };
   npcCure(p, it);
   if (p.addict && it.id === 'wangyou') p.lastFix = S.day;
@@ -278,10 +278,10 @@ function giveGift(p, it) {
 }
 
 function giveStones(p, n) {
-  spend(n, `送给${p.name} ${n} 灵石。`);
+  spend(n, `${p.name}에게 ${n} 영석을 줬다.`);
   p.giftedDay = S.day;
   const gain = clamp(Math.round(n / (10 + 40 * p.budgetMul) * (0.4 + p.greed)), 1, 40);
-  remember(p, `你送了他 ${n} 灵石。`, gain, 'bribed');
+  remember(p, `네가 그에게 ${n} 영석을 줬다.`, gain, 'bribed');
   return gain;
 }
 
@@ -300,56 +300,56 @@ function storyGiftHook(p, it, res) {
 // odds：差遣成算；pay：差遣前付出的代价（返回错误则不能用）；cut：上贡时他交几成；fail：不听话的后果
 const LEVERS = {
   // 亲手下的蛊：不从就蛊噬其心，重伤——要不了命，也不会被逼出来
-  gu: { name: '蛊', has: p => guBound(p), odds: p => clamp(0.55 + 0.1 * p.controlled.stage + 0.06 * guLv(), 0, 0.97), cut: 1, note: () => '不从，蛊噬其心：重伤，要不了命',
+  gu: { name: '고', has: p => guBound(p), odds: p => clamp(0.55 + 0.1 * p.controlled.stage + 0.06 * guLv(), 0, 0.97), cut: 1, note: () => '거역하면 고가 심장을 갉아먹는다: 중상, 목숨은 건진다',
     fail: p => guBite(p) },
-  love: { name: '情蛊', has: p => !!p.loveGu, odds: () => 1, cut: 1, note: p => `${ta(p)}什么都肯为你做` },
-  bond: { name: '魂印', has: p => !!p.soulBound, odds: () => 0.95, cut: 1, note: () => '识海里的印记，难违',
-    fail: p => { p.soulBound = null; remember(p, '魂印松动，他清醒了片刻，记起了一切。', -50, 'controlled'); return `${p.name}抱着头惨叫一声，魂印碎了。`; } },
-  drug: { name: '药瘾', has: p => (p.addict || 0) >= 2, odds: p => clamp(0.45 + 0.1 * p.addict, 0, 0.95), cut: 0.7, note: () => '拿一份忘忧散吊着他',
-    pay: p => { const d = ownItem(isAddictive); if (!d) return '手头没有忘忧散（或掺了它的货）'; hook(p, itemName(d)); destroyItem(d); return null; },
-    fail: p => `${p.name}抢过药一口吞了，翻着白眼瘫在地上，什么也没办成。` },
-  dao: { name: '修为威压', has: p => killable(p) && cultGap(p) >= 1, odds: p => clamp(0.35 + 0.2 * cultGap(p), 0, 0.92), cut: 0.9, note: () => '耗精神，伤好感',
-    pay: p => { const err = exert('command', 2); if (err) return err; remember(p, '被你以修为压着办事。', -6); return null; },
-    fail: p => { grievance(p, 40, '被你仗着修为欺压'); return `${p.name}咬着牙顶住了你的威压：“你等着。”`; } },
-  gain: { name: '利益', has: p => p.aff >= 40 || !!p.owes, odds: p => clamp(0.4 + p.aff / 200 + (p.owes ? 0.2 : 0), 0, 0.9), cut: 0.5, note: p => `分他好处，约 ${gainCost(p)} 灵石`,
-    pay: p => { const n = gainCost(p); if (S.stones < n) return '灵石不够分他好处'; spend(n, `分给${p.name} ${n} 灵石好处。`); return null; },
-    fail: p => { remember(p, '你要他办的事，他不想沾。', -3); return `${p.name}收了好处，却摇摇头：“这事我办不了。”`; } },
-  dirt: { name: '把柄', has: p => !!(p.secret && p.secret.known), odds: p => clamp(overpowerOdds(p) + 0.15, 0, 0.9), cut: 0.8, note: () => '伤他好感，逼急了会反咬',
-    pay: p => { remember(p, `你拿他${p.secret.type}的身份逼他办事。`, -10, 'blackmailed'); return null; },
-    fail: p => `${p.name}冷冷看着你：“你去告啊。”——${retaliate(p, 50)}` },
+  love: { name: '정고', has: p => !!p.loveGu, odds: () => 1, cut: 1, note: p => `${ta(p)}이(가) 너를 위해 무엇이든 하겠다` },
+  bond: { name: '혼인', has: p => !!p.soulBound, odds: () => 0.95, cut: 1, note: () => '식해 속의 인장은 거역하기 어렵다',
+    fail: p => { p.soulBound = null; remember(p, '혼인이 느슨해져 그가 잠시 정신을 차리고 모든 것을 기억해냈다.', -50, 'controlled'); return `${p.name}이(가) 머리를 움켜쥐고 비명을 질렀다. 혼인이 깨졌다.`; } },
+  drug: { name: '약물 중독', has: p => (p.addict || 0) >= 2, odds: p => clamp(0.45 + 0.1 * p.addict, 0, 0.95), cut: 0.7, note: () => '망우산 한 첩으로 그를 붙잡아둔다',
+    pay: p => { const d = ownItem(isAddictive); if (!d) return '손에 망우산(또는 그것을 섞은 물건)이 없다'; hook(p, itemName(d)); destroyItem(d); return null; },
+    fail: p => `${p.name}이(가) 약을 낚아채 한입에 삼키고, 눈을 뒤집으며 바닥에 쓰러졌다. 아무것도 이루지 못했다.` },
+  dao: { name: '수련 위압', has: p => killable(p) && cultGap(p) >= 1, odds: p => clamp(0.35 + 0.2 * cultGap(p), 0, 0.92), cut: 0.9, note: () => '정신이 소모되고 호감이 떨어진다',
+    pay: p => { const err = exert('command', 2); if (err) return err; remember(p, '네가 수련으로 눌러 일을 시켰다.', -6); return null; },
+    fail: p => { grievance(p, 40, '네가 수련을 믿고 괴롭혔다'); return `${p.name}이(가) 이를 악물고 네 위압을 버텨냈다: \"두고 보자.\"`; } },
+  gain: { name: '이익', has: p => p.aff >= 40 || !!p.owes, odds: p => clamp(0.4 + p.aff / 200 + (p.owes ? 0.2 : 0), 0, 0.9), cut: 0.5, note: p => `그에게 이익을 나눠줘라, 약 ${gainCost(p)} 영석`,
+    pay: p => { const n = gainCost(p); if (S.stones < n) return '그에게 나눠줄 영석이 부족하다'; spend(n, `${p.name}에게 ${n} 영석의 이익을 나눠줬다.`); return null; },
+    fail: p => { remember(p, '네가 시킨 일을 그는 관여하고 싶지 않아 했다.', -3); return `${p.name}이(가) 이득을 받았지만 고개를 저었다: \"이 일은 내가 처리할 수 없다.\"`; } },
+  dirt: { name: '약점', has: p => !!(p.secret && p.secret.known), odds: p => clamp(overpowerOdds(p) + 0.15, 0, 0.9), cut: 0.8, note: () => '호감을 잃고, 몰리면 반격한다',
+    pay: p => { remember(p, `네가 그의 ${p.secret.type} 신분으로 그에게 일을 시켰다.`, -10, 'blackmailed'); return null; },
+    fail: p => `${p.name}이(가) 차갑게 너를 보았다: \"고하든지 말든지.\" - ${retaliate(p, 50)}` },
 };
 
 const gainCost = p => Math.round((30 + npcPower(p) * 1.5) / 5) * 5;
 
 const COMMANDS = {
-  tribute: { label: '上贡', cd: 5, run: (p, L) => {
+  tribute: { label: '상납', cd: 5, run: (p, L) => {
     const n = Math.round(rint(40, 80) * p.budgetMul * (p.faction === 'xian' ? 2 : p.faction === 'mo' ? 1.4 : 1) * L.cut);
-    earn(n, `${p.name}送来 ${n} 灵石“孝敬”。`);
-    return `${p.name}把 ${n} 灵石放在你柜上。`;
+    earn(n, `${p.name}이(가) ${n} 영석을 \"효심\"으로 보내왔다.`);
+    return `${p.name}이(가) ${n} 영석을 네 카운터에 올려놓았다.`;
   } },
-  spy: { label: '盯执法堂', cd: 7, run: p => {
+  spy: { label: '집법당을 주시한다', cd: 7, run: p => {
     S.flags.spyUntil = S.day + 7; S.flags.spyBy = p.pid;
     addHeat(-5);
-    return `${p.name}替你在执法堂安下了眼线：往后七日，巡查前夜必有风声。`;
+    return `${p.name}이(가) 집법당에 너의 눈을 심어뒀다. 앞으로 7일간 순찰 전날 밤에 풍문이 새어나온다.`;
   } },
-  scout: { label: '打探消息', cd: 4, run: p => {
+  scout: { label: '정보 캐내기', cd: 4, run: p => {
     const target = pick(Object.values(S.people).filter(t => t !== p && t.status === 'alive' && t.secret && !t.secret.known));
     const kind = weighted([['market', 4], ['clique', p.faction === 'mo' ? 3 : 1], ['secret', target ? 3 : 0], ['treasure', 2]]);
     if (kind === 'secret') target.secret.known = true;
     const it = makeIntel(kind, { p: target });
-    return it ? `${p.name}打听回来一份${itemName(it)}。` : `${p.name}打听到了些什么，可你库房里连张纸都放不下了。`;
+    return it ? `${p.name}이(가) ${itemName(it)} 하나를 알아냈다.` : `${p.name}이(가) 무언가 캐냈지만, 네 창고에는 종이 한 장 놓을 자리도 없다.`;
   } },
   special: { label: null, cd: 999, run: p => SPECIAL_COMMANDS[p.pid].run(p) },
 };
 
 const SPECIAL_COMMANDS = {
-  qian: { label: '令他免你一期租金', run: () => { S.flags.rentWaive = true; return '钱执事在账册上划了一笔：“这一期……不收了。”'; } },
-  sun: { label: '令她放松对你的巡查', run: () => { S.flags.inspectMul *= 0.6; return '孙管事把你的铺子从巡查名册上划去了一半。'; } },
-  enforcer: { label: '令他往后对你的铺子放行', run: () => { S.flags.enforcerOwned = true; return '厉寒点了点头：“你的铺子，往后我亲自来查。”'; } },
-  collector: { label: '令她不再征调你的货', run: () => { S.flags.noRequisition = true; return '司徒红绡把你的名字从征调簿上抹掉了。'; } },
-  thug: { label: '令他替你守夜', run: () => { S.flags.guard = true; return '刘癞子的弟兄们夜里开始在你铺子门口打盹。'; } },
-  fox: { label: '令她替你招揽妖族', run: () => { S.flags.foxBlessing = true; return '妖族的客人渐渐多了起来。'; } },
-  amu: { label: '令他压下巡查', run: () => { S.flags.inspectMul *= 0.7; return '阿木在执法堂里替你说了几句话。'; } },
+  qian: { label: '그에게 한 기의 임대료를 면하게 하라', run: () => { S.flags.rentWaive = true; return '전 집사가 장부에 한 획을 그었다: \\"이번 기는... 받지 않겠다.\\"'; } },
+  sun: { label: '그녀에게 너에 대한 순찰을 느슨하게 하라', run: () => { S.flags.inspectMul *= 0.6; return '손 관리가 네 가게를 순찰 명부에서 절반 지웠다.'; } },
+  enforcer: { label: '그에게 앞으로 네 가게를 통과시키게 하라', run: () => { S.flags.enforcerOwned = true; return '려한이 고개를 끄덕였다: \\"네 가게는 앞으로 내가 직접 조사하겠다.\\"'; } },
+  collector: { label: '그녀에게 네 물건을 더 이상 징발하지 않게 하라', run: () => { S.flags.noRequisition = true; return '사도홍초가 네 이름을 징발부에서 지웠다.'; } },
+  thug: { label: '그에게 너를 대신해 밤을 지키게 하라', run: () => { S.flags.guard = true; return '류라자의 형제들이 밤에 네 가게 문 앞에서 졸기 시작했다.'; } },
+  fox: { label: '그녀에게 너를 대신해 요족을 모집하게 하라', run: () => { S.flags.foxBlessing = true; return '요족 손님이 점점 늘어났다.'; } },
+  amu: { label: '그에게 순찰을 누르게 하라', run: () => { S.flags.inspectMul *= 0.7; return '아목이 집법당에서 너를 위해 몇 마디 변호했다.'; } },
 };
 
 const leversOf = p => p.status === 'alive' ? Object.keys(LEVERS).filter(k => LEVERS[k].has(p)) : [];
@@ -362,14 +362,14 @@ function commandList(p, lever) {
     const c = COMMANDS[id];
     const last = (p.ctrlUsed || {})[id];
     const ready = last == null || S.day - last >= c.cd;
-    return { id, label: id === 'special' ? SPECIAL_COMMANDS[p.pid].label : c.label, ready, why: ready ? null : id === 'special' ? '已用过' : `${c.cd - (S.day - last)} 日后` };
+    return { id, label: id === 'special' ? SPECIAL_COMMANDS[p.pid].label : c.label, ready, why: ready ? null : id === 'special' ? '사용 완료' : `${c.cd - (S.day - last)}일 후` };
   });
 }
 
 
 function runCommand(p, id, lever = 'soul') {
   const L = LEVERS[lever];
-  if (!L.has(p)) return { text: '拴不住他了。', exposed: true };
+  if (!L.has(p)) return { text: '그를 묶어둘 수 없다.', exposed: true };
   const err = L.pay && L.pay(p);
   if (err) return { text: err, exposed: true };
   p.ctrlUsed = p.ctrlUsed || {};
@@ -382,12 +382,12 @@ function runCommand(p, id, lever = 'soul') {
 function exposeControl(p) {
   const gu = GU_STAGES[p.controlled.stage || 0].name;
   p.controlled = null;
-  remember(p, `${ta(p)}身上的${gu}被逼了出来，${ta(p)}知道是你下的蛊。`, -80, 'controlled');
+  remember(p, `${ta(p)} 몸속의 ${gu}이(가) 빠져나왔다. ${ta(p)}이(가) 네가 고를 심은 줄 알았다.`, -80, 'controlled');
   adjustRep(p.faction, -12); addHeat(20);
   startScandal(p, 'control');
 }
 
-function releaseControl(p) { remember(p, `你悄悄解了${ta(p)}身上的${GU_STAGES[p.controlled.stage || 0].name}。`, 0); p.controlled = null; }
+function releaseControl(p) { remember(p, `네가 조용히 ${ta(p)} 몸속의 ${GU_STAGES[p.controlled.stage || 0].name}을(를) 풀었다.`, 0); p.controlled = null; }
 
 // ───────────── 每夜：瘾、毒、蛊 ─────────────
 
@@ -403,8 +403,8 @@ function intrigueTick() {
         p.budgetMul = Math.max(0.2, p.budgetMul * 0.97);
         if (Math.random() < 0.04) {
           addHeat(10);
-          news.push({ text: `${p.name}因吸食忘忧散被执法堂抓了，据说供出了货是从哪儿来的。`, cls: 'bad' });
-          p.status = 'jailed'; lifeNote(p, '因吸食忘忧散被执法堂锁拿。');
+          news.push({ text: `${p.name}이(가) 망우산 흡입으로 집법당에 잡혔는데, 물건의 출처를 불었다는 소문이 돌았다.`, cls: 'bad' });
+          p.status = 'jailed'; lifeNote(p, '망우산 흡입으로 집법당에 체포됐다.');
           continue;
         }
       }
@@ -412,13 +412,13 @@ function intrigueTick() {
       const dry = S.day - (p.lastFix || 0);
       if (dry >= 10 && dry % 5 === 0) {
         p.addict--;
-        lifeNote(p, p.addict ? '熬过一阵戒断，瘾头轻了些。' : '熬过了戒断，忘忧散的瘾断了。');
+        lifeNote(p, p.addict ? '한동안 금단을 견뎌 중독이 좀 가벼워졌다.' : '금단을 견뎌내 망우산 중독이 끊겼다.');
       }
     }
     if (p.health <= 0) {
       // 尸毒、忘忧散是你的货；毒入心脉另有来由（擂台前那碗汤当场已判过识破与否），不另起事端
       const poisoned = p.poisonedDay && S.day - p.poisonedDay <= 5, addicted = !poisoned && !condSev(p, 'poisoned') && p.addict > 0;
-      die(p, poisoned ? `${p.name}忽然七窍流血，暴毙家中。` : addicted ? `${p.name}瘾入骨髓，形销骨立，咽了气。` : `${p.name}毒入心脉，没能熬过去。`);
+      die(p, poisoned ? `${p.name}이(가) 갑자기 칠규혈을 흘리며 집에서 급사했다.` : addicted ? `${p.name}에게 중독이 뼛속까지 배어, 해골처럼 마른 채 숨을 거뒀다.` : `${p.name}에게 독이 심맥으로 퍼져, 버티지 못했다.`);
       news.push({ text: p.life[p.life.length - 1].t, cls: 'bad' });
       if ((poisoned || addicted) && Math.random() < (poisoned ? 0.5 : 0.35)) startScandal(p, poisoned ? 'poison' : 'addictdeath');
       continue;
@@ -426,7 +426,7 @@ function intrigueTick() {
     if (!p.addict && p.health < 100) p.health = Math.min(100, p.health + 2);
     if (guBound(p) && Math.random() < (0.004 + p.savvy * 0.008) * (1 - 0.2 * guLv())) {
       exposeControl(p);
-      news.push({ text: `${p.name}身上的蛊被一位游方高人逼了出来。`, cls: 'bad' });
+      news.push({ text: `${p.name} 몸속의 고를 한 유방 고인이 몰아냈다.`, cls: 'bad' });
     }
     p.desperate = p.budgetMul < 0.55 || p.health < 40 || (!!p.addict && S.day - (p.lastFix || 0) > 3);
   }
@@ -439,7 +439,7 @@ function die(p, text) {
   lifeNote(p, text);
   castEvent(p, 'death');
   const st = p.story && S.story[p.story];
-  if (st && !st.done) { st.done = true; st.summary = `${p.name}死了。`; }
+  if (st && !st.done) { st.done = true; st.summary = `${p.name}이(가) 죽었다.`; }
   if (p.pid === 'thug') S.flags.guard = false;
   if (p.pid === 'qian' && S.flags.landlord === 'qian') { S.flags.landlord = 'sun'; S.flags.rentMul = 0.9; S.flags.rentExtra = 0; ensureSun(); }
   if (p.pid === 'sun' && S.flags.landlord === 'sun') S.flags.landlord = S.people.qian && S.people.qian.status === 'alive' ? 'qian' : 'tu';
@@ -448,18 +448,18 @@ function die(p, text) {
 }
 
 function ensureSun() {
-  if (!S.people.sun) newPerson('mo', { pid: 'sun', name: '孙管事', portrait: 'steward_sun', title: '杂役区副管事', savvy: 0.8, story: 'stewards',
-    bio: '宗门派下来的副管事，发髻一丝不乱，账算得比谁都清。据说她最恨贪墨。' });
+  if (!S.people.sun) newPerson('mo', { pid: 'sun', name: '손 관리', portrait: 'steward_sun', title: '잡역 구역 부관리', savvy: 0.8, story: 'stewards',
+    bio: '종문이 파견한 부관리. 머리빗 한 올도 흐트러지지 않고, 장부 계산은 누구보다 정확하다. 그녀가 가장 미워하는 게 탐관오리라는 소문이다.' });
   if (!S.people.sun.tuned) Object.assign(S.people.sun, { greed: 0.15, integrity: 0.85, tuned: true });
 }
 
 // ───────────── 官差与打点 ─────────────
 
 const OFFICIALS = {
-  enforcer: { name: '厉寒', faction: 'mo', portrait: 'mo_enforcer', title: '执法堂巡查', greed: 0.55, integrity: 0.35, savvy: 0.6,
-    bio: '执法堂的老巡查，铁面之下是一双算盘珠子似的眼睛。规矩他门儿清，规矩的价钱他也门儿清。' },
-  collector: { name: '司徒红绡', faction: 'mo', portrait: 'mo_senior', title: '宗门征调使', greed: 0.7, integrity: 0.25, savvy: 0.65,
-    bio: '内门出身的征调使，替宗门征收战备，也替自己征收好处。' },
+  enforcer: { name: '려한', faction: 'mo', portrait: 'mo_enforcer', title: '집법당 순찰', greed: 0.55, integrity: 0.35, savvy: 0.6,
+    bio: '집법당의 노련한 순찰. 철면 뒤에는 주판알 같은 눈이 있다. 규칙도 잘 알고, 규칙의 값도 잘 안다.' },
+  collector: { name: '사도홍초', faction: 'mo', portrait: 'mo_senior', title: '종문 징발사', greed: 0.7, integrity: 0.25, savvy: 0.65,
+    bio: '내문 출신의 징발사로, 종문을 위해 전비를 거두고 자신을 위해서도 이득을 챙긴다.' },
 };
 
 function official(pid) {
@@ -492,11 +492,11 @@ function bribeOdds(p, stake, offer) {
 function tryBribe(p, stake, offer, what = '') {
   const ok = Math.random() < bribeOdds(p, stake, offer);
   if (ok) {
-    spend(offer, `打点${p.name} ${offer} 灵石${what ? `，${what}` : ''}。`);
+    spend(offer, `${p.name}에게 뇌물 ${offer} 영석${what ? `, ${what}` : ''}.`);
     p.bribes = (p.bribes || 0) + 1;
-    remember(p, `收了你 ${offer} 灵石的好处。`, Math.min(12, Math.round(offer / Math.max(20, stake) * 8) + 2), 'bribed');
+    remember(p, `네 ${offer} 영석의 이득을 받았다.`, Math.min(12, Math.round(offer / Math.max(20, stake) * 8) + 2), 'bribed');
   } else {
-    remember(p, `你想拿 ${offer} 灵石收买他，被他拒了。`, -8, 'insulted');
+    remember(p, `네가 ${offer} 영석으로 그를 매수하려 했지만 거절당했다.`, -8, 'insulted');
     addHeat(6 + Math.round(p.integrity * 10));
   }
   return ok;
@@ -507,7 +507,7 @@ function bribeChoices(p, stake, onResult, what) {
   const price = bribePrice(p, stake);
   const tiers = [...new Set([0.6, 1, 1.6].map(k => Math.max(10, Math.round(price * k / 10) * 10)))];
   return tiers.map(n => ({
-    label: `打点 ${n} 灵石`, hint: `成算 ${Math.round(bribeOdds(p, stake, n) * 100)}%；不成则执法堂关注上升`, req: needStones(n),
+    label: `뇌물 ${n} 영석`, hint: `성공 확률 ${Math.round(bribeOdds(p, stake, n) * 100)}%. 실패 시 집법당 주목 상승`, req: needStones(n),
     run: (st, sp) => onResult(n, tryBribe(p, stake, n, what), st, sp),
   }));
 }
@@ -540,8 +540,8 @@ function landlordPerson() {
   if (S.flags.landlord === 'sun') { ensureSun(); return S.people.sun; }
   if (S.flags.landlord === 'tu') {
     if (!S.people.tu) {
-      newPerson('mo', { pid: 'tu', name: '屠管事', portrait: 'mo_disciple', title: '杂役区管事', story: 'official',
-        bio: '前任管事死后，宗门派来的新管事。贪，而且不加掩饰。' });
+      newPerson('mo', { pid: 'tu', name: '도 관리', portrait: 'mo_disciple', title: '잡역 구역 관리', story: 'official',
+        bio: '전임 관리 사후 종문이 파견한 새 관리. 탐욕스럽고 숨기지도 않는다.' });
       Object.assign(S.people.tu, { official: true, greed: 0.85, integrity: 0.15 });
     }
     return S.people.tu;
@@ -562,72 +562,72 @@ Object.assign(STORIES, {
         text: () => {
           const t = requisitionTargets();
           return t.length
-            ? `一个红衣女修带着两名执法弟子跨进门，展开一卷黄绢：“宗门征调战备。”\n她的目光在你的货架上扫过：“${t.map(itemName).join('、')}——这几样，宗门要了。”\n“当然，”她慢条斯理地卷起黄绢，“规矩是死的，人是活的。”`
-            : '一个红衣女修带着两名执法弟子跨进门，四下扫了一眼，撇撇嘴：“穷铺子，没什么油水。”\n“不过嘛，我们姐妹跑这一趟，辛苦费总是要的。三十灵石。”';
+            ? `붉은 옷의 여수사가 집법 제자 둘을 데리고 문을 넘어 들어와 황색 비단을 펼쳤다: \"종문 징발 명령이다.\"\n그녀의 눈이 네 진열대를 스쳤다: \"${t.map(itemName).join('·')} - 이 몇 가지는 종문이 가져간다.\"\n\"물론이지,\" 그녀가 여유롭게 비단을 말며 말했다, \"규칙은 죽었어도 사람은 살아있으니까.\"`
+            : '붉은 옷의 여수사가 집법 제자 둘을 데리고 문을 넘어 들어와 사방을 둘러보며 입술을 깨물었다: \\"가난한 가게라, 건질 게 없네.\\"\\n\\"그래도 말이야, 우리 자매가 이 일을 왔으니 수고비는 받아야겠지. 삼십 영석.\\"';
         },
         choices: () => {
           const p = official('collector'), t = requisitionTargets();
           if (!t.length) return [
-            { label: '给三十灵石', hint: costHint(30), req: needStones(30), run: () => { spend(30, '给征调使辛苦费。'); remember(p, '给了辛苦费。', 3); return { text: '“懂事。”她收了灵石，走了。', end: true }; } },
-            { label: '不给', hint: '她会记着', run: () => { remember(p, '连三十灵石的辛苦费都不给。', -10); addHeat(3); return { text: '她冷笑一声：“好，我记下了。”', end: true }; } },
+            { label: '삼십 영석을 준다', hint: costHint(30), req: needStones(30), run: () => { spend(30, '징발사에게 수고비를 줬다.'); remember(p, '수고비를 줬다.', 3); return { text: '\\"사정은 아는구나.\\" 그녀가 영석을 챙기고 떠났다.', end: true }; } },
+            { label: '주지 않는다', hint: '그녀가 기억할 것이다', run: () => { remember(p, '삼십 영석의 수고비도 주지 않는다.', -10); addHeat(3); return { text: '그녀가 냉소했다: \\"좋아, 기억해두지.\\"', end: true }; } },
           ];
           const stake = Math.round(t.reduce((s, it) => s + claimedValue(it) * priceMul(it.id), 0) * 0.7);
-          const seize = (why) => { const names = t.map(itemName); t.forEach(takeItem); return names.join('、') + why; };
+          const seize = (why) => { const names = t.map(itemName); t.forEach(takeItem); return names.join('·') + why; };
           return [
-            { label: '如数上缴', hint: '失去这些货；魔宗声望 +4', run: () => {
-              const names = seize(''); adjustRep('mo', 4); remember(p, '如数上缴了战备。', 5);
-              return { text: `执法弟子把${names}装上了车。“宗门记你一功。”`, end: true };
+            { label: '정해진 대로 상납', hint: '이 물건들을 잃는다. 마종 평판 +4', run: () => {
+              const names = seize(''); adjustRep('mo', 4); remember(p, '정해진 대로 전비를 상납했다.', 5);
+              return { text: `집법 제자가 ${names}을(를) 수레에 실었다. \"종문이 네 공을 기록하겠다.\"`, end: true };
             } },
             ...bribeChoices(p, stake, (n, ok) => ok
-              ? { text: '她掂了掂灵石，在黄绢上划了几笔：“这间铺子，查无可征。”', end: true }
-              : { text: `她把灵石推了回来：“你当宗门的军需是什么？”执法弟子搬走了${seize('')}。`, end: true }, '免于征调'),
-            { label: '谎称早已卖空', hint: '她未必信', run: () => {
+              ? { text: '그녀가 영석을 저울질하며 황색 비단에 몇 자 적었다: \\"이 가게는 징발할 게 없다.\\"', end: true }
+              : { text: `그녀가 영석을 밀어냈다: \"종문의 군수품을 무엇으로 보느냐?\" 집법 제자가 ${seize('')}을(를) 가져갔다.`, end: true }, '징발 면제'),
+            { label: '진작 다 팔렸다고 거짓말한다', hint: '그녀가 반드시 믿지는 않는다', run: () => {
               if (lieCaught(p.savvy)) {
-                const names = seize(''); const fine = payUpTo(Math.round(stake * 0.3), '欺瞒征调使，罚银。'); addHeat(12);
-                remember(p, '当着她的面撒谎。', -20, 'lied');
-                return { text: `她一抬手，执法弟子从你货架上搬出了${names}。“欺瞒宗门征调，罚 ${fine} 灵石。”`, end: true };
+                const names = seize(''); const fine = payUpTo(Math.round(stake * 0.3), '징발사를 속인 죄로 벌금을 물렸다.'); addHeat(12);
+                remember(p, '그녀 앞에서 거짓말한다.', -20, 'lied');
+                return { text: `그녀가 손을 들자 집법 제자가 네 진열대에서 ${names}을(를) 꺼냈다. \"종문 징발을 속인 죄, 벌금 ${fine} 영석.\"`, end: true };
               }
-              remember(p, '说货早卖空了。', -3);
-              return { text: '她狐疑地看了你一眼，又看了看身后排队的铺子，挥挥手走了。', end: true };
+              remember(p, '물건이 진작 다 팔렸다고 말한다.', -3);
+              return { text: '그녀가 의심스럽게 너를 쳐다보고, 뒤에 줄 선 가게들을 보더니 손을 흔들며 떠났다.', end: true };
             } },
           ];
         },
       },
       levy: {
         when: 'day',
-        who: () => { const p = official('collector'); return { name: p.name, portrait: p.portrait, title: '征捐使', faction: 'mo', pid: p.pid }; },
-        text: () => `征捐使啪地把账册拍在柜上：“战时捐，本周 ${levyAmount()} 灵石${S.flags.levyDebt ? `，加上你欠的 ${S.flags.levyDebt}` : ''}。”\n她用笔杆敲了敲柜台，“交不上的，按通敌论处。”`,
+        who: () => { const p = official('collector'); return { name: p.name, portrait: p.portrait, title: '징세사', faction: 'mo', pid: p.pid }; },
+        text: () => `징세사가 장부를 탁 내려치며 말했다: \"전시 기부금, 이번 주 ${levyAmount()} 영석${S.flags.levyDebt ? `, 네가 빚진 ${S.flags.levyDebt} 영석` : ''}.\" 그녀가 붓대로 카운터를 두드리며 말했다, \"내지 못하는 자는 적과 내통한 죄로 다스린다.\"`,
         choices: () => {
           const p = official('collector'), due = levyAmount() + (S.flags.levyDebt || 0);
           return [
-            { label: `照数缴纳（${due}）`, hint: costHint(due), req: needStones(due), run: () => {
-              spend(due, `缴纳战时捐 ${due} 灵石。`); S.flags.levyDebt = 0; remember(p, '按时缴了战时捐。', 2);
-              return { text: '她在账册上勾了一笔，走向下一家。', end: true };
+            { label: `정해진 대로 납부 (${due})`, hint: costHint(due), req: needStones(due), run: () => {
+              spend(due, `전시 기부금 ${due} 영석을 냈다.`); S.flags.levyDebt = 0; remember(p, '제때 전시 기부금을 냈다.', 2);
+              return { text: '그녀가 장부에 한 획을 긋고 다음 가게로 갔다.', end: true };
             } },
             ...bribeChoices(p, due, (n, ok) => {
-              if (ok) { S.flags.levyDebt = 0; return { text: '她把灵石塞进袖子，在账册上写了个“已缴”。', end: true }; }
-              const paid = payUpTo(due, '打点不成，照缴战时捐。'); S.flags.levyDebt = due - paid;
-              return { text: '“当我是什么人？”她冷着脸照数收了捐。', end: true };
-            }, '战时捐一笔勾销'),
-            { label: '拖欠', hint: '欠款加两成；执法堂关注 +10，魔宗声望 -3', run: () => {
+              if (ok) { S.flags.levyDebt = 0; return { text: '그녀가 영석을 소매에 넣고 장부에 \\"납부 완료\\"라고 적었다.', end: true }; }
+              const paid = payUpTo(due, '뇌물이 안 통해서 정해진 전시 기부금을 냈다.'); S.flags.levyDebt = due - paid;
+              return { text: '\\"나를 무슨 사람으로 보느냐?\\" 그녀가 차가운 표정으로 정해진 대로 기부금을 받았다.', end: true };
+            }, '전시 기부금 탕감'),
+            { label: '연체', hint: '연체료 20% 가산. 집법당 주목 +10, 마종 평판 -3', run: () => {
               S.flags.levyDebt = Math.round(due * 1.2); addHeat(10); adjustRep('mo', -3);
-              remember(p, '拖欠战时捐。', -8);
-              return { text: '“好，下回连本带利。”她在你的名字旁画了个红圈。', end: true };
+              remember(p, '전시 기부금을 연체했다.', -8);
+              return { text: '\\"좋아, 다음엔 원금에 이자까지.\\" 그녀가 네 이름 옆에 붉은 동그라미를 그렸다.', end: true };
             } },
           ];
         },
       },
       tribute: {
         when: 'day',
-        who: () => { const p = landlordPerson(); return { name: p.name, portrait: p.portrait, title: '收岁供', faction: 'mo', pid: p.pid }; },
-        text: () => `${landlordName()}进门拱了拱手：“岁末了，宗门的岁供，杂役区每铺 ${tributeAmount()} 灵石。”`,
+        who: () => { const p = landlordPerson(); return { name: p.name, portrait: p.portrait, title: '세공을 거둔다', faction: 'mo', pid: p.pid }; },
+        text: () => `${landlordName()}이 들어오며 공수했다: \"연말이라, 종문의 세공을 잡역 구역의 가게마다 ${tributeAmount()} 영석씩 거둔다.\"`,
         choices: () => {
           const p = landlordPerson(), due = tributeAmount();
           return [
-            { label: `照数缴纳（${due}）`, hint: costHint(due), req: needStones(due), run: () => { spend(due, `缴纳岁供 ${due} 灵石。`); return { text: '新的一年，又开始了。', end: true }; } },
+            { label: `정해진 대로 납부 (${due})`, hint: costHint(due), req: needStones(due), run: () => { spend(due, `세공 ${due} 영석을 냈다.`); return { text: '새해가 다시 시작됐다.', end: true }; } },
             ...bribeChoices(p, due, (n, ok) => ok
-              ? { text: '账册上，你的铺子写着“已缴”。', end: true }
-              : (payUpTo(due, '打点不成，照缴岁供。'), { text: '对方面无表情地照数收了岁供。', end: true }), '岁供免缴'),
+              ? { text: '장부에 네 가게는 \\"납부 완료\\"로 적혀 있다.', end: true }
+              : (payUpTo(due, '뇌물이 안 통해서 정해진 세공을 냈다.'), { text: '상대가 무표정하게 정해진 세공을 받았다.', end: true }), '세공 면제'),
           ];
         },
       },
@@ -641,55 +641,55 @@ Object.assign(STORIES, {
         when: 'day',
         who: st => {
           const p = S.people[st.flags.pid];
-          if (p.status === 'alive') return { name: p.name, portrait: p.portrait, title: '上门讨说法', faction: p.faction, pid: p.pid };
-          return { name: `${p.name}的亲友`, portrait: pick(PORTRAITS[p.faction])[0], title: '上门讨说法', faction: p.faction };
+          if (p.status === 'alive') return { name: p.name, portrait: p.portrait, title: '직접 찾아와 항의', faction: p.faction, pid: p.pid };
+          return { name: `${p.name}의 친족`, portrait: pick(PORTRAITS[p.faction])[0], title: '직접 찾아와 항의', faction: p.faction };
         },
         text: st => {
           const p = S.people[st.flags.pid], f = st.flags;
           const lead = {
-            fakepill: `“${p.name}吃了你卖的筑基丹，${p.status === 'dead' ? '经脉寸断，死了' : '修为尽废，成了废人'}！那是假丹！”`,
-            laced: `“你卖的${f.item}里${(LACE[f.lace] || {}).verb || '动了手脚'}！当我们是傻子？”`,
-            addictdeath: `“${p.name}吃了你的忘忧散，瘦成一把骨头，昨夜咽了气。他屋里翻出来的药包，印着你铺子的记号！”`,
-            poison: `“${p.name}喝了你那里出去的东西，七窍流血而死。仵作验过了，是尸毒！”`,
-            control: `“${p.name}身上的${p.soulBound ? '魂印，是你种' : '蛊，是你下'}的！”`,
-            murder: `“${p.name}那天进了你的铺子，就再没出来过！有人看见你夜里往乱葬岗拖东西！”`,
+            fakepill: `\"${p.name}이(가) 네가 판 축기단을 먹었더니 ${p.status === 'dead' ? '경맥이 끊어져 죽었다' : '수련이 다 망가져 폐인이 됐다'}! 가짜 약이었다!\"`,
+            laced: `\"네가 판 ${f.item}에 ${(LACE[f.lace] || {}).verb || '손을 댔다'}! 우리를 바보로 아느냐?\"`,
+            addictdeath: `\"${p.name}이(가) 네 망우산을 먹고 뼈만 남아 어젯밤 숨졌다. 그의 방에서 나온 약포에 네 가게의 표시가 찍혀 있었다!\"`,
+            poison: `\"${p.name}이(가) 네 곳에서 나간 것을 마시고 칠규혈을 흘리며 죽었다. 검시관이 확인했는데, 시독이었다!\"`,
+            control: `\"${p.name} 몸속의 ${p.soulBound ? '혼인은 네가 심은 것' : '고는 네가 넣은 것'}이라고!\"`,
+            murder: `\"${p.name}이(가) 그날 네 가게에 들어간 뒤로 나오지 못했다! 네가 밤에 난장골로 뭔가를 끌고 가는 걸 봤다는 사람이 있어!\"`,
           }[f.kind];
-          return `${f.damage ? `（${f.damage}）\n` : ''}来人一掌拍在柜上：${lead}\n“今日你若不给个说法，我们就告到执法堂，再把你这黑店的名声传遍杂役区！”`;
+          return `${f.damage ? `（${f.damage}）\n` : ''}방문객이 주먹으로 카운터를 내려쳤다: ${lead}\n\"오늘 네가 납득할 설명을 내놓지 못하면, 우리는 집법당에 고하고 네 암흑 가게의 소문을 잡역 구역 전체에 퍼뜨리겠다!\"`;
         },
         choices: st => {
           const p = S.people[st.flags.pid], f = p.faction, sev = SEVERITY[st.flags.kind];
           const demand = Math.round(sev * (0.7 + (p.greed || 0.5)) / 10) * 10;
           const enf = official('enforcer');
           const list = [
-            { label: `赔偿 ${demand} 灵石`, hint: costHint(demand), req: needStones(demand), run: () => {
-              spend(demand, `为${p.name}的事赔偿 ${demand} 灵石。`); adjustRep(f, -1);
-              if (p.status === 'alive') remember(p, `你赔了 ${demand} 灵石。`, 20);
-              return { text: '来人数了数灵石，脸色缓和了些：“这事……就到这儿。”', end: true };
+            { label: `배상금 ${demand} 영석`, hint: costHint(demand), req: needStones(demand), run: () => {
+              spend(demand, `${p.name}의 일로 배상금 ${demand} 영석을 물었다.`); adjustRep(f, -1);
+              if (p.status === 'alive') remember(p, `네가 ${demand} 영석을 배상했다.`, 20);
+              return { text: '방문객이 영석을 세어보고 표정이 누그러졌다: \\"이 일은... 여기까지.\\"', end: true };
             } },
             ...bribeChoices(enf, sev, (n, ok) => {
-              if (ok) { adjustRep(f, -3); if (p.status === 'alive') remember(p, '他告到执法堂，被你压了下来。', -10); return { text: `第二天，${enf.name}亲自把苦主轰出了执法堂：“诬告良善，再闹就把你关起来。”`, end: true }; }
-              const fine = payUpTo(Math.round(sev * 0.4), '事发，执法堂罚银。'); adjustRep(f, -8); addHeat(12);
-              return { text: `${enf.name}把你的灵石扔在地上，当着苦主的面罚了你 ${fine} 灵石。`, end: true };
-            }, '把事压下'),
-            { label: '抵赖', hint: '对方未必信', run: () => {
-              if (lieCaught(0.55)) { adjustRep(f, -10); addHeat(15); return { text: '“证据在这儿！”来人把东西摔在柜上，扬长而去。第二天，整个杂役区都知道了。', end: true }; }
+              if (ok) { adjustRep(f, -3); if (p.status === 'alive') remember(p, '그가 집법당에 고했지만 네가 눌러버렸다.', -10); return { text: `다음 날, ${enf.name}이(가) 직접 고소인을 집법당에서 쫓아냈다: \"선량한 사람을 모함하다니, 더 소란 피우면 가둬버리겠다.\"`, end: true }; }
+              const fine = payUpTo(Math.round(sev * 0.4), '일이 발각돼 집법당이 벌금을 물렸다.'); adjustRep(f, -8); addHeat(12);
+              return { text: `${enf.name}이 네 영석을 바닥에 내던지며, 고소인이 보는 앞에서 벌금 ${fine} 영석을 물렸다.`, end: true };
+            }, '일을 누른다'),
+            { label: '오리발', hint: '상대가 반드시 믿지는 않는다', run: () => {
+              if (lieCaught(0.55)) { adjustRep(f, -10); addHeat(15); return { text: '\\"증거가 여기 있어!\\" 방문객이 물건을 카운터에 내던지고 멀리 사라졌다. 다음 날, 잡역 구역 전체가 알게 됐다.', end: true }; }
               adjustRep(f, -3);
-              return { text: '来人将信将疑，骂了几句走了。', end: true };
+              return { text: '방문객이 반신반의하며 욕설 몇 마디 하고 떠났다.', end: true };
             } },
           ];
-          if (p.status === 'alive') list.push({ label: '以势压人', hint: `成算 ${Math.round(overpowerOdds(p) * 100)}%（你的势力 ${playerPower()}，他 ${npcPower(p)}）`, run: () => {
-            if (Math.random() < overpowerOdds(p)) { remember(p, '你仗势压了下来。', -12, 'swallowed'); return { text: '你提了几个名字。来人脸色发白，再不敢多说一句。', end: true }; }
+          if (p.status === 'alive') list.push({ label: '세력으로 사람을 누른다', hint: `성공 확률 ${Math.round(overpowerOdds(p) * 100)}% (네 세력 ${playerPower()}, 그 ${npcPower(p)})`, run: () => {
+            if (Math.random() < overpowerOdds(p)) { remember(p, '네가 세력으로 눌러버렸다.', -12, 'swallowed'); return { text: '네가 몇몇 이름을 언급하자 방문객의 얼굴이 창백해져 더 이상 말하지 못했다.', end: true }; }
             adjustRep(f, -6); addHeat(10);
-            return { text: '“你吓唬谁？”来人直奔执法堂。这事闹大了。', end: true };
+            return { text: '\\"누구를 협박하느냐?\\" 방문객이 곧장 집법당으로 갔다. 일이 커졌다.', end: true };
           } });
-          if (thugAlly()) list.push({ label: '让刘癞子去“劝劝”', hint: '多半能吓住，也可能闹大', run: () => {
-            if (Math.random() < 0.7) { adjustRep('ren', -4); addHeat(3); return { text: '当晚，刘癞子的弟兄们去了苦主家一趟。第二天，再没人提这事。', end: true }; }
+          if (thugAlly()) list.push({ label: '류라자에게 \\"설득\\"하러 가게 한다', hint: '대부분 겁먹힐 수 있지만, 커질 수도 있다', run: () => {
+            if (Math.random() < 0.7) { adjustRep('ren', -4); addHeat(3); return { text: '그날 밤, 류라자의 형제들이 고소인 집에 다녀왔다. 다음 날부터 아무도 이 일을 거론하지 않았다.', end: true }; }
             adjustRep(f, -8); addHeat(20);
-            return { text: '苦主被打断了腿，一瘸一拐地爬进了执法堂。事情闹大了。', end: true };
+            return { text: '고소인이 다리가 부러진 채 절뚝거리며 집법당에 기어 들어갔다. 일이 커졌다.', end: true };
           } });
-          if (ownWeapon()) list.push({ label: '亮家伙轰出去', hint: `${FACTIONS[f].name}声望 -8，执法堂关注 +5`, run: () => {
+          if (ownWeapon()) list.push({ label: '무기를 꺼내 쫓아낸다', hint: `${FACTIONS[f].name} 평판 -8, 집법당 주목 +5`, run: () => {
             adjustRep(f, -8); addHeat(5);
-            return { text: '你亮出家伙，来人恨恨地退了出去。可这梁子，是结下了。', end: true };
+            return { text: '네가 무기를 꺼내자 방문객이 원망스럽게 물러났다. 하지만 이 원한은 맺어졌다.', end: true };
           } });
           return list;
         },
@@ -702,11 +702,11 @@ const SEVERITY = { fakepill: 300, laced: 160, addictdeath: 420, poison: 520, con
 
 // 苦主也见风使舵：你势大，他可能忍了；怨气大，他先报复再上门
 function startScandal(p, kind, extra = {}) {
-  if (guShrug(p)) { log(`${p.name}心里起了疑，蛊一动，又把这事忘了。`, 'warn'); return; }
+  if (guShrug(p)) { log(`${p.name}이(가) 마음속으로 의심했지만, 고가 움직이자 다시 잊어버렸다.`, 'warn'); return; }
   const st = stance(p, SEVERITY[kind] / 5);
   if (st === 'swallow') {
-    remember(p, '吃了你的亏，掂量了一下你的势力，忍了。', -10, 'swallowed');
-    log(`${p.name}${p.status === 'alive' ? '' : '的亲友'}吃了暗亏，却没敢声张。`, 'warn');
+    remember(p, '네 손해를 봤지만 네 세력을 가늠하고 참았다.', -10, 'swallowed');
+    log(`${p.name}${p.status === 'alive' ? '' : '의 친족'}이(가) 암암리에 손해를 봤지만 감히 드러내지 못했다.`, 'warn');
     return;
   }
   if (st === 'retaliate') extra.damage = retaliate(p, SEVERITY[kind] / 5);
