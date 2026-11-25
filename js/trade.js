@@ -28,14 +28,14 @@ const cureSev = (c, k) => Math.max(1, condSev(personOf(c), k));
 // 手艺人：称号看得出是哪一行，来买的多是本行的料，一买就是好几份
 // 先认得窄的：兽医不算郎中，药圃不算药堂
 const CRAFTS = [
-  { re: /铁匠|炼器|铸器|鉴器|锁匠|傀儡/, name: '炼器', ids: ['iron_ore', 'iron_ingot', 'scrap_sword', 'xuan_essence', 'spirit_sand'] },
-  { re: /兽医|驯兽/, name: '养灵兽', ids: ['beast_feed', 'spirit_fruit'] },
-  { re: /灵植|药圃|采药/, name: '种灵植', ids: ['herb_seed', 'mihun_seed', 'vine_seed', 'water', 'filter_sand'] },
-  { re: /丹师|药|医|郎中|接生/, name: '炼药', ids: ['herb_dew', 'herb_blood', 'spirit_fruit', 'vine_fruit', 'mihun_flower', 'water'] },
-  { re: /符|墨|纸/, name: '制符', ids: ['fu_paper', 'cinnabar', 'blood_essence'] },
-  { re: /蛊/, name: '养蛊', ids: ['gu_egg', 'gu_venom', 'bones'] },
-  { re: /阵|勘脉/, name: '布阵', ids: ['spirit_crystal', 'spirit_sand', 'filter_sand'] },
-  { re: /炼尸|祭炼/, name: '炼尸', ids: ['corpse', 'blood_essence', 'corpse_poison', 'bones'] },
+  { re: /대장장이|연기|감기|주기|자물쇠|괴뢰/, name: '연기', ids: ['iron_ore', 'iron_ingot', 'scrap_sword', 'xuan_essence', 'spirit_sand'] },
+  { re: /영수 의사|조련|수의/, name: '영수 기르기', ids: ['beast_feed', 'spirit_fruit'] },
+  { re: /영식|약초|산나물/, name: '영식 재배', ids: ['herb_seed', 'mihun_seed', 'vine_seed', 'water', 'filter_sand'] },
+  { re: /단사|약사|의원|의수|산파|약당/, name: '약 제조', ids: ['herb_dew', 'herb_blood', 'spirit_fruit', 'vine_fruit', 'mihun_flower', 'water'] },
+  { re: /부사|부적|조묵|제지/, name: '부적 제작', ids: ['fu_paper', 'cinnabar', 'blood_essence'] },
+  { re: /고충/, name: '고 기르기', ids: ['gu_egg', 'gu_venom', 'bones'] },
+  { re: /포진|담맥/, name: '진 설치', ids: ['spirit_crystal', 'spirit_sand', 'filter_sand'] },
+  { re: /연시|제련/, name: '시체 제련', ids: ['corpse', 'blood_essence', 'corpse_poison', 'bones'] },
 ];
 const craftOf = p => (p && p.title && CRAFTS.find(k => k.re.test(p.title))) || null;
 const CRAFT_PICK = 0.45;   // 手艺人专程来买本行料的机会
@@ -64,9 +64,9 @@ function wantNeed(c, p) {
 }
 
 // 要的件数怎么说：用了就没的论份，经用的论件
-const needUnit = c => c.craving || (c.wantId && isConsumable(c.wantId)) ? '份' : '件';
+const needUnit = c => '개';
 // 说出口的件数：两份，不说二份
-const needCn = n => n === 2 ? '两' : cn(n);
+const needCn = n => cn(n);
 const needText = c => `${c.need || 1} ${needUnit(c)}`;
 // 他开口说要几件；心心念念的、冲着柜里那件来的、送礼的、权贵，一听就是一件，不必多说
 function needLine(c) {
@@ -168,8 +168,8 @@ function dealPresets(c, d, [lo, hi]) {
   };
   // 小买卖一枚灵石就差好几成：拂袖离一成近的那一档
   const near = n => { const o = dealOdds(c, d, n + 1).leave; return n < top && o <= 0.1 && o - PRESET_BOLD < PRESET_BOLD - dealOdds(c, d, n).leave ? n + 1 : n; };
-  return [['让利', fit(d.N0 - d.scale * 0.12)], ['公道', fair],
-    ['小赚', tame ? fit(d.N0 + d.scale * 0.1) : upTo(PRESET_SAFE)], ['狠宰', tame ? top : near(upTo(PRESET_BOLD))]];
+  return [['양보', fit(d.N0 - d.scale * 0.12)], ['공정', fair],
+    ['적은 이익', tame ? fit(d.N0 + d.scale * 0.1) : upTo(PRESET_SAFE)], ['바가지', tame ? top : near(upTo(PRESET_BOLD))]];
 }
 
 // 谈价滑杆的范围：公道价上下拉开；他钱袋比公道价还瘪，就让滑杆够得着他掏得出的数
@@ -231,7 +231,7 @@ function settleDeal(c, d, net) {
   if (!out.caught) d.take.forEach((t, i) => { completePurchase(c, t.it, pays[i]); out.bought.push(itemName(t.it)); out.paid += pays[i]; });
   c.take = [];
   S.stats.deals = (S.stats.deals || 0) + 1;
-  if (d.give.length + d.take.length >= 3) log(`与${c.name}做成一笔大买卖：卖出 ${out.sold.length} 件，收进 ${out.bought.length} 件。`, 'gold');
+  if (d.give.length + d.take.length >= 3) log(`${c.name}과(와) 큰 거래를 했다: ${out.sold.length}건 팔고 ${out.bought.length}건 받았다.`, 'gold');
   return out;
 }
 
@@ -243,12 +243,12 @@ function toggleTake(c, uid) {
 
 // 来客想要什么，用一句话说清
 function wantText(c) {
-  if (c.craving) return '忘忧散（或掺了它的东西）';
+  if (c.craving) return '망우산(또는 그것이 섞인 것)';
   if (c.wishId) return ITEMS[c.wishId].name;
-  if (c.forGift) return `送礼用的高仿${CATS[c.wantCat]}（做工寻常以上，你知道是假的）`;
-  if (c.wantFake) return `能以假乱真的${CATS[c.wantCat]}`;
+  if (c.forGift) return `선물용 고급 모작 ${CATS[c.wantCat]}(만듦새 보통 이상, 너는 가짜인 걸 안다)`;
+  if (c.wantFake) return `진짜처럼 보이는 ${CATS[c.wantCat]}`;
   const k = craftOf(personOf(c));
-  if (c.wantId && k && k.ids.includes(c.wantId)) return `${ITEMS[c.wantId].name}（${k.name}用料）`;
-  if (c.wantId) return `${ITEMS[c.wantId].name}（${CATS[c.wantCat]}）`;
+  if (c.wantId && k && k.ids.includes(c.wantId)) return `${ITEMS[c.wantId].name}(${k.name} 재료)`;
+  if (c.wantId) return `${ITEMS[c.wantId].name}(${CATS[c.wantCat]})`;
   return c.wantCat ? CATS[c.wantCat] : '';
 }
