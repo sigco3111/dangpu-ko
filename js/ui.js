@@ -9,8 +9,8 @@ const pct = p => `${Math.round(p * 100)}%`;
 
 let scale = 1;
 let tab = 'display';
-let sel = null;        // 选中物品 uid
-let modal = null;      // 当前弹窗渲染函数
+let sel = null;        // 선택됨物品 uid
+let modal = null;      // 현재 팝업 렌더 함수
 let toastTimer = null;
 
 // ───────────── 舞台缩放 ─────────────
@@ -41,7 +41,7 @@ function fitStage() {
   // 手机横过来时字太小：提醒竖着拿
   const hint = LAYOUT === 'wide' && innerHeight < 500 && 'ontouchstart' in window;
   let h = $('.rotate-hint');
-  if (hint && !h) document.body.insertAdjacentHTML('beforeend', '<div class="rotate-hint">竖屏体验更佳</div>');
+  if (hint && !h) document.body.insertAdjacentHTML('beforeend', '<div class="rotate-hint">세로 화면이 더 좋다</div>');
   else if (!hint && h) h.remove();
   if (S && !$('#game').classList.contains('hidden')) before !== `${LAYOUT}${CELL}` ? renderAll() : layoutDock();
 }
@@ -58,43 +58,43 @@ function toast(text, cls = '') {
 
 function itemTags(it) {
   const tags = [];
-  if (ITEMS[it.id].contra) tags.push(['contra', '仙门禁物']);
-  if (ITEMS[it.id].illicit) tags.push(['stolen', '魔宗禁药']);
-  if (lacedKnown(it)) tags.push(['laced', it.lacedBy === 'me' ? `暗中${LACE[it.laced].verb}` : `被人${LACE[it.laced].verb}（验出来了）`]);
-  if (it.mark) tags.push(['stolen', markVisible(it) ? `原主烙印 · ${cn(it.mark.str)}重` : '似有残存神识，看不真切']);
-  if (it.sealed) tags.push(['laced', `贴了正派封印 · 做工${GRADE_NAMES[it.grade]}`]);
+  if (ITEMS[it.id].contra) tags.push(['contra', '선문 금물']);
+  if (ITEMS[it.id].illicit) tags.push(['stolen', '魔宗금약']);
+  if (lacedKnown(it)) tags.push(['laced', it.lacedBy === 'me' ? `몰래${LACE[it.laced].verb}` : `남에게${LACE[it.laced].verb}（걸러냈다)`]);
+  if (it.mark) tags.push(['stolen', markVisible(it) ? `원주인의 낙인 · ${cn(it.mark.str)}重` : '남은 신식이 있는 듯하다，看不真切']);
+  if (it.sealed) tags.push(['laced', `정파 봉인을 붙임 · 솜씨${GRADE_NAMES[it.grade]}`]);
   if (it.bottled) tags.push(['real', '玉净瓶装']);
-  if (restoreOf(seemOf(it))) { const r = restoreOf(seemOf(it)); tags.push(['', `可服用：${r[0] ? `体力+${r[0]} ` : ''}${r[1] ? `精神+${r[1]}` : ''}`]); }
+  if (restoreOf(seemOf(it))) { const r = restoreOf(seemOf(it)); tags.push(['', `可복용：${r[0] ? `体力+${r[0]} ` : ''}${r[1] ? `정신+${r[1]}` : ''}`]); }
   const cures = Object.entries(CONDS).filter(([, C]) => C.cure.includes(bodyOf(seemOf(it)).id)).map(([, C]) => C.name);
   if (cures.length && it.id !== 'water') tags.push(['', `治${cures.join('、')}：${CURE_TEXT[cureGrades(it)]}`]);
-  if (it.forged) tags.push(['laced', `你做的${it.fake ? '赝品' : '以次充好'} · ${GRADE_NAMES[it.grade]}`]);
-  else if (isDressed(it) && knownFlaw(it)) tags.push(['fake', `以次充好 · 做工${GRADE_NAMES[it.grade]}`]);
-  else if (dressable(it) && it.seen != null) tags.push(['', `已验货（${LENS_NAMES[it.seen]}）`]);
+  if (it.forged) tags.push(['laced', `你做的${it.fake ? '위작' : '하급을 상급으로'} · ${GRADE_NAMES[it.grade]}`]);
+  else if (isDressed(it) && knownFlaw(it)) tags.push(['fake', `하급을 상급으로 · 솜씨${GRADE_NAMES[it.grade]}`]);
+  else if (dressable(it) && it.seen != null) tags.push(['', `已검품（${LENS_NAMES[it.seen]}）`]);
   if (it.fake && knownFlaw(it) && it.grade && !it.forged) tags.push(['', `做工${GRADE_NAMES[it.grade]}`]);
   if (ITEMS[it.id].additive) tags.push(['laced', `可作料：${LACE[ITEMS[it.id].additive].name}`]);
-  if ((ITEMS[it.id].war || 0) >= 0.5) tags.push(['', '战备']);
-  if (it.stolen > 0) tags.push(['stolen', `来路不明 · 余 ${it.stolen} 日`]);
-  if (it.revealed) tags.push(['fake', '赝品（已识破）']);
-  else if (it.verdict === 'fake') tags.push(['fake', '你判为赝品']);
-  else if (it.verdict === 'real') tags.push(['real', '你判为真品']);
-  else if (ITEMS[it.id].appraise) tags.push(['', '未鉴定']);
+  if ((ITEMS[it.id].war || 0) >= 0.5) tags.push(['', '전비']);
+  if (it.stolen > 0) tags.push(['stolen', `출처 불명 · 남은 ${it.stolen} 日`]);
+  if (it.revealed) tags.push(['fake', '위작(간파됨)']);
+  else if (it.verdict === 'fake') tags.push(['fake', '네가 위작으로 판정했다']);
+  else if (it.verdict === 'real') tags.push(['real', '네가 진품으로 판정했다']);
+  else if (ITEMS[it.id].appraise) tags.push(['', '未감정']);
   return tags;
 }
 
 function itemStats(it) {
   const rows = [];
   if (hasQuality(it)) {
-    if (isDressed(it) && knownFlaw(it)) rows.push(['表面品质', `${qualityName(it.sq)} · ${it.sq}`], ['实际品质', `${qualityName(it.q)} · ${it.q}`]);
+    if (isDressed(it) && knownFlaw(it)) rows.push(['겉면品质', `${qualityName(it.sq)} · ${it.sq}`], ['실제 품질', `${qualityName(it.q)} · ${it.q}`]);
     else rows.push(['品质', `${qualityName(shownQ(it))} · ${shownQ(it)}`]);
   }
-  if (ITEMS[it.id].tool) rows.push(['鉴定术', `第${cn(ITEMS[it.id].tool)}重`]);
-  if (ITEMS[it.id].book) { const b = ITEMS[it.id].book; rows.push(['当前造诣', `${TECHS[b.tech].name}第${cn(techLv(b.tech) || 0) || '零'}重`]); }
-  if (it.id === 'water') rows.push(['纯度', `${it.purity}%`]);
-  if (it.id === 'gu') rows.push(['成长', `${it.growth}/100`], ['毒性', it.tox], ...(it.eat ? [['吞噬', `${it.eat} 只`]] : []), ['进化', guNext(it)]);
-  if (it.id === 'gu_egg' || it.id === 'gu_venom') rows.push(['毒性', it.tox]);
+  if (ITEMS[it.id].tool) rows.push(['감정术', `第${cn(ITEMS[it.id].tool)}重`]);
+  if (ITEMS[it.id].book) { const b = ITEMS[it.id].book; rows.push(['현재 경지', `${TECHS[b.tech].name}第${cn(techLv(b.tech) || 0) || '零'}重`]); }
+  if (it.id === 'water') rows.push(['순도', `${it.purity}%`]);
+  if (it.id === 'gu') rows.push(['성장', `${it.growth}/100`], ['독성', it.tox], ...(it.eat ? [['吞噬', `${it.eat} 只`]] : []), ['진화', guNext(it)]);
+  if (it.id === 'gu_egg' || it.id === 'gu_venom') rows.push(['독성', it.tox]);
   if (it.id === 'spirit_crystal') rows.push(['充能', `${it.charge || 0}/${CRYSTAL_CAP}`]);
-  if (isSeed(it) && it.growth) rows.push(['生长', `${it.growth}%`]);
-  if (it.id === 'corpse') rows.push(['新鲜', `还能放 ${Math.max(0, Math.ceil(it.fresh / seasonOf().rot))} 日`]);
+  if (isSeed(it) && it.growth) rows.push(['생장', `${it.growth}%`]);
+  if (it.id === 'corpse') rows.push(['신선', `还能放 ${Math.max(0, Math.ceil(it.fresh / seasonOf().rot))} 日`]);
   if (it.cost != null) rows.push(['购入价', `${it.cost}`]);
   return rows;
 }
@@ -105,20 +105,20 @@ function itemTip(it) {
   return `<h4>${esc(itemName(it))}</h4>
     <div class="tip-sub">${CATS[d.cat]} · ${d.w}×${d.h}</div>
     ${pileLine(it)}
-    <div class="tip-val">估值 ${stoneTxt(v)}${Math.abs(priceMul(it.id) - 1) > 0.005 ? `<span class="${priceMul(it.id) > 1 ? 'good' : 'bad'}">行情 ×${priceMul(it.id).toFixed(2)}</span>` : ''}</div>
+    <div class="tip-val">估值 ${stoneTxt(v)}${Math.abs(priceMul(it.id) - 1) > 0.005 ? `<span class="${priceMul(it.id) > 1 ? 'good' : 'bad'}">시세 ×${priceMul(it.id).toFixed(2)}</span>` : ''}</div>
     ${priceBreakdown(it.id).map(([k, x]) => `<div class="tip-row small muted"><span>· ${k}</span><span>${x > 0 ? '+' : ''}${Math.round(x * 100)}%</span></div>`).join('')}
     ${itemStats(it).map(([k, val]) => `<div class="tip-row"><span>${k}</span><span>${val}</span></div>`).join('')}
     <div class="tags">${itemTags(it).map(([c, t]) => `<span class="tag ${c}">${t}</span>`).join('')}</div>
     <p>${esc(it.info ? it.info.text : d.desc)}</p>`;
 }
 
-// 一摞饲料：几份、各是什么品相或毒性——叠在一起，每份仍记着自己的
+// 一摞사료：几份、各是什么品相或독성——叠在一起，每份仍记着自己的
 function pileLine(it) {
   const pile = stackOf(it);
   if (pile.length < 2) return '';
   const each = pile.map(o => hasQuality(o) ? qualityName(o.q) : o.tox != null ? `毒${o.tox}` : '').filter(Boolean);
   const kinds = Object.entries(each.reduce((c, k) => (c[k] = (c[k] || 0) + 1, c), {})).map(([k, n]) => `${k}${n > 1 ? `×${n}` : ''}`);
-  return `<div class="tip-row small"><span>这一格叠着 ${pile.length} 份</span><span>${kinds.join('、')}</span></div>`;
+  return `<div class="tip-row small"><span>이 칸에 겹쳐 있다 ${pile.length} 份</span><span>${kinds.join('、')}</span></div>`;
 }
 
 function itemHTML(it, extraCls = '', attrs = '') {
@@ -154,7 +154,7 @@ function gridHTML(gid, label, cls = '') {
       ${pileTops(gid).map(it => gid !== 'counter' ? itemHTML(it) : itemHTML(it, `locked ${counterCls(it)}`, tradeCustomer() ? 'data-act="good"' : '')).join('')}</div></div>`;
 }
 
-// 饲料格里叠成一摞的，只画最上面那件：选中的那件，否则最后放上去的那件；拖走的也是它
+// 사료格里叠成一摞的，只画最上面那件：선택됨的那件，否则最后放上去的那件；拖走的也是它
 function pileTops(gid) {
   const list = itemsIn(gid);
   if (!stackCap(gid)) return list;
@@ -172,44 +172,44 @@ function counterCls(it) {
 
 // ───────────── 顶栏 ─────────────
 
-const PHASE_NAME = { morning: '晨 · 开铺前', day: '昼 · 营业中', night: '夜 · 已打烊' };
+const PHASE_NAME = { morning: '아침 · 개점 전', day: '낮 · 영업 중', night: '밤 · 마감함' };
 
 function renderTopbar() {
-  const due = S.grace > 0 ? `<span class="bad">欠租 ${S.rentOwed} · 宽限 ${S.grace} 日</span>`
-    : `租金 ${rentAmount()} · 第 ${S.rentDue} 日（${S.rentDue - S.day} 日后）`;
+  const due = S.grace > 0 ? `<span class="bad">임대료 체납 ${S.rentOwed} · 宽限 ${S.grace} 日</span>`
+    : `임대료 ${rentAmount()} · 第 ${S.rentDue} 日（${S.rentDue - S.day} 이후）`;
   const plan = powerPlan();
   const deedP = clamp(S.stones / deedPrice() * 100, 0, 100);
   $('#topbar').innerHTML = `
     <div class="tb-day" title="${calendar().yearText}">${icon(S.phase === 'night' ? 'ic_night' : 'ic_day')}<b>第 ${S.day} 日</b>
       <span class="tb-cal">${calendar().text}${annualOf() ? ` · <em>${annualOf().name}</em>` : ''}<br>${PHASE_NAME[S.phase]}</span></div>
-    ${S.plan && S.plan.inspect && S.plan.tipped && S.plan.day === S.day ? `<div class="tb-cell tipchip" title="${esc(S.plan.tipped)}捎来的风声">${icon('ic_heat')}今日巡查</div>` : ''}
-    <div class="tb-cell dao" data-act="dao" title="修为：服炼丹药魂魄，破境要钥匙。点开查看">${icon('ic_dao')}<span>${realmName()}<br><small>${realm().need ? `${S.cult.xp}/${realm().need}` : '圆满'}</small></span></div>
-    ${S.fate && (S.fate.n || S.fate.debts.length || S.fate.infamy) ? `<div class="tb-cell fate" data-act="fate-open" title="因果：点开查看孽债">孽<b>${S.fate.debts.length}</b>${S.fate.infamy ? `<small>恶名${S.fate.infamy}</small>` : ''}</div>` : ''}
-    <div class="tb-cell" title="善名 ${S.virtue}：做好人要掏钱，善名太盛还会被人当软柿子捏；但你帮过的人，偶尔会回来报答">善<b>${VIRTUE_NAME(S.virtue)}</b></div>
-    ${condList('me').map(c => CONDS[c.kind] ? `<div class="tb-cell cond" data-act="heal-open" title="${esc(CONDS[c.kind].desc)}点开求医">${c.label}</div>`
-      : `<div class="tb-cell cond" title="体力或精神见底：比斗、动手吃亏，说谎易露馅">${c.label}</div>`).join('')}
-    <div class="tb-cell power" title="你在杂役区的势力：${powerParts().map(([k, v]) => `${k} ${v > 0 ? '+' : ''}${v}`).join('，')}">势 <b>${playerPower()}</b></div>
-    <div class="tb-cell war st${S.world.stage}" title="四方紧张 ${tension()}：${warStage().text}">${icon('ic_war')}<span>${warStage().name}</span></div>
+    ${S.plan && S.plan.inspect && S.plan.tipped && S.plan.day === S.day ? `<div class="tb-cell tipchip" title="${esc(S.plan.tipped)}전해 들은 소문">${icon('ic_heat')}오늘 순찰</div>` : ''}
+    <div class="tb-cell dao" data-act="dao" title="수련: 단약과 혼백을 복용한다，경지 돌파에는 열쇠가 필요하다. 눌러서 본다">${icon('ic_dao')}<span>${realmName()}<br><small>${realm().need ? `${S.cult.xp}/${realm().need}` : '圆满'}</small></span></div>
+    ${S.fate && (S.fate.n || S.fate.debts.length || S.fate.infamy) ? `<div class="tb-cell fate" data-act="fate-open" title="인과: 눌러서 빚을 본다">孽<b>${S.fate.debts.length}</b>${S.fate.infamy ? `<small>악명${S.fate.infamy}</small>` : ''}</div>` : ''}
+    <div class="tb-cell" title="善名 ${S.virtue}：좋은 사람 노릇에 돈이 든다，선명이 지나치면 호구로 여겨진다. 하지만 네가 도운 사람은，가끔 돌아와 보답한다">善<b>${VIRTUE_NAME(S.virtue)}</b></div>
+    ${condList('me').map(c => CONDS[c.kind] ? `<div class="tb-cell cond" data-act="heal-open" title="${esc(CONDS[c.kind].desc)}点开치료를 구함">${c.label}</div>`
+      : `<div class="tb-cell cond" title="체력이나 정신이 바닥나면 겨루기와 몸싸움에서 손해를 본다，거짓말이 들통나기 쉽다">${c.label}</div>`).join('')}
+    <div class="tb-cell power" title="잡역 구역에서 네 세력：${powerParts().map(([k, v]) => `${k} ${v > 0 ? '+' : ''}${v}`).join('，')}">势 <b>${playerPower()}</b></div>
+    <div class="tb-cell war st${S.world.stage}" title="사방이 긴장한다 ${tension()}：${warStage().text}">${icon('ic_war')}<span>${warStage().name}</span></div>
     <div class="tb-cell big">${stoneTxt(S.stones)}</div>
-    <div class="tb-cell vit" title="体力：搬运、翻找、开炉都要力气">${icon('ic_stamina')}<span class="meter st"><i style="width:${S.vit.st}%"></i></span><span>${S.vit.st}</span></div>
-    <div class="tb-cell vit" title="精神：鉴定、探查、画符、炼丹、议价都耗神">${icon('ic_spirit')}<span class="meter sp"><i style="width:${S.vit.sp}%"></i></span><span>${S.vit.sp}</span></div>
+    <div class="tb-cell vit" title="체력: 운반, 뒤지기, 화로 열기에는 힘이 필요하다">${icon('ic_stamina')}<span class="meter st"><i style="width:${S.vit.st}%"></i></span><span>${S.vit.st}</span></div>
+    <div class="tb-cell vit" title="정신: 감정, 탐사, 부적 그리기, 단약 제련, 흥정은 모두 정신을 소모한다">${icon('ic_spirit')}<span class="meter sp"><i style="width:${S.vit.sp}%"></i></span><span>${S.vit.sp}</span></div>
     <div class="tb-cell rent">${icon('ic_ledger')}<span>${due}</span></div>
 
-    <div class="tb-cell heat" title="执法堂关注：越高越容易被巡查；满一百即被锁拿">${icon('ic_heat')}
+    <div class="tb-cell heat" title="집법당 주목: 높을수록 순찰받기 쉽다. 백이 차면 체포된다">${icon('ic_heat')}
       <span class="meter"><i style="width:${S.heat}%"></i></span><span>${S.heat}</span></div>
-    <div class="tb-cell" title="铺契 ${deedPrice()} 灵石">${icon('ic_deed')}<span class="meter gold"><i style="width:${deedP}%"></i></span></div>
+    <div class="tb-cell" title="가게 문서 ${deedPrice()} 영석">${icon('ic_deed')}<span class="meter gold"><i style="width:${deedP}%"></i></span></div>
     <div class="tb-spacer"></div>
     <button class="btn small ghost" data-act="menu">卷宗</button>`;
 }
 
-// ───────────── 场景与柜台 ─────────────
+// ───────────── 场景与카운터 ─────────────
 
 function speechFor(c) {
   if (!c) {
-    if (S.phase === 'morning') return `晨钟响过三遍。${todayText()}${S.market.text}${tipText()}`;
-    if (S.phase === 'night') return '血月当空，杂役区只剩几盏灯笼。去拾些破烂，还是早些歇息？';
-    // 门口自有“请下一位”的牌子，人走光了才提醒去点打烊牌
-    return S.queue.length ? '' : `今日的客人都走了。${LAYOUT === 'tall' ? '点左边的「打烊」' : '点门上那块打烊牌'}，就算打烊。`;
+    if (S.phase === 'morning') return `아침 종이 세 번 울렸다。${todayText()}${S.market.text}${tipText()}`;
+    if (S.phase === 'night') return '血月当空，잡역 구역에 등롱 몇 개만 남았다. 잡동사니를 주우러 가자，일찍 쉬는 게 낫다？';
+    // 门口自有“请下一位”的牌子，人走光了才提醒去点마감牌
+    return S.queue.length ? '' : `오늘의 손님은 다 갔다。${LAYOUT === 'tall' ? '왼쪽의 「마감」' : '문의 마감 패를 누른다'}，설령 마감해도。`;
   }
   const it = customerItem();
   const sig = [c.kind, c.told, c.afterAppraisal, it && it.disputed].join('|');
@@ -217,46 +217,46 @@ function speechFor(c) {
   return c.line;
 }
 
-// 开铺前收到的巡查风声：原先写在柜台窗口里，现在由晨间独白说出来
+// 开铺前收到的巡查风声：原先写在카운터窗口里，现在由晨间独白说出来
 function tipText() {
   if (!(S.plan && S.plan.inspect && S.plan.tipped && S.plan.day === S.day)) return '';
   const banned = bannedShown();
-  return `${S.plan.tipped}捎来话：今日执法堂要来巡查（${S.plan.reason}）。${banned.length ? `陈列柜里还摆着${banned.map(itemName).join('、')}！` : ''}趁开门前把禁物、赃物撤下，藏进暗格。`;
+  return `${S.plan.tipped}전갈이 왔다: 오늘 집법당이 순찰을 온다（${S.plan.reason}）。${banned.length ? `진열장에 아직 놓여 있다${banned.map(itemName).join('、')}！` : ''}문을 열기 전에 금물과 장물을 치운다，藏进暗格。`;
 }
 
 function composeLine(c) {
   const it = customerItem(), f = c.faction, addr = ADDRESS[f];
-  const brought = c.kind === 'buy' && goodsOf().length ? `另外，这${goodsOf().map(itemName).join('、')}也想出手。` : '';
-  const peek = c.reporting ? `（${ta(personOf(c))}盯着你的陈列柜看了半天，脸色有些古怪。）` : '';
-  if (c.kind === 'inspect') return '执法堂巡查！柜台里外，都给我打开。';
-  if (c.kind === 'story') return `（${c.name}似乎有话要说。）`;
+  const brought = c.kind === 'buy' && goodsOf().length ? `另外，这${goodsOf().map(itemName).join('、')}팔고 싶어한다。` : '';
+  const peek = c.reporting ? `（${ta(personOf(c))}네 진열장을 한참 노려보았다，표정이 좀 이상하다.)` : '';
+  if (c.kind === 'inspect') return '집법당 순찰이다! 카운터 안팎이，전부 열어라。';
+  if (c.kind === 'story') return `（${c.name}할 말이 있는 듯하다.)`;
   if (c.refuse) return voice(f, 'refuse');
-  if (c.offended) return '你柜里摆着我族人的妖丹、妖皮？呸！这种铺子，不进也罢。';
+  if (c.offended) return '네 진열장에 우리 일족의 요단, 요피를 내놨다고? 쳇! 이런 가게，들어오지 않아도 된다。';
   if (c.kind === 'plea') return greeting(c) + pleaLine(c);
   if (c.kind === 'sell' && it) {
-    if (c.afterAppraisal) return c.told === 'fake' ? `既是赝品，留着也是占地方。${it.ask} 灵石，${addr}收了吧。`
-      : `既然是真品……${it.ask} 灵石，${addr}要不要？`;
-    if (it.disputed === 'ok') return `啊？……罢了罢了，这${itemName(it)}${it.ask} 灵石，${addr}收了吧。`;
-    if (it.disputed === 'caught') return `少来这套！我这${itemName(it)}是正经货，${it.ask} 灵石，一个子儿不能少。`;
+    if (c.afterAppraisal) return c.told === 'fake' ? `위작이라니，둬봤자 자리만 차지한다。${it.ask} 영석，${addr}收了吧。`
+      : `진품이라니……${it.ask} 영석，${addr}要不要？`;
+    if (it.disputed === 'ok') return `啊？……罢了罢了，这${itemName(it)}${it.ask} 영석，${addr}收了吧。`;
+    if (it.disputed === 'caught') return `그딴 소리 마! 내${itemName(it)}제대로 된 물건이다，${it.ask} 영석，한 푼도 깎을 수 없다。`;
     const goods = goodsOf();
     const vars = { item: goods.map(itemName).join('、'), ask: goods.reduce((s, g) => s + g.ask, 0) };
     let line = goods.some(g => ITEMS[g.id].contra) ? voice(f, 'contra', vars) : lineOf(c, 'sell', vars);
     if (goods.some(g => g.stolen)) line += voice(f, 'stolen');
-    if (c.wantId) line += `顺便……有${ITEMS[c.wantId].name}的话，我也要${needCn(c.need || 1)}${needUnit(c)}。`;
+    if (c.wantId) line += `겸사겸사……有${ITEMS[c.wantId].name}이라면，我也要${needCn(c.need || 1)}${needUnit(c)}。`;
     return peek + greeting(c) + line;
   }
   if (c.noble) return nobleLine(c);
   if (c.craving) return gx(personOf(c), voice(f, 'crave') + needLine(c));
   if (c.wishId) return greeting(c) + voice(f, c.wishSeen ? 'wish' : 'wishAsk', { item: ITEMS[c.wishId].name });
-  if (c.forGift) return greeting(c) + `（压低声音）${addr}，在下要备一份${CATS[c.wantCat]}送人。不必是真的——只要做得够像，收礼的人看不出来便好。价钱嘛，自然不能按真货算。`;
-  if (c.wantFake) return greeting(c) + `（压低声音）${addr}，上回那种“好东西”还有么？就是看着像真的那种。`;
+  if (c.forGift) return greeting(c) + `（목소리를 낮춰)${addr}，제가 한 부 준비하겠소${CATS[c.wantCat]}선물한다. 진짜일 필요는 없다 - 충분히 그럴듯하기만 하면，받는 사람이 모르면 그만이다. 값이야，당연히 진품 값으로 칠 수 없다。`;
+  if (c.wantFake) return greeting(c) + `（목소리를 낮춰)${addr}，지난번 그런 “좋은 물건” 또 있나? 진짜처럼 보이는 그런 거 말이야。`;
   if (c.kind === 'buy') return peek + greeting(c) + lineOf(c, c.attracted ? 'attracted' : 'buy', { cat: c.wantId ? ITEMS[c.wantId].name : CATS[c.wantCat] }) + needLine(c) + brought;
   return greeting(c) + voice(f, 'appraise', { item: itemName(it), fee: c.fee });
 }
 
-// 掌柜视角：隔着自家柜台望向店门与街面。来客从门口走进来，有的只站在门口、门外
-let shown = null;   // 正在场上的来客：{ key, src, stage }
-// 刚送走、脸上还带着神情的来客：弹窗开着就一直留在柜台前，弹窗关了再停一会儿才转身走——不然神情换上的那一刻正被弹窗挡着
+// 掌柜视角：隔着自家카운터望向店门与街面。来客从门口走进来，有的只站在门口、门外
+let shown = null;   // 지금 자리에 있는 손님：{ key, src, stage }
+// 刚送走、脸上还带着神情的来客：弹窗开着就一直留在카운터前，弹窗关了再停一会儿才转身走——不然神情갈아 끼운다的那一刻正被弹窗挡着
 let parting = null;
 const PART_MS = 1300;
 
@@ -295,7 +295,7 @@ function renderScene() {
     p.style.display = '';
     shown = { key, src, stage: st };
   } else if (shown) {
-    // 送客：转身走回门口，消失在街上
+    // 손님을 보낸다：转身走回门口，消失在街上
     p.className = 'st-door leaving';
     shown = null;
     setTimeout(() => { if (!shown) p.style.display = 'none'; }, 650);
@@ -305,28 +305,28 @@ function renderScene() {
   $('#crowd').innerHTML = waiting.map((q, i) => `<img class="w${i}" src="${asset('chars', `${q.portrait}~neutral`)}" alt="">`).join('');
   const f = c ? FACTIONS[c.faction] : null;
   $('#nameplate').innerHTML = c ? `${icon(f.icon)}<b>${esc(c.name)}</b><span>${f.name} · ${esc(c.title || '')}</span>
-     ${c.wanted ? `<span class="tag stolen">通缉 · 赏 ${c.wanted}</span>` : ''}
-     ${c.attracted ? `<span class="tag real">慕陈列而来</span>` : ''}
-     ${c.savvy != null && c.kind !== 'story' ? `<span class="tag">神色·${demeanor(c)}</span>` : ''}
+     ${c.wanted ? `<span class="tag stolen">수배 · 상금 ${c.wanted}</span>` : ''}
+     ${c.attracted ? `<span class="tag real">진열을 보고 왔다</span>` : ''}
+     ${c.savvy != null && c.kind !== 'story' ? `<span class="tag">안색·${demeanor(c)}</span>` : ''}
      ${personTags(c)}` : '';
   $('#nameplate').style.display = c ? '' : 'none';
   renderSpeech(speechFor(c));
-  // 点门口开门迎客、请下一位；门上的打烊牌白天点得动，客人走光了就亮一亮
+  // 点门口문을 열고 손님을 맞는다、请下一位；门上的마감牌白天点得动，客人走光了就亮一亮
   const door = $('#door'), act = S.phase === 'morning' ? 'open' : S.phase === 'day' && !c && S.queue.length ? 'next' : '';
   door.style.display = act ? '' : 'none';
   door.dataset.act = act;
-  door.firstChild.textContent = act === 'open' ? '开门迎客' : `请下一位 · 门外 ${S.queue.length} 位`;
+  door.firstChild.textContent = act === 'open' ? '문을 열고 손님을 맞는다' : `다음 손님 · 문 밖 ${S.queue.length} 位`;
   const sign = $('#closesign');
   sign.style.display = S.phase === 'day' ? '' : 'none';
   sign.classList.toggle('due', !c && !S.queue.length);
 }
 
-// 竖屏的话按字幕显示：长了就分段，点一下看下一段；换了一句话从头开始
+// 竖屏이라면按字幕显示：长了就分段，点一下看下一段；换了一句话从头开始
 let talk = { text: '', i: 0 };
 
 function speechParts(text) {
   if (LAYOUT !== 'tall' || !text) return text ? [text] : [];
-  const max = Math.max(24, Math.floor(($('#scene').clientWidth - 112) / 18) * 2 - 1);   // 18px 字两行，末尾留一格给 ▼
+  const max = Math.max(24, Math.floor(($('#scene').clientWidth - 112) / 18) * 2 - 1);   // 18px 字两行，끝에 한 칸을 남긴다 ▼
   const out = [];
   const bits = text.match(/[^。！？!?…]+(?:[。！？!?…]+[」”’）)]*)?/g) || [text];
   bits.flatMap(b => b.length > max ? b.match(/[^，、；]+[，、；]?/g) : [b]).forEach(b => {
@@ -342,7 +342,7 @@ function keywords(html) {
   if (!kwRe) {
     const names = [...new Set([...Object.values(ITEMS).map(d => d.name), ...Object.values(CATS)])].filter(Boolean)
       .sort((a, b) => b.length - a.length).map(n => esc(n).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    kwRe = new RegExp(`${names.join('|')}|\\d+(?:[–-]\\d+)?(?:\\s?灵石)?`, 'g');
+    kwRe = new RegExp(`${names.join('|')}|\\d+(?:[–-]\\d+)?(?:\\s?영석)?`, 'g');
   }
   return html.replace(kwRe, m => `<b class="kw">${m}</b>`);
 }
@@ -364,131 +364,131 @@ function personTags(c) {
 }
 
 function patienceHTML(c) {
-  return `<span class="patience" title="耐心">${'●'.repeat(Math.max(0, c.patience))}${'○'.repeat(Math.max(0, 4 - c.patience))}</span>`;
+  return `<span class="patience" title="인내">${'●'.repeat(Math.max(0, c.patience))}${'○'.repeat(Math.max(0, 4 - c.patience))}</span>`;
 }
 
 function renderCounter() {
   const el = $('#counter-panel');
   const c = S.customer;
-  // 开铺前、柜台前没人时不占窗口：开门、请客、打烊都点画面里的门口与牌子
+  // 开铺前、카운터前没人时不占窗口：开门、请客、마감都点画面里的门口与牌子
   if (S.phase === 'morning' || (S.phase === 'day' && !c)) { el.innerHTML = ''; return; }
   if (S.phase === 'night') {
     el.innerHTML = `<div class="cp-col wide">
         <h3>夜</h3>
-        <p>设备在你入定时运转，按「工坊」页的顺序取用灵力，也要耗你的体力与精神——精力不济的设备会停工。歇息后恢复。</p>
-        <p class="muted small">${S.scavenged ? '今夜已出去过了。' : `今夜可出门一趟：拾荒（每翻一次 ${costText('dig')}），或去鬼市（${costText('market')}${isGhostNight() ? '，今夜鬼市开张，货多且不惹执法堂' : '，非鬼市夜，执法堂关注 +2'}）。`}
-          ${S.retreat ? '<b class="good">今夜闭关：</b>诸炉出品更精，地火炉可炼神兵胚料；歇息恢复得少。' : `闭关（${costText('retreat')}）：今夜亲自坐镇炉火。`}</p>
+        <p>설비는 네가 입정하는 동안 작동한다，「작업장」 페이지 순서로 영력을 쓴다，네 체력과 정신도 소모된다 - 기력이 모자라면 설비가 멈춘다. 쉬면 회복된다。</p>
+        <p class="muted small">${S.scavenged ? '오늘 밤은 이미 나갔다。' : `오늘 밤 한 번 외출할 수 있다: 폐품 줍기(뒤질 때마다 ${costText('dig')}），아니면 귀시로 간다（${costText('market')}${isGhostNight() ? '，오늘 밤 귀시가 열린다，물건이 많고 집법당을 건드리지 않는다' : '，非귀시夜，집법당 주목 +2'}）。`}
+          ${S.retreat ? '<b class="good">오늘 밤 폐관한다：</b>모든 화로의 산출이 더 좋아진다，지화로로는 신병 배료를 제련할 수 있다. 쉬면 조금 회복된다。' : `폐관（${costText('retreat')}）：오늘 밤 직접 화로를 지킨다。`}</p>
       </div>
       <div class="cp-actions">
-        <button class="btn" data-act="scavenge" ${S.scavenged ? 'disabled' : ''}>${icon('ic_scavenge')}外出拾荒</button>
-        <button class="btn" data-act="market" ${S.scavenged ? 'disabled' : ''}>鬼市${isGhostNight() ? '（开张）' : ''}</button>
-        <button class="btn ${S.retreat ? 'danger' : ''}" data-act="retreat">${S.retreat ? '取消闭关' : '闭关'}</button>
-        <button class="btn primary big" data-act="sleep">入定歇息</button></div>`;
+        <button class="btn" data-act="scavenge" ${S.scavenged ? 'disabled' : ''}>${icon('ic_scavenge')}밖에 나가 폐품을 줍는다</button>
+        <button class="btn" data-act="market" ${S.scavenged ? 'disabled' : ''}>귀시${isGhostNight() ? '（开张）' : ''}</button>
+        <button class="btn ${S.retreat ? 'danger' : ''}" data-act="retreat">${S.retreat ? '폐관을 취소한다' : '폐관'}</button>
+        <button class="btn primary big" data-act="sleep">입정하며 쉰다</button></div>`;
     return;
   }
   const f = FACTIONS[c.faction];
   let mid = '', acts = '';
   const pp = personOf(c), secretKnown = pp && pp.secret && pp.secret.known && pp.status === 'alive';
   const intel = !pp || pp.story || pp.official || ['story', 'inspect'].includes(c.kind) ? ''
-    : secretKnown ? `<div class="intel">${icon('ic_secret')}<b>${esc(pp.secret.type)}</b>${c.confided ? `（${ta(pp)}自己向你吐露的）` : ''}——
-        向${CHANNEL_NAME[pp.secret.to]}举报可得赏金约 ${pp.secret.bounty}、${FACTIONS[pp.secret.to].name}功勋 ${pp.secret.merit}${channelOpen(pp.secret.to) ? '' : `（尚未搭上线：${channelHint(pp.secret.to)}）`}
-        ${c.reportedSecret ? `<span class="intel-acts muted small">已暗中递了信，等${ta(pp)}出门</span>` : `<span class="intel-acts"><button class="btn tiny danger" data-act="secret-report" title="${esc(sinHint(['betray', 2]))}" ${channelOpen(pp.secret.to) ? '' : 'disabled'}>举报</button>
-        <button class="btn tiny" data-act="secret-blackmail" title="${esc(sinHint(['betray', 2]))}">要挟 ${Math.round(Math.min(0.95, overpowerOdds(pp) + 0.1) * 100)}%</button>
-        ${pp.owes ? `<span class="muted small">${ta(pp)}欠你人情</span>` : '<button class="btn tiny" data-act="secret-keep">守口如瓶</button>'}</span>`}</div>`
+    : secretKnown ? `<div class="intel">${icon('ic_secret')}<b>${esc(pp.secret.type)}</b>${c.confided ? `（${ta(pp)}스스로 너에게 털어놓은 것)` : ''}——
+        向${CHANNEL_NAME[pp.secret.to]}신고하면 상금 약 ${pp.secret.bounty}、${FACTIONS[pp.secret.to].name}功勋 ${pp.secret.merit}${channelOpen(pp.secret.to) ? '' : `（아직 연줄이 없다：${channelHint(pp.secret.to)}）`}
+        ${c.reportedSecret ? `<span class="intel-acts muted small">몰래 소식을 전했다，等${ta(pp)}出门</span>` : `<span class="intel-acts"><button class="btn tiny danger" data-act="secret-report" title="${esc(sinHint(['betray', 2]))}" ${channelOpen(pp.secret.to) ? '' : 'disabled'}>举报</button>
+        <button class="btn tiny" data-act="secret-blackmail" title="${esc(sinHint(['betray', 2]))}">협박한다 ${Math.round(Math.min(0.95, overpowerOdds(pp) + 0.1) * 100)}%</button>
+        ${pp.owes ? `<span class="muted small">${ta(pp)}너에게 빚짐人情</span>` : '<button class="btn tiny" data-act="secret-keep">입을 다문다</button>'}</span>`}</div>`
       : !c.probed && !pp.cleared ? `<div class="intel muted small">${icon('ic_secret')}<button class="btn tiny" data-act="probe" title="${costText('probe')}，看透约 ${Math.round(probeOdds(pp) * 100)}%">神识探查 ${Math.round(probeOdds(pp) * 100)}%</button></div>` : '';
   const dark = pp && !pp.story && ['sell', 'buy', 'plea'].includes(c.kind) && !c.refuse && killable(pp) ? `<div class="intel small">
       ${icon('ic_dao')}<span class="muted">${esc(c.name)}是${realmName(npcLevel(pp))}，你是${realmName()}。</span>
-      <button class="btn tiny danger" data-act="kill" ${canKill(pp) ? `disabled title="${esc(canKill(pp))}"` : `title="成算 ${pct(killOdds(pp, false))}，${costText('kill')}${deathWarn('injured')}"`}>关门打狗${canKill(pp) ? '' : ` ${pct(killOdds(pp, false))}`}</button>
+      <button class="btn tiny danger" data-act="kill" ${canKill(pp) ? `disabled title="${esc(canKill(pp))}"` : `title="성공 확률 ${pct(killOdds(pp, false))}，${costText('kill')}${deathWarn('injured')}"`}>문 닫고 개 패기${canKill(pp) ? '' : ` ${pct(killOdds(pp, false))}`}</button>
       ${canSoulMark(pp) ? '' : `<button class="btn tiny danger" data-act="soulmark">种魂印 ${pct(soulMarkOdds(pp))}</button>`}</div>` : '';
   if (c.kind === 'story') {
     const node = storyNode(S.story[c.key]);
-    mid = `${customerItem() ? `<div class="cp-item">${gridHTML('counter', '柜台')}<div>` : '<div>'}
+    mid = `${customerItem() ? `<div class="cp-item">${gridHTML('counter', '카운터')}<div>` : '<div>'}
       <p><b>${esc(c.name)}</b>有话要说。</p><p class="muted">${esc(S.story[c.key].summary || '')}</p></div>${customerItem() ? '</div>' : ''}`;
     acts = `<button class="btn primary" data-act="story-talk">交谈</button>`;
   } else if (c.refuse) {
     const p = personOf(c);
     mid = `<p>${esc(c.name)}还记着你：</p><p class="muted">“${esc((salientMemory(p) || p.mem[p.mem.length - 1] || { t: '……' }).t)}”</p>
-      <p class="muted small">好感跌到这个地步，对方不肯再与你做买卖。</p>`;
-    acts = `<button class="btn primary" data-act="dismiss">送客</button>`;
+      <p class="muted small">호감이 이 지경까지 떨어지면，상대가 더 이상 너와 거래하지 않으려 한다。</p>`;
+    acts = `<button class="btn primary" data-act="dismiss">손님을 보낸다</button>`;
   } else if (c.kind === 'inspect') {
     const e = official('enforcer'), stake = inspectionStake(), price = bribePrice(e, stake);
     const tiers = [...new Set([0.6, 1, 1.6].map(k => Math.max(10, Math.round(price * k / 10) * 10)))];
-    mid = `<p>${esc(e.name)}会翻检陈列柜、库房、地面与货摊。<b>禁物</b>、<b>禁药</b>与<b>来路不明</b>的货一经搜出即充公并罚款；暗格里的东西搜不到。</p>
-      <p class="muted small">他估摸能从你这儿抄到约 ${stake} 灵石的油水。规矩有价：给够了，就什么也没看见；给少了，他会觉得受了侮辱。
-        ${S.flags.enforcerOwned ? '<b class="good">他是你的人。</b>' : ''}</p>`;
+    mid = `<p>${esc(e.name)}진열장, 창고, 바닥, 노점을 뒤진다。<b>금물</b>、<b>금약</b>与<b>来路不明</b>의 물건은 발견되면 몰수에 벌금이다. 암격 속 물건은 찾지 못한다。</p>
+      <p class="muted small">그는 너에게서 약  ${stake} 영석의 기름. 규정에도 값이 있다: 충분히 주면，아무것도 못 본 걸로 한다. 적게 주면，그는 모욕을 받았다고 느낀다。
+        ${S.flags.enforcerOwned ? '<b class="good">그는 네 사람이다。</b>' : ''}</p>`;
     acts = `<button class="btn primary" data-act="inspect">配合搜查</button>
-      ${tiers.map(n => `<button class="btn small" data-act="bribe" data-n="${n}" ${S.stones < n ? 'disabled' : ''}>打点 ${n}<small>&nbsp;成算 ${Math.round((S.flags.enforcerOwned ? 1 : bribeOdds(e, stake, n)) * 100)}%</small></button>`).join('')}`;
+      ${tiers.map(n => `<button class="btn small" data-act="bribe" data-n="${n}" ${S.stones < n ? 'disabled' : ''}>손을 씀 ${n}<small>&nbsp;성공 확률 ${Math.round((S.flags.enforcerOwned ? 1 : bribeOdds(e, stake, n)) * 100)}%</small></button>`).join('')}`;
   } else if (c.offended) {
-    mid = `<p>${f.name}客人看见陈列柜里的妖族遗物，拂袖而去。<span class="bad">妖族声望 -3</span></p>`;
-    acts = `<button class="btn primary" data-act="dismiss">送客</button>`;
+    mid = `<p>${f.name}손님이 진열장의 요족 유물을 본다，소매를 뿌리며 떠난다。<span class="bad">요족 평판 -3</span></p>`;
+    acts = `<button class="btn primary" data-act="dismiss">손님을 보낸다</button>`;
   } else if (c.kind === 'plea') {
     ({ mid, acts } = pleaPanel(c));
   } else if (c.kind === 'sell' || c.kind === 'buy') {
     ({ mid, acts } = tradePanel(c));
   } else {
-    mid = `<div class="cp-item">${gridHTML('counter', '柜台')}
-      <div><p>鉴定委托，酬金 ${stoneTxt(c.fee)}</p><p class="muted">看清真伪后，告诉${ta(personOf(c))}什么由你定。如实相告可得声望；
-        把真品说成赝品，对方多半会贱卖给你——但精明的人未必骗得过，当场识破要丢声望，事后也可能翻出旧账。</p></div></div>`;
-    acts = `<button class="btn primary" data-act="appraise-commission">${icon('ic_appraise')}照妖镜鉴定</button>
+    mid = `<div class="cp-item">${gridHTML('counter', '카운터')}
+      <div><p>감정委托，수고비 ${stoneTxt(c.fee)}</p><p class="muted">진위를 확인한 뒤，告诉${ta(personOf(c))}무엇을 할지는 네가 정한다. 사실대로 말하면 평판을 얻는다；
+        진품을 위작이라 한다，상대는 대개 헐값에 넘긴다 - 하지만 영리한 사람은 속이지 못할 수 있다，그 자리에서 들통나면 평판이 깎인다，뒤에 옛 일을 들춰낼 수도 있다。</p></div></div>`;
+    acts = `<button class="btn primary" data-act="appraise-commission">${icon('ic_appraise')}조요경으로 감정한다</button>
       <button class="btn ghost" data-act="dismiss">婉拒</button>`;
   }
   el.innerHTML = `<div class="cp-col wide">${mid}${intel}${dark}</div><div class="cp-actions">${acts}</div>`;
 }
 
-// 求助：接济、放贷、收作苦力，或者撵走
+// 求助：구제한다、放贷、고역으로 부린다，或者쫓아낸다
 function pleaPanel(c) {
   const amt = c.need * 3, TA = ta(personOf(c));
-  const mid = gx(personOf(c), `<p>${esc(c.name)}求你：${esc(c.plea)}。</p>
-    <p class="small muted">接济他，他会记着你，往后在街头巷尾替你听消息——这世道，好心多半换不回什么，偶尔却换得回一条命。
-      放贷利厚，还不上就由你处置；收作苦力，他替你烧炉搬货，干到死为止。</p>`);
-  const acts = `<button class="btn small" data-act="plea-help" ${S.stones < c.need ? 'disabled' : ''}>接济 ${c.need}</button>
+  const mid = gx(personOf(c), `<p>${esc(c.name)}부탁해：${esc(c.plea)}。</p>
+    <p class="small muted">구제한다他，그가 너를 기억한다，앞으로 길가에서 소문을 들어주마 - 이 세상，호의는 대개 돌아오지 않는다，가끔은 목숨 하나를 건진다。
+      돈놀이 이자가 후하다，못 갚으면 네가 처분한다. 고역으로 부린다，그가 너를 위해 화로를 때고 물건을 나른다，죽을 때까지 일한다。</p>`);
+  const acts = `<button class="btn small" data-act="plea-help" ${S.stones < c.need ? 'disabled' : ''}>구제한다 ${c.need}</button>
     <button class="btn small" data-act="plea-lend" ${S.stones < amt ? 'disabled' : ''} title="七日还 ${Math.round(amt * 1.5)}">借${TA} ${amt}</button>
-    <button class="btn small danger" data-act="plea-labor">收作苦力</button>
-    <button class="btn ghost small" data-act="plea-away">撵走</button>`;
+    <button class="btn small danger" data-act="plea-labor">고역으로 부린다</button>
+    <button class="btn ghost small" data-act="plea-away">쫓아낸다</button>`;
   return { mid, acts };
 }
 
-// 修为：服炼、破境、杀伐的规矩
-// 面上看得出的药力：看不出毛病的赝品、以次充好的，照它装出来的样子算；吃下去才见真章（见 bodyOf、potency）
+// 修为：복용 제련、破境、杀伐的规矩
+// 面上看得出的药力：흠을 찾지 못한다的위작、하급을 상급으로的，照它装出来的样子算；吃下去才见真章（见 bodyOf、potency）
 const seemOf = it => knownFlaw(it) || !(it.fake || isDressed(it)) ? it : Object.assign({}, it, { fake: false, q: it.sq != null ? it.sq : it.q });
 
 function openDao() {
   const r = realm(), why = canBreak();
   const goods = Object.values(S.items).filter(it => HELD(it) && cultXp(seemOf(it))).sort((a, b) => cultXp(seemOf(b)) - cultXp(seemOf(a)));
   openModal(() => { const pg = pager(goods.filter(it => S.items[it.uid]), 6, 'dao'); modalHTML(`<h3>${icon('ic_dao')}修为 · ${realmName()}</h3>
-    <p>${r.need ? `修为 <b>${S.cult.xp}</b> / ${r.need}，破入${realmName(S.cult.lv + 1)}还要一件<b>${ITEMS[r.key].name}</b>作钥匙。成算约 ${pct(breakOdds())}${S.retreat ? '（今夜闭关，加一成五）' : '（夜里闭关时冲关更稳）'}。` : '你已至此界尽头。'}</p>
-    <p class="small muted">境界越高，势力越大、夜里恢复越多、说谎越不易被识破。修为高过对方，就能在柜台上“关门打狗”或夜里截杀，夺他的货、灵石、尸身与魂魄；也能以修为威压、种魂印叫人听话。
-      吞魂饮血也能涨修为，只是越炼越不像人。</p>
+    <p>${r.need ? `修为 <b>${S.cult.xp}</b> / ${r.need}，돌파${realmName(S.cult.lv + 1)}还要一件<b>${ITEMS[r.key].name}</b>열쇠로 쓴다. 성공 확률 약 ${pct(breakOdds())}${S.retreat ? '（오늘 밤 폐관한다，15% 추가)' : '（밤에 폐관할 때 돌파가 더 안정된다)'}。` : '너는 이 세계의 끝에 이르렀다。'}</p>
+    <p class="small muted">경지가 높을수록，세력이 클수록 밤에 더 회복하고 거짓말이 덜 들통난다. 수련이 상대보다 높으면，카운터에서 “문 닫고 개 패기”를 하거나 밤에 길을 가로막아 죽일 수 있다，그의 물건, 영석, 시신, 혼백을 빼앗는다. 수련 위압이나 혼인을 심어 사람을 복종시킬 수도 있다。
+      혼을 삼키고 피를 마셔도 수련이 오른다，다만 제련할수록 사람 같지 않아진다。</p>
     <div class="gift-list">${pg.items.map(it => `<div class="gift-row" data-act="cultivate" data-uid="${it.uid}">${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}
-      <span>${esc(itemName(it))}${it.id === r.key ? '<em class="laced-txt">（破境之物）</em>' : ''}</span><span class="good">修为 +${cultXp(seemOf(it))}</span>${(CULT_XP[it.id] || [])[1] ? '<span class="bad small">损阴德</span>' : ''}</div>`).join('') || '<p class="muted">手头没有能服炼的东西：丹药、魂魄、妖丹、精血、琼浆玉露……</p>'}</div>${pg.nav}
-    <div class="h-btns"><button class="btn danger" data-act="breakthrough" ${why ? `disabled title="${esc(why)}"` : ''}>冲关破境（${costText('breakthrough')}）</button>
+      <span>${esc(itemName(it))}${it.id === r.key ? '<em class="laced-txt">（경지 돌파의 물건)</em>' : ''}</span><span class="good">修为 +${cultXp(seemOf(it))}</span>${(CULT_XP[it.id] || [])[1] ? '<span class="bad small">损阴德</span>' : ''}</div>`).join('') || '<p class="muted">손에 복용할 만한 것이 없다: 단약, 혼백, 요단, 정혈, 경장옥로……</p>'}</div>${pg.nav}
+    <div class="h-btns"><button class="btn danger" data-act="breakthrough" ${why ? `disabled title="${esc(why)}"` : ''}>돌파（${costText('breakthrough')}）</button>
       <button class="btn primary" data-act="modal-close">合上</button></div>`, 'm-gift'); });
 }
 
-// ───────────── 派系 ─────────────
+// ───────────── 파벌 ─────────────
 
-const OPP_NAME = { order: '订单', auction: '抄没拍卖', launder: '赃物过明路', captive: '战俘发卖', license: '丹药包销', supply: '珍材配给', salon: '雅集请柬', tip: '内线消息' };
+const OPP_NAME = { order: '주문', auction: '압수 경매', launder: '장물을 공표한다', captive: '포로를 판다', license: '단약을 도매로 산다', supply: '珍材配给', salon: '雅集请柬', tip: '내부 소식' };
 
 function oppHTML(o) {
-  const C = CLIQUES[o.cid], left = `<span class="muted small">至第 ${o.until} 日</span>`;
+  const C = CLIQUES[o.cid], left = `<span class="muted small">~에서 제 ${o.until} 日</span>`;
   const head = `<b style="color:${o.cid === 'law' ? '#8fd3ff' : '#e0524a'}">${C.name}</b> · ${OPP_NAME[o.type]}`;
   if (o.type === 'order' || o.type === 'license') {
     const goods = oppGoods(o);
-    const what = o.type === 'order' ? `${ITEMS[o.id].name} ×${o.left}，每件约 ${o.unit}（市价 ${marketPrice(o.id)}）` : `丹药按行情 ×${o.mul.toFixed(2)} 收，还收 ${o.left} 件`;
+    const what = o.type === 'order' ? `${ITEMS[o.id].name} ×${o.left}，每件约 ${o.unit}（市价 ${marketPrice(o.id)}）` : `단약은 시세대로 ×${o.mul.toFixed(2)} 收，아직 받는다 ${o.left} 件`;
     return `<div class="opp">${head} ${left}<p class="small">${what}</p>
-      <div class="merit-goods">${goods.slice(0, 6).map(it => `<button class="btn tiny" data-act="opp-deliver" data-key="${o.key}" data-uid="${it.uid}">交${esc(itemName(it))} ${oppUnit(o, it)}</button>`).join('') || '<span class="muted small">手头没有对口的货</span>'}</div></div>`;
+      <div class="merit-goods">${goods.slice(0, 6).map(it => `<button class="btn tiny" data-act="opp-deliver" data-key="${o.key}" data-uid="${it.uid}">交${esc(itemName(it))} ${oppUnit(o, it)}</button>`).join('') || '<span class="muted small">손에 맞는 물건이 없다</span>'}</div></div>`;
   }
   const desc = ({
-    auction: () => `一批抄家抄来的货（${o.items.map(id => ITEMS[id].name).join('、')}），市价约 ${o.value}，一口价 ${o.price}，来路干净。`,
-    launder: () => `给你手里的赃物补上执法堂勘合，抹去烙印，按货值收 ${Math.round(o.rate * 100)}% 的辛苦钱。`,
-    captive: () => `一名仙门战俘，${o.price} 灵石。处置之后得修士遗蜕、生魂与精血。（还剩 ${o.left} 名）`,
-    supply: () => `${ITEMS[o.id].name}按配给价每件 ${o.unit}（市价 ${marketPrice(o.id)}），还有 ${o.left} 件。`,
-    salon: () => `少宗主的雅集请柬：${o.guests} 位权贵会上门“赏玩”。他们阔绰、傲慢、眼力平平。`,
-    tip: () => '少宗主身边的人肯透个口风——一份行情密报。',
+    auction: () => `압수해온 물건 한 무리（${o.items.map(id => ITEMS[id].name).join('、')}），市价约 ${o.value}，一口价 ${o.price}，来路干净。`,
+    launder: () => `네 장물에 집법당 감합을 붙여준다，낙인을 지운다，물건 값대로 받는다 ${Math.round(o.rate * 100)}% 的辛苦钱。`,
+    captive: () => `선문 포로 한 명，${o.price} 영석. 처리하면 수사 유태, 생혼, 정혈을 얻는다. (남은 ${o.left} 名）`,
+    supply: () => `${ITEMS[o.id].name}배급가로 개당 ${o.unit}（市价 ${marketPrice(o.id)}），아직 있다 ${o.left} 件。`,
+    salon: () => `소종주의 아집 초대장：${o.guests} 권귀가 찾아와 “감상”한다. 그들은 흥청망청하고 거만하며 안목은 평범하다。`,
+    tip: () => '소종주 곁의 사람이 귀띔해준다 - 시세 밀보 한 부。',
   })[o.type]();
   const price = o.type === 'auction' || o.type === 'captive' ? o.price : o.type === 'supply' ? o.unit : 0;
   return `<div class="opp">${head} ${left}<p class="small">${desc}</p>
-    <button class="btn tiny" data-act="opp-take" data-key="${o.key}" ${price && S.stones < price ? 'disabled' : ''}>${price ? `${price} 灵石` : '接下'}</button></div>`;
+    <button class="btn tiny" data-act="opp-take" data-key="${o.key}" ${price && S.stones < price ? 'disabled' : ''}>${price ? `${price} 영석` : '받는다'}</button></div>`;
 }
 
 function tabClique() {
@@ -501,64 +501,64 @@ function tabClique() {
       <div class="cq-body"><div><b>${C.name}</b> <span class="muted small">${C.head} · 对头：${CLIQUES[C.rival].name}</span>
         <span class="tag ${t >= 1 ? 'real' : ''}">${TIER_NAME[t]}</span></div>
         <div class="pc-aff"><span class="small">好感</span><span class="aff-bar"><i class="${c.st >= 0 ? 'pos' : 'neg'}" style="width:${Math.abs(c.st) / 2}%"></i></span><b>${c.st}</b>
-          <span class="small">权势</span><span class="meter"><i style="width:${c.pw}%"></i></span><b class="${c.pw <= 30 ? 'bad' : ''}">${Math.round(c.pw)}</b></div>
-        <p class="small muted">${C.desc} 看重：${C.likes.map(x => CATS[x]).join('、')}。</p>
+          <span class="small">권세</span><span class="meter"><i style="width:${c.pw}%"></i></span><b class="${c.pw <= 30 ? 'bad' : ''}">${Math.round(c.pw)}</b></div>
+        <p class="small muted">${C.desc} 중시：${C.likes.map(x => CATS[x]).join('、')}。</p>
         <div class="merit-goods">${[100, 300].map(n => `<button class="btn tiny" data-act="cq-tribute" data-k="${k}" data-n="${n}" ${S.stones < n ? 'disabled' : ''}>孝敬 ${n}</button>`).join('')}
-          ${offer && !dirt ? `<button class="btn tiny" data-act="cq-offer" data-k="${k}">进献${esc(itemName(offer))}（+${Math.round(cliqueGiftValue(k, offer) / (20 + Math.max(0, c.st) / 2))}）</button>` : ''}
-          ${dirt && dirt.info.cid !== k ? `<button class="btn tiny danger" data-act="cq-leak" data-k="${k}" ${CLIQUES[dirt.info.cid].rival === k ? '' : 'disabled title="只有对头一系才要"'}>递上${esc(itemName(dirt))}</button>` : ''}
-          ${!J ? `<button class="btn tiny ${c.st >= 30 ? 'primary' : ''}" data-act="cq-join" data-k="${k}" ${c.st >= 30 ? '' : 'disabled title="好感 30 才肯收"'}>投靠</button>` : ''}</div></div></div>`;
+          ${offer && !dirt ? `<button class="btn tiny" data-act="cq-offer" data-k="${k}">바친다${esc(itemName(offer))}（+${Math.round(cliqueGiftValue(k, offer) / (20 + Math.max(0, c.st) / 2))}）</button>` : ''}
+          ${dirt && dirt.info.cid !== k ? `<button class="btn tiny danger" data-act="cq-leak" data-k="${k}" ${CLIQUES[dirt.info.cid].rival === k ? '' : 'disabled title="적대 계파만 원한다"'}>건넨다${esc(itemName(dirt))}</button>` : ''}
+          ${!J ? `<button class="btn tiny ${c.st >= 30 ? 'primary' : ''}" data-act="cq-join" data-k="${k}" ${c.st >= 30 ? '' : 'disabled title="호감 30이 되어야 받는다"'}>투항해 의탁</button>` : ''}</div></div></div>`;
   });
   const opps = liveOpps();
   const sub = subtabs('clique', [['four', '四系'], ['opps', `独家买卖${opps.length ? `（${opps.length}）` : ''}`]]);
   const pg = pager(sub.cur === 'four' ? rows : opps.map(oppHTML), sub.cur === 'four' ? (LAYOUT === 'tall' ? 2 : 2) : rowsFit(70, 1), `clique-${sub.cur}`);
   return `<div class="clique-tab">${sub.html}
-    ${sub.cur === 'four' ? `<p class="small muted">四股势力明争暗斗。攀上一系，换来别人拿不到的买卖；投到谁门下，谁倒台你也跟着被清算。权势跌破二十就被清洗。${offer ? '' : '选中一件货可以拿去进献。'}</p>` : ''}
-    ${pg.items.join('') || '<p class="muted small">还没有哪一系肯给你机会。好感到 10 才有往来。</p>'}${pg.nav}</div>`;
+    ${sub.cur === 'four' ? `<p class="small muted">네 세력이 다툰다. 한 계파에 붙어，남들이 못 얻는 거래를 얻는다. 누구의 문하에 들지，그가 무너지면 너도 함께 청산당한다. 권세가 20 아래로 떨어지면 숙청된다。${offer ? '' : '물건 하나를 골라 바칠 수 있다。'}</p>` : ''}
+    ${pg.items.join('') || '<p class="muted small">아직 어느 계파도 너에게 기회를 주지 않았다. 호감이 10이 되어야 왕래가 시작된다。</p>'}${pg.nav}</div>`;
 }
 
-// 货盘上的货凑得怎样：要的凑了几件、急需的药、顺带的、多出来压价的
+// 货盘上的货凑得怎样：要的凑了几件、급한 약、덧붙여的、多出来压价的
 function trayTally(c, d) {
   const n = r => d.give.filter(g => g.role === r).length, u = needUnit(c), extra = n('extra');
   if (!c.wantCat) return `货盘上${ta(personOf(c))}收 ${d.give.length} 件`;
-  return `货盘上凑了 <b class="${d.got >= d.need ? 'good' : ''}">${Math.min(d.got, d.need)}/${d.need}</b>`
-    + (n('cure') ? `，急需的药 ${n('cure')} ${u}` : '') + (n('side') ? `，顺带 ${n('side')} 样` : '')
-    + (extra ? `，<span class="bad">多出 ${extra} 件只肯出五成</span>` : '');
+  return `진열판에 모았다 <b class="${d.got >= d.need ? 'good' : ''}">${Math.min(d.got, d.need)}/${d.need}</b>`
+    + (n('cure') ? `，급한 약 ${n('cure')} ${u}` : '') + (n('side') ? `，덧붙여 ${n('side')} 样` : '')
+    + (extra ? `，<span class="bad">多出 ${extra} 건은 5할만 쳐준다</span>` : '');
 }
 
-// 交易盘：他的货在柜台上，你的货摆在货盘上，一并谈价
+// 交易盘：他的货在카운터上，你的货摆在货盘上，一并값을 흥정
 function tradePanel(c) {
   const it = customerItem(), d = dealOf(c), goods = goodsOf();
   const lo = Math.round(c.budget * 0.85 / 10) * 10, hi = Math.round(c.budget * 1.15 / 10) * 10;
   const taking = it && (c.take || []).includes(it.uid);
   const flawSeen = it && isDressed(it) && (it.seen || 0) >= it.grade;
   const s = sel && S.items[sel], canTray = s && HELD(s) && s.pos.g !== 'tray';
-  let info = c.wantCat ? `<p>${c.attracted ? '冲着陈列柜里的' : '想要'} <b class="cat">${esc(wantText(c))}</b> <b class="need">要 ${needText(c)}</b>${c.noble ? '' : '，别的对口的也肯顺带捎上两样（只出六五成）；多出来的只肯出五成'}，预算约 ${stoneTxt(`${lo}–${hi}`)} ${patienceHTML(c)}</p>`
-    : `<p>只想出手，不买什么。${patienceHTML(c)}</p>`;
-  if (c.noble) info += `<p class="small laced-txt">权贵眼高于顶：嫌便宜货寒碜，眼力却不怎么样；捧得越高，看得越马虎。${c.flatter ? `（已捧了 ${c.flatter} 回）` : ''}</p>`;
+  let info = c.wantCat ? `<p>${c.attracted ? '진열장 안의 것을 노리고' : '원한다'} <b class="cat">${esc(wantText(c))}</b> <b class="need">要 ${needText(c)}</b>${c.noble ? '' : '，다른 맞는 것도 덤으로 두어 가지 가져간다(65%만 쳐준다). 넘치는 것은 50%만 쳐준다'}，预算约 ${stoneTxt(`${lo}–${hi}`)} ${patienceHTML(c)}</p>`
+    : `<p>팔기만 하고 싶다，아무것도 사지 않는다。${patienceHTML(c)}</p>`;
+  if (c.noble) info += `<p class="small laced-txt">권귀는 눈이 높다: 싼 물건을 초라하다 여긴다，안목은 별로다. 띄워줄수록，대충 볼수록。${c.flatter ? `（已捧了 ${c.flatter} 回）` : ''}</p>`;
   if (it) {
-    info += `<p class="small"><b>${esc(itemName(it))}</b> 开价 ${stoneTxt(it.ask)} ${taking ? '<span class="tag real">要收</span>' : ''}
-      ${ITEMS[it.id].appraise && !it.told ? '<span class="muted">· 可用照妖镜鉴定，当面指为赝品压价</span>' : ''}</p>`;
-    if (dressable(it) && it.seen != null) info += `<p class="small ${flawSeen ? 'bad' : 'muted'}">${flawSeen ? `验出来了：以次充好，表面${it.sq}，实际只有${it.q}。` : `以你的眼力（${LENS_NAMES[it.seen]}）看不出毛病。`}</p>`;
+    info += `<p class="small"><b>${esc(itemName(it))}</b> 开价 ${stoneTxt(it.ask)} ${taking ? '<span class="tag real">받으려 한다</span>' : ''}
+      ${ITEMS[it.id].appraise && !it.told ? '<span class="muted">· 조요경으로 감정할 수 있다，눈앞에서 위작이라며 깎는다</span>' : ''}</p>`;
+    if (dressable(it) && it.seen != null) info += `<p class="small ${flawSeen ? 'bad' : 'muted'}">${flawSeen ? `걸러냈다: 하급을 상급으로，겉면${it.sq}，실제로는 ~뿐${it.q}。` : `네 안목으로는（${LENS_NAMES[it.seen]}）흠을 찾지 못한다。`}</p>`;
   }
-  if (d.give.length || d.take.length || d.reject.length) info += `<p class="small muted">${trayTally(c, d)}（心理价约 ${Math.round(d.V)}）${d.reject.length ? `，<span class="bad">不要${d.reject.map(itemName).join('、')}</span>` : ''}${d.take.length ? `；你要收 ${d.take.length} 件（开价 ${d.A}）` : ''}。</p>`;
-  const mid = `<div class="trade">${goods.length ? gridHTML('counter', `${ta(personOf(c))}的货 · 点选`) : ''}${gridHTML('tray', '你的货盘 · 拖货上来')}</div>${info}`;
+  if (d.give.length || d.take.length || d.reject.length) info += `<p class="small muted">${trayTally(c, d)}（심리가 약 ${Math.round(d.V)}）${d.reject.length ? `，<span class="bad">不要${d.reject.map(itemName).join('、')}</span>` : ''}${d.take.length ? `；你받으려 한다 ${d.take.length} 건(개시가 ${d.A}）` : ''}。</p>`;
+  const mid = `<div class="trade">${goods.length ? gridHTML('counter', `${ta(personOf(c))}의 물건 · 선택`) : ''}${gridHTML('tray', '네 진열판 · 물건을 끌어 올린다')}</div>${info}`;
   const acts = `${it && ITEMS[it.id].appraise && !it.told ? `<button class="btn small" data-act="appraise-counter">${icon('ic_appraise')}照妖镜</button>` : ''}
-    ${it && (dressable(it) || isLaceable(it.id)) && it.seen == null ? `<button class="btn small" data-act="inspect-item">${icon('ic_appraise')}验货</button>` : ''}
-    ${it && dressable(it) && !it.disputed ? `<button class="btn small" data-act="dispute-flaw" title="${flawSeen ? '揭穿以次充好，压价' : '挑毛病压价'}">${flawSeen ? '揭穿' : '压价'}</button>` : ''}
-    ${it ? `<button class="btn small" data-act="take-toggle">${taking ? '不收' : '收下'}</button>` : ''}
-    ${canTray ? `<button class="btn small wide-only" data-act="to-tray">选中的放上货盘</button>` : ''}
+    ${it && (dressable(it) || isLaceable(it.id)) && it.seen == null ? `<button class="btn small" data-act="inspect-item">${icon('ic_appraise')}검품</button>` : ''}
+    ${it && dressable(it) && !it.disputed ? `<button class="btn small" data-act="dispute-flaw" title="${flawSeen ? '하급 속임을 폭로한다，压价' : '흠을 잡아 깎는다'}">${flawSeen ? '폭로한다' : '压价'}</button>` : ''}
+    ${it ? `<button class="btn small" data-act="take-toggle">${taking ? '不收' : '받는다'}</button>` : ''}
+    ${canTray ? `<button class="btn small wide-only" data-act="to-tray">고른 것을 진열판에 올린다</button>` : ''}
     ${c.noble ? `<button class="btn small" data-act="flatter" title="${costText('flatter')}">吹捧</button>` : ''}
-    <button class="btn primary" data-act="deal" ${d.give.length || d.take.length ? '' : 'disabled'}>谈价成交</button>
-    ${c.wanted ? c.reportedWanted ? `<span class="muted small">已暗中报官，等${ta(personOf(c))}出门</span>` : `<button class="btn small danger" data-act="report" title="${esc(sinHint(['betray', 1]))}">暗中举报 赏${c.wanted}</button>` : ''}
-    <button class="btn ghost small" data-act="dismiss">送客</button>`;
+    <button class="btn primary" data-act="deal" ${d.give.length || d.take.length ? '' : 'disabled'}>값을 흥정성사</button>
+    ${c.wanted ? c.reportedWanted ? `<span class="muted small">몰래 관에 알렸다，等${ta(personOf(c))}出门</span>` : `<button class="btn small danger" data-act="report" title="${esc(sinHint(['betray', 1]))}">몰래 신고 포상${c.wanted}</button>` : ''}
+    <button class="btn ghost small" data-act="dismiss">손님을 보낸다</button>`;
   return { mid, acts };
 }
 
 // ───────────── 侧栏分页 ─────────────
 
-const TABS = [['display', '陈列'], ['workshop', '工坊'], ['broker', '货郎'], ['people', '人物'], ['clique', '派系'], ['rep', '时局'], ['ledger', '账本']];
-// 竖屏侧栏：五个常用页，其余收进“更多”；白天最后一颗是打烊
-const NAV = [['store', '库房', 'ic_ledger'], ['display', '陈列', 'ic_appraise'], ['workshop', '工坊', 'ic_power'], ['people', '人物', 'ic_gift'], ['more', '更多', 'ic_war']];
+const TABS = [['display', '진열'], ['workshop', '工坊'], ['broker', '행상'], ['people', '人物'], ['clique', '파벌'], ['rep', '시국'], ['ledger', '장부']];
+// 竖屏侧栏：五个常用页，其余收进“더 보기”；白天最后一颗是마감
+const NAV = [['store', '库房', 'ic_ledger'], ['display', '진열', 'ic_appraise'], ['workshop', '工坊', 'ic_power'], ['people', '人物', 'ic_gift'], ['more', '더 보기', 'ic_war']];
 const MORE = ['broker', 'clique', 'rep', 'ledger'];
 let lastMore = 'broker';
 
@@ -571,7 +571,7 @@ function renderSide() {
   document.body.classList.toggle('tab-store', tab === 'store');
   document.body.classList.toggle('tab-more', group);
   $('#nav').innerHTML = NAV.map(([id, name, ic]) => `<button class="${tab === id || (id === 'more' && group) ? 'on' : ''}" data-act="tab" data-tab="${id === 'more' ? lastMore : id}">${icon(ic)}${name}</button>`).join('')
-    + (S.phase === 'day' ? `<button class="closing ${S.customer || S.queue.length ? '' : 'due'}" data-act="close">${icon('ic_night')}打烊</button>` : '');
+    + (S.phase === 'day' ? `<button class="closing ${S.customer || S.queue.length ? '' : 'due'}" data-act="close">${icon('ic_night')}마감</button>` : '');
   if (tab !== 'store') $('#tab-body').innerHTML = { display: tabDisplay, workshop: tabWorkshop, broker: tabBroker, people: tabPeople, clique: tabClique, rep: tabRep, ledger: tabLedger }[tab]();
   layoutDock();
 }
@@ -601,21 +601,21 @@ function tabDisplay() {
   const fc = forecast();
   const fn = f => `<span style="color:${FACTIONS[f].color}">${FACTIONS[f].name}</span>`;
   return `<div class="display-tab">
-    <div>${gridHTML('display', '陈列柜')}
-      <p class="muted small fc-note">摆上陈列柜的货，很可能招来正想要它的买家，出价也更爽快；没摆出来的，只能等客人碰巧问起。仙门禁物、魔宗禁药不该摆在明处——除非管事肯视而不见。</p></div>
+    <div>${gridHTML('display', '진열柜')}
+      <p class="muted small fc-note">진열장에 올린 물건，마침 그걸 원하는 구매자를 끌지도 모른다，값도 더 후하게 부른다. 내놓지 않은 것은，손님이 우연히 물어보길 기다릴 수밖에 없다. 선문 금물, 마종 금약은 내놓지 않는 게 좋다 - 관리가 눈감아주지 않는 한。</p></div>
     <div class="forecast paper">
-      <h4>顾客群体 <span class="muted">预计 ${fc.n} 位</span></h4>
-      <div class="fc-sec">陈列所吸引的买家 <b>${pct(fc.pDisp)}</b></div>
-      <div class="fc-list">${fc.buyers.length ? fc.buyers.map(b => `<div class="fc-row"><span>求购 · ${CATS[b.cat]}</span><span>${pct(b.p)}</span></div>`).join('')
-        : '<div class="fc-row muted">陈列柜空空，无人慕名而来</div>'}</div>
-      <div class="fc-sec">普通顾客</div>
+      <h4>顾客群体 <span class="muted">예상 ${fc.n} 位</span></h4>
+      <div class="fc-sec">진열장이 끌어들인 구매자 <b>${pct(fc.pDisp)}</b></div>
+      <div class="fc-list">${fc.buyers.length ? fc.buyers.map(b => `<div class="fc-row"><span>구매 요청 · ${CATS[b.cat]}</span><span>${pct(b.p)}</span></div>`).join('')
+        : '<div class="fc-row muted">진열장이 비었다，이름을 듣고 오는 이가 없다</div>'}</div>
+      <div class="fc-sec">일반 손님</div>
       <div class="fc-list two">${fc.generic.map(g => `<div class="fc-row"><span>${fn(g.faction)}</span><span>${pct(g.p)}</span></div>`).join('')}</div>
-      ${fc.angryYao ? '<div class="fc-warn">陈列中有妖丹/妖兽皮：妖族客人会拂袖而去</div>' : ''}
-      ${fc.contra ? `<div class="fc-warn">陈列违禁品 ${fc.contra} 件：仙门客人心动；管事${esc(fc.overseer.name)}看见了多半会<b>${TOLERANCE_NAME[fc.overseer.t]}</b>，和你交情差的客人也可能去举报</div>` : ''}
+      ${fc.angryYao ? '<div class="fc-warn">진열에 요단이 있다/요수 가죽: 요족 손님이 소매를 뿌리며 떠난다</div>' : ''}
+      ${fc.contra ? `<div class="fc-warn">금지품을 진열했다 ${fc.contra} 건: 선문 손님이 마음이 동한다. 관리는${esc(fc.overseer.name)}보면 대개<b>${TOLERANCE_NAME[fc.overseer.t]}</b>，너와 사이가 나쁜 손님도 신고하러 갈 수 있다</div>` : ''}
     </div></div>`;
 }
 
-// 工坊：设备排成卡片，点开一台才摊开它的格子，免得一长串往下翻
+// 工坊：설비排成卡片，点开一台才摊开它的格子，免得一长串往下翻
 let openMid = 'array';
 
 function tabWorkshop() {
@@ -630,27 +630,27 @@ function tabWorkshop() {
   let detail;
   if (openMid === 'array') detail = `<div class="machine array">
       <div class="m-head"><img class="m-icon" src="${asset('machines', 'm_array')}" alt="">
-        <div class="m-title"><b>聚灵阵</b><span class="muted">基础灵力 ${plan.supply}${S.upgrades.hijack ? '（含私接灵脉 6）' : ''} · 灵晶储备 ${plan.bank}</span></div></div>
-      <div class="m-grids">${gridHTML('power', '阵眼')}</div>
-      <div class="m-desc muted small">设备按卡片顺序取用灵力：先用基础灵力，不足时抽取灵晶。剩余的基础灵力会存进灵晶（每块上限 ${CRYSTAL_CAP}）。</div></div>`;
+        <div class="m-title"><b>聚灵阵</b><span class="muted">기본 영력 ${plan.supply}${S.upgrades.hijack ? '（영맥 사설 연결 6 포함)' : ''} · 灵晶储备 ${plan.bank}</span></div></div>
+      <div class="m-grids">${gridHTML('power', '진안')}</div>
+      <div class="m-desc muted small">설비는 카드 순서대로 영력을 쓴다. 기본 영력을 먼저 쓴다，부족하면 영정에서 끌어쓴다. 남은 기본 영력은 영정에 저장된다(개당 상한 ${CRYSTAL_CAP}）。</div></div>`;
   else {
     const r = plan.rows.find(x => x.m.mid === openMid), m = r.m, def = MACHINES[m.type];
     const grids = def.stalls ? stallsHTML(m, r.chk.ok && r.powered) : def.pot ? potHTML(m, r.chk.ok && r.powered) : [
-      def.in ? gridHTML(gridOf(m, 'in'), def.inLabel || '输入') : '',
-      def.mod ? gridHTML(gridOf(m, 'mod'), def.modLabel || '模组', 'mod') : '',
+      def.in ? gridHTML(gridOf(m, 'in'), def.inLabel || '입력') : '',
+      def.mod ? gridHTML(gridOf(m, 'mod'), def.modLabel || '모듈', 'mod') : '',
       def.out ? gridHTML(gridOf(m, 'out'), def.outLabel || '产出', 'out') : '',
     ].join('');
-    const extra = m.type === 'puppet' ? `<div class="m-extra">钱匣 ${stoneTxt(m.cash)} <button class="btn small" data-act="collect" data-mid="${m.mid}" ${m.cash ? '' : 'disabled'}>取出</button></div>`
-      : def.pot ? `<div class="m-extra"><span>${m.seal ? '<b class="bad">封盅斗蛊</b>：不喂不孵，今夜最凶的一只吞掉最弱的一只' : '<b>开盅喂养</b>：幼蛊食骨长大、成蛊产卵，万毒蛊与蛊王吐毒'}</span>
-          <button class="btn small" data-act="gu-seal" data-mid="${m.mid}">${m.seal ? '开盅喂养' : '封盅斗蛊'}</button></div>` : '';
+    const extra = m.type === 'puppet' ? `<div class="m-extra">돈궤 ${stoneTxt(m.cash)} <button class="btn small" data-act="collect" data-mid="${m.mid}" ${m.cash ? '' : 'disabled'}>取出</button></div>`
+      : def.pot ? `<div class="m-extra"><span>${m.seal ? '<b class="bad">독 단지를 봉해 고를 싸운다</b>：먹이지 않으면 부화하지 않는다，오늘 밤 가장 흉한 것이 가장 약한 것을 삼킨다' : '<b>독 단지를 열어 먹인다</b>：어린 고가 뼈를 먹고 자라고, 다 자란 고가 알을 낳는다，만독고와 고왕이 독을 뱉는다'}</span>
+          <button class="btn small" data-act="gu-seal" data-mid="${m.mid}">${m.seal ? '독 단지를 열어 먹인다' : '독 단지를 봉해 고를 싸운다'}</button></div>` : '';
     detail = `<div class="machine ${m.on ? '' : 'off'}">
       <div class="m-head"><img class="m-icon" src="${asset('machines', `${def.icon}~${r.chk.ok && r.powered ? 'running' : 'idle'}`)}" alt="">
         <div class="m-title"><b>${def.name}</b><span class="muted">${icon('ic_power')}${def.power}/夜</span> ${status(r)}</div>
         <div class="m-ctrl">
-          <button class="btn tiny" data-act="m-up" data-mid="${m.mid}" title="提前运转（优先用灵力）">↑</button>
-          <button class="btn tiny" data-act="m-down" data-mid="${m.mid}" title="延后运转">↓</button>
+          <button class="btn tiny" data-act="m-up" data-mid="${m.mid}" title="미리 가동(영력 우선 사용)">↑</button>
+          <button class="btn tiny" data-act="m-down" data-mid="${m.mid}" title="가동을 미룬다">↓</button>
           <button class="btn tiny" data-act="m-toggle" data-mid="${m.mid}">${m.on ? '停用' : '启用'}</button>
-          <button class="btn tiny ghost" data-act="m-remove" data-mid="${m.mid}" title="拆除，退回三成">拆</button></div></div>
+          <button class="btn tiny ghost" data-act="m-remove" data-mid="${m.mid}" title="철거，退回三成">拆</button></div></div>
       <div class="m-grids${def.stalls ? ' stalls' : def.pot ? ' pot' : ''}">${grids}</div>${extra}
       <div class="m-desc muted small" data-act="m-desc">${def.desc}</div></div>`;
   }
@@ -658,20 +658,20 @@ function tabWorkshop() {
   return `<div class="workshop">
     <div class="techs">${Object.entries(TECHS).filter(([k]) => techLv(k)).map(([k, t]) => `<span class="tech on" title="${t.desc}">
       <img src="${asset('items', t.icon)}" alt="">${t.name}<b>${cn(techLv(k))}重</b>${k === 'gumaster' && guXpNext() ? `<small class="muted">${S.guXp || 0}/${guXpNext()}</small>` : ''}</span>`).join('')}
-      <span class="muted small">鉴定术：${LENS_NAMES[appraiseLevel()]}${known.length ? ` · 会仿造：${known.join('、')}` : ''}</span></div>
+      <span class="muted small">감정术：${LENS_NAMES[appraiseLevel()]}${known.length ? ` · 会仿造：${known.join('、')}` : ''}</span></div>
     <div class="m-cards">${cards.join('')}</div>
-    ${S.machines.length ? detail : `${detail}<p class="muted">后院空空如也。到「货郎」处购置设备。</p>`}</div>`;
+    ${S.machines.length ? detail : `${detail}<p class="muted">뒤뜰이 텅 비었다. 「행상」에서 설비를 구입하자。</p>`}</div>`;
 }
 
 const STALLS_PER_PAGE = { tall: 1, wide: 2 };
-// 灵兽圈：一栏一行，饲料 → 灵宠。饲料对口、今夜设备转得起来，箭头才亮着往灵宠那边流；否则暗着不动
+// 灵兽圈：一栏一行，사료 → 영령。사료对口、今夜설비转得起来，箭头才亮着往영령那边流；否则暗着不动
 function stallsHTML(m, running) {
   const def = MACHINES[m.type], n = stallCount(m);
   const rows = [...Array(n).keys()].map(i => {
     const st = stallState(m, i), g = stallGrids(m, i), live = st.matched && running;
-    const what = st.species ? `${ITEMS[st.species].name} ×${st.pets}` : '空栏';
-    const why = !st.species ? '放进一种灵宠' : !st.fit ? `缺对口饲料：${ITEMS[st.species].name}吃${petMenu(st.species).map(id => ITEMS[id].name).join('、')}`
-      : !m.on ? '设备已停用' : !running ? '灵力不足，今夜不转' : `今夜吃 ${Math.min(st.fit, st.need)}/${st.need} 份`;
+    const what = st.species ? `${ITEMS[st.species].name} ×${st.pets}` : '빈 칸';
+    const why = !st.species ? '영령 한 마리를 넣는다' : !st.fit ? `맞는 사료가 없다：${ITEMS[st.species].name}吃${petMenu(st.species).map(id => ITEMS[id].name).join('、')}`
+      : !m.on ? '설비가 멈췄다' : !running ? '灵力不足，오늘 밤은 돌리지 않는다' : `今夜吃 ${Math.min(st.fit, st.need)}/${st.need} 份`;
     return `<div class="stall ${live ? 'live' : ''}">
       <div class="stall-head"><b>兽栏${cn(i + 1)}</b><span>${what}</span><span class="${live ? 'ok' : 'muted'}">${esc(why)}</span></div>
       <div class="stall-row">${gridHTML(g.feed, '', 'feed')}
@@ -679,13 +679,13 @@ function stallsHTML(m, running) {
         ${gridHTML(g.pen, '', 'pen')}</div></div></div>`;
   });
   const more = n < def.stallMax
-    ? `<button class="btn small" data-act="buy-stall" data-mid="${m.mid}" ${S.stones >= stallPrice(m) ? '' : 'disabled'}>加盖兽栏（${stoneTxt(stallPrice(m))}）</button>`
-    : '<span class="muted small">兽栏已加盖到头</span>';
+    ? `<button class="btn small" data-act="buy-stall" data-mid="${m.mid}" ${S.stones >= stallPrice(m) ? '' : 'disabled'}>수란을 늘린다（${stoneTxt(stallPrice(m))}）</button>`
+    : '<span class="muted small">수란이 최대로 늘어났다</span>';
   // 一屏放不下四栏：竖屏一栏一页、电脑两栏一页横着翻，翻页钮挤在“兽栏 n/4”那一行，不另占一行
   const pg = pager(rows, STALLS_PER_PAGE[LAYOUT], `stalls-${m.mid}`);
-  // 列头“灵宠”对准灵宠格：饲料格宽 + 箭头宽（与 .stall-flow 一致）+ 栏的内边距
+  // 列头“영령”对准영령格：사료格宽 + 箭头宽（与 .stall-flow 一致）+ 栏的内边距
   const flowW = LAYOUT === 'tall' ? 20 : 56, padW = LAYOUT === 'tall' ? 4 : 6;
-  return `<div class="stall-list"><div class="stall-cols muted small"><span style="width:${def.stallSize * CELL + flowW + padW}px">饲料</span><span>灵宠</span></div>${pg.items.join('')}
+  return `<div class="stall-list"><div class="stall-cols muted small"><span style="width:${def.stallSize * CELL + flowW + padW}px">사료</span><span>영령</span></div>${pg.items.join('')}
     <div class="stall-foot"><span class="muted small">兽栏 ${n}/${def.stallMax}</span>${pg.nav}${more}</div></div>
     ${gridHTML(gridOf(m, 'out'), def.outLabel || '产出', 'out')}`;
 }
@@ -698,7 +698,7 @@ function potHTML(m, running) {
     <div class="flow-to">${flow(running)}${gridHTML(gridOf(m, 'out'), def.outLabel, 'out')}</div></div>`;
 }
 
-// 功勋页的秘籍只摆你眼下读得懂的那一重，免得一排书挤满窗口
+// 功勋页的비급只摆你眼下读得懂的那一重，免得一排书挤满窗口
 const meritShown = id => !ITEMS[id].book || ITEMS[id].book.lv === techLv(ITEMS[id].book.tech) + 1;
 function tabBroker() {
   const goods = S.supply.map((e, i) => `<div class="shop-row">
@@ -708,11 +708,11 @@ function tabBroker() {
   const locked = SUPPLY.filter(s => S.rep.mo < s[2]).map(s => `${ITEMS[s[0]].name}（魔宗声望 ${s[2]}）`);
   const machines = Object.entries(MACHINES).map(([type, d]) => `<div class="shop-row">
       <img src="${asset('machines', d.icon)}" alt=""><b>${d.name}</b><span class="muted">${icon('ic_power')}${d.power}/夜</span>${stoneTxt(machinePrice(type))}
-      <button class="btn small" data-act="buy-machine" data-type="${type}" ${S.stones >= machinePrice(type) ? '' : 'disabled'}>购置</button></div>`);
+      <button class="btn small" data-act="buy-machine" data-type="${type}" ${S.stones >= machinePrice(type) ? '' : 'disabled'}>구입</button></div>`);
   const ups = UPGRADES.filter(u => !u.need || S.upgrades[u.need]).map(u => `<div class="shop-row">
       <b>${u.name}</b><span class="muted grow">${u.desc}</span>
-      ${S.upgrades[u.id] ? '<span class="chip ok">已有</span>' : `${stoneTxt(u.price)}<button class="btn small" data-act="buy-upgrade" data-id="${u.id}" ${S.stones >= u.price ? '' : 'disabled'}>置办</button>`}</div>`);
-  const sub = subtabs('broker', [['goods', '货品'], ['machines', '设备'], ['books', '秘籍'], ['intel', '消息'], ['ups', '铺面'], ['merit', '功勋']]);
+      ${S.upgrades[u.id] ? '<span class="chip ok">已有</span>' : `${stoneTxt(u.price)}<button class="btn small" data-act="buy-upgrade" data-id="${u.id}" ${S.stones >= u.price ? '' : 'disabled'}>장만</button>`}</div>`);
+  const sub = subtabs('broker', [['goods', '물품'], ['machines', '설비'], ['books', '비급'], ['intel', '소식'], ['ups', '가게'], ['merit', '功勋']]);
   const books = BOOKS.filter(([, tech, lv, , rep]) => lv === techLv(tech) + 1 && (lv > BOOK_SHOP_MAX || S.rep.mo >= rep)).map(([id, tech, lv, price]) => {
     const head = `<div class="shop-row"><img src="${asset('items', ITEMS[id].icon)}" alt=""><b>${ITEMS[id].name}</b>
       <span class="muted">${TECHS[tech].name}第${cn(lv)}重</span>`;
@@ -720,7 +720,7 @@ function tabBroker() {
     if (lv > BOOK_SHOP_MAX) {
       const [f, list] = Object.entries(MERIT_SHOP).find(([, l]) => l.some(([x]) => x === id)), cost = list.find(([x]) => x === id)[1];
       const who = TEACHERS[tech].who.map(pid => CAST[pid] ? CAST[pid].name : pid).join('、');
-      return `${head}<span class="muted small grow">不卖。${CHANNEL_NAME[f]} ${cost} 点功勋可换；或等机遇：与${who}亲厚，等人登门传艺，拾荒也偶尔翻得到</span></div>`;
+      return `${head}<span class="muted small grow">不卖。${CHANNEL_NAME[f]} ${cost} 공훈으로 바꾼다. 아니면 기회를 기다린다: ${who}亲厚，사람이 찾아와 기예를 전할 때까지，폐품 줍기로도 가끔 나온다</span></div>`;
     }
     const p = Math.round(price * (1 + diff().markup) * warStage().supply);
     return `${head}${stoneTxt(p)}
@@ -728,8 +728,8 @@ function tabBroker() {
   });
   const intel = intelShop().map((k, i) => {
     const p = Math.round(INTEL_PRICE[k] * (1 + diff().markup));
-    return `<div class="shop-row"><img src="${asset('items', 'intel')}" alt=""><b>${{ market: '行情密报', treasure: '藏宝图', clique: '派系内幕' }[k]}</b>
-      <span class="muted small">买了才知道写的什么</span>${stoneTxt(p)}<button class="btn small" data-act="buy-intel" data-i="${i}" ${S.stones >= p ? '' : 'disabled'}>买</button></div>`;
+    return `<div class="shop-row"><img src="${asset('items', 'intel')}" alt=""><b>${{ market: '시세密报', treasure: '藏宝图', clique: '파벌内幕' }[k]}</b>
+      <span class="muted small">사야 무슨 내용인지 안다</span>${stoneTxt(p)}<button class="btn small" data-act="buy-intel" data-i="${i}" ${S.stones >= p ? '' : 'disabled'}>买</button></div>`;
   });
   const merit = Object.keys(MERIT_SHOP).map(f => `<div class="merit-row">
       <b style="color:${FACTIONS[f].color}">${CHANNEL_NAME[f]}</b><span class="muted small">${FACTIONS[f].name}功勋 ${S.merit[f]}${channelOpen(f) ? '' : ` · 未搭上线（${channelHint(f)}）`}</span>
@@ -738,10 +738,10 @@ function tabBroker() {
   const rows = { goods, machines, books, intel, ups, merit }[sub.cur];
   const pg = pager(rows, sub.cur === 'merit' ? 4 : rowsFit(40, 1), `broker-${sub.cur}`);
   return `<div class="broker">
-    <div class="broker-head"><img src="${asset('chars', 'broker')}" alt=""><p>“客官要些什么？鬼市里没有买不到的东西……只有出不起的价。”<br>
-      <span class="muted small">魔宗声望越高，货价越低、货色越全。选中库房物品后，可以把它折价卖给我。</span></p></div>
-    ${sub.html}${pg.items.join('') || '<p class="muted small">没有。</p>'}${pg.nav}
-    ${sub.cur === 'goods' && locked.length ? `<p class="muted small">尚未供货：${locked.join('、')}</p>` : ''}</div>`;
+    <div class="broker-head"><img src="${asset('chars', 'broker')}" alt=""><p>“손님, 무엇을 찾으시오? 귀시에 못 사는 것은 없소……못 낼 값만 있을 뿐。”<br>
+      <span class="muted small">마종 평판이 높을수록，값이 낮을수록, 물건이 다양할수록. 창고 물건을 고른 뒤，그걸 깎아서 나에게 팔아도 된다。</span></p></div>
+    ${sub.html}${pg.items.join('') || '<p class="muted small">없다。</p>'}${pg.nav}
+    ${sub.cur === 'goods' && locked.length ? `<p class="muted small">아직 납품하지 않았다：${locked.join('、')}</p>` : ''}</div>`;
 }
 
 function tabRep() {
@@ -754,26 +754,26 @@ function tabRep() {
     return [cat, k, sample];
   }).sort((a, b) => b[1] - a[1]);
   const news = S.world.news.slice(-5).reverse().map(n => `<li class="${n.cls}"><span class="muted">第${n.d}日</span> ${esc(n.t)}</li>`).join('');
-  const sub = subtabs('rep', [['world', '大势'], ['market', '行情与历法'], ['power', '势力'], ['rep', '声望']]);
+  const sub = subtabs('rep', [['world', '大势'], ['market', '시세와 역법'], ['power', '势力'], ['rep', '声望']]);
   const body = {
-    world: () => `<div class="world-head paper"><div><h4>${icon('ic_war')}天下大势 · <span class="stage st${S.world.stage}">${st.name}</span></h4>
+    world: () => `<div class="world-head paper"><div><h4>${icon('ic_war')}천하 대세 · <span class="stage st${S.world.stage}">${st.name}</span></h4>
       <p class="small">${st.text}</p>
       <div class="stage-track">${WAR_STAGES.map((w, i) => `<span class="${i <= S.world.stage ? 'on' : ''}" style="left:${w.at}%">${w.name}</span>`).join('')}
         <i style="width:${t}%"></i></div>
-      <p class="small muted">四方紧张 ${t}/100 · 客人手头 ×${st.econ} · 货郎进价 ×${st.supply}${st.levy ? ` · 战时捐每周 ${levyAmount()}` : ''}</p></div>
+      <p class="small muted">사방이 긴장한다 ${t}/100 · 손님 형편 ×${st.econ} · 행상进价 ×${st.supply}${st.levy ? ` · 전시 기부금 매주 ${levyAmount()}` : ''}</p></div>
       <div class="rels">${rels}</div></div>
-      <h4>世事</h4><ul class="log">${news || '<li class="muted">尚无大事</li>'}</ul>`,
+      <h4>世事</h4><ul class="log">${news || '<li class="muted">아직 큰일이 없다</li>'}</ul>`,
     market: () => `<div class="world-cols">
       <div><h4>历法</h4><p class="small">${cal.yearText} · ${cal.text}</p><p class="small muted">${seasonOf().text}</p>
-        <p class="small muted">${weekdayOf().text}${annualOf() ? `<br><b>${annualOf().name}</b>：${annualOf().text}` : `<br>${na.d} 日后${na.a.name}`}</p></div>
-      <div><h4>行情</h4><table class="quotes">${cats.map(([cat, k, sample]) => `<tr title="以${ITEMS[sample].name}为例"><td>${CATS[cat]}</td>
+        <p class="small muted">${weekdayOf().text}${annualOf() ? `<br><b>${annualOf().name}</b>：${annualOf().text}` : `<br>${na.d} 이후${na.a.name}`}</p></div>
+      <div><h4>시세</h4><table class="quotes">${cats.map(([cat, k, sample]) => `<tr title="以${ITEMS[sample].name}为例"><td>${CATS[cat]}</td>
         <td class="${k > 1.02 ? 'good' : k < 0.98 ? 'bad' : ''}">${k > 1.02 ? '▲' : k < 0.98 ? '▼' : '—'} ×${k.toFixed(2)}</td></tr>`).join('')}</table></div></div>`,
     power: () => `<h4>势力 · ${playerPower()}</h4><div class="power-parts">${powerParts().map(([k, v]) => `<span class="${v > 0 ? 'good' : 'bad'}">${k} ${v > 0 ? '+' : ''}${v}</span>`).join('')}</div>
-      <p class="small muted">吃了你亏的人，大多见风使舵：你势大，他们忍气吞声；你势弱，他们讨说法、报复。交情深的，也更肯放你一马。</p>
+      <p class="small muted">너에게 손해 본 사람，대부분 상황을 본다: 네 세력이 크면，그들은 분을 삼킨다. 네 세력이 약하면，그들이 항의하고 보복한다. 친분이 깊은 이는，너를 더 봐준다。</p>
       <h4>${icon('ic_merit')}功勋</h4><div class="power-parts">${Object.keys(S.merit).map(f => `<span>${FACTIONS[f].name} ${S.merit[f]}</span>`).join('')}</div>
       <h4>善名 · ${VIRTUE_NAME(S.virtue)}（${S.virtue}）</h4>
-      <p class="small muted">如实相告、公道买卖、接济弱者都会涨善名，可这世道不讲理：老实人开的铺子，卖货的人敢多要价，善名太盛又没修为撑腰，人人当你好欺负（势力 -${softPenalty()}）。
-        只是你帮过的人记着你——极少时候，那份回报大得能救你的命。${S.flags.savior ? `<b class="good">你手里有 ${S.flags.savior} 道护身符。</b>` : ''}</p>`,
+      <p class="small muted">사실대로 말하고, 공정하게 거래하고, 약자를 도우면 선명이 오른다，하지만 이 세상은 이치를 따지지 않는다: 정직한 사람이 연 가게가，파는 사람이 더 많이 부를 수 있다，선명만 높고 수련이 받쳐주지 않으면，모두 너를 만만하게 본다(세력 -${softPenalty()}）。
+        다만 네가 도운 사람은 너를 기억한다 - 아주 드물게，그 보답은 네 목숨을 살릴 만큼 크다。${S.flags.savior ? `<b class="good">네 손에 있다 ${S.flags.savior} 道护身符。</b>` : ''}</p>`,
     rep: () => repSection(),
   }[sub.cur]();
   return `<div class="world-tab">${sub.html}${body}</div>`;
@@ -788,8 +788,8 @@ function repSection() {
       <span class="rep-v">${v > 0 ? '+' : ''}${v}</span><p class="small muted">${f.desc}</p></div>`;
   }).join('');
   return `<div class="rep-tab"><div class="rep-cols">${bars}</div>
-    <div class="heat-box">${icon('ic_heat')}<b>执法堂关注 ${S.heat}/100</b><span class="meter wide"><i style="width:${S.heat}%"></i></span>
-    <p class="small muted">与仙门交易、收售禁物、陈列禁物、私接灵脉都会招来关注；关注越高，越常被巡查，满一百即被锁拿。每夜自然消退，魔宗声望越高消退越快。</p></div></div>`;
+    <div class="heat-box">${icon('ic_heat')}<b>집법당 주목 ${S.heat}/100</b><span class="meter wide"><i style="width:${S.heat}%"></i></span>
+    <p class="small muted">선문과의 거래, 금물 매매, 금물 진열, 영맥 사설 연결은 모두 주목을 부른다. 주목이 높을수록，자주 순찰받는다，백이 차면 체포된다. 매일 밤 조금씩 줄어든다，마종 평판이 높을수록 빨리 사라진다。</p></div></div>`;
 }
 
 function tabLedger() {
@@ -799,68 +799,68 @@ function tabLedger() {
   const canDeed = S.stones >= deedPrice() && S.phase !== 'day';
   return `<div class="ledger">
     <div class="ledger-top paper">
-      <div><h4>${icon('ic_ledger')}租约</h4>
-        <p>${S.grace > 0 ? `<span class="bad">欠租 ${S.rentOwed} 灵石，宽限 ${S.grace} 日</span>` : `下期 ${rentAmount()} 灵石，第 ${S.rentDue} 日到期`}</p>
-        <p class="muted small">每七日一缴，每期涨近三成。</p>
-        <button class="btn small" data-act="pay-rent" ${S.stones >= (S.grace ? S.rentOwed : rentAmount()) ? '' : 'disabled'}>${S.grace ? '补缴' : '提前缴纳'}</button></div>
-      <div><h4>${icon('ic_deed')}铺契</h4>
-        <p>${deedPrice()} 灵石 · 已有 ${Math.floor(clamp(S.stones / deedPrice() * 100, 0, 100))}%</p>
-        <p class="muted small">库存不能抵现，只认灵石。</p>
-        <button class="btn small primary" data-act="buy-deed" ${canDeed ? '' : 'disabled'}>买下铺契</button></div>
-      <div><h4>家底</h4><p>现银 ${S.stones}</p><p class="muted">连货估 ${netWorth()}</p></div></div>
-    <table class="days"><tr><th>日</th><th>进</th><th>出</th><th>余</th></tr>${days || '<tr><td colspan="4" class="muted">尚无记录</td></tr>'}</table>
+      <div><h4>${icon('ic_ledger')}임대 계약</h4>
+        <p>${S.grace > 0 ? `<span class="bad">임대료 체납 ${S.rentOwed} 영석，宽限 ${S.grace} 日</span>` : `下期 ${rentAmount()} 영석，第 ${S.rentDue} 日到期`}</p>
+        <p class="muted small">이레마다 낸다，회차마다 3할 가까이 오른다。</p>
+        <button class="btn small" data-act="pay-rent" ${S.stones >= (S.grace ? S.rentOwed : rentAmount()) ? '' : 'disabled'}>${S.grace ? '추가 납부' : '미리 낸다'}</button></div>
+      <div><h4>${icon('ic_deed')}가게 문서</h4>
+        <p>${deedPrice()} 영석 · 보유 ${Math.floor(clamp(S.stones / deedPrice() * 100, 0, 100))}%</p>
+        <p class="muted small">재고로는 현금을 대신 못 한다，영석만 받는다。</p>
+        <button class="btn small primary" data-act="buy-deed" ${canDeed ? '' : 'disabled'}>가게 문서를 산다</button></div>
+      <div><h4>家底</h4><p>현금 ${S.stones}</p><p class="muted">连货估 ${netWorth()}</p></div></div>
+    <table class="days"><tr><th>日</th><th>进</th><th>出</th><th>余</th></tr>${days || '<tr><td colspan="4" class="muted">아직 기록이 없다</td></tr>'}</table>
     <ul class="log">${logs}</ul>${lg.nav}</div>`;
 }
 
 // ───────────── 库房 ─────────────
 
-// 选中一件货能做的事：挪去别处（触屏上代替拖拽）与各种处置
+// 선택됨一件货能做的事：挪去别处（触屏上代替拖拽）与各种处置
 function selActions(s, inCard = false) {
   const g = s.pos.g, out = [];
   const mv = (gid, label) => { if (S.grids[gid] && g !== gid && !rejectReason(gid, s) && findSpot(gid, s)) out.push(`<button class="btn tiny" data-act="move-to" data-g="${gid}">${label}</button>`); };
-  // 饲料格能叠：同一处还有同种的，多给一个“全放进去”
+  // 사료格能叠：同一处아직 있다同种的，多给一个“全넣는다去”
   const mvAll = (gid, label) => {
     if (!stackCap(gid) || !S.grids[gid] || g === gid || rejectReason(gid, s) || !findSpot(gid, s)) return;
     const n = itemsIn(g).filter(o => o.id === s.id).length;
-    if (n > 1) out.push(`<button class="btn tiny" data-act="move-all" data-g="${gid}" title="${label}：同一处的 ${n} 份一并放进去，叠在一格">全部 ×${n}</button>`);
+    if (n > 1) out.push(`<button class="btn tiny" data-act="move-all" data-g="${gid}" title="${label}：같은 곳의 ${n} 개를 함께 넣었다，한 칸에 겹친다">全部 ×${n}</button>`);
   };
   if (tradeOpen()) mv('tray', '上货盘');
-  mv('display', '摆上陈列');
-  if (!['store', 'floor'].includes(g)) mv('store', '收回库房');
-  if (stackOf(s).length > 1) out.push(`<button class="btn tiny" data-act="unpile" title="这一格叠着的 ${stackOf(s).length} 份都收回库房，各占一格，品相照旧">整摞收回 ×${stackOf(s).length}</button>`);
-  if (g === 'hand') mv('floor', '放在地上');
+  mv('display', '진열에 올린다');
+  if (!['store', 'floor'].includes(g)) mv('store', '창고로 거둔다');
+  if (stackOf(s).length > 1) out.push(`<button class="btn tiny" data-act="unpile" title="이 칸에 겹친 것 ${stackOf(s).length} 개를 모두 창고로 거뒀다，각각 한 칸씩，품질은 그대로">통째로 거둔다 ×${stackOf(s).length}</button>`);
+  if (g === 'hand') mv('floor', '바닥에 놓는다');
   mv('hidden', '藏进暗格');
-  // 灵晶：嵌进聚灵阵眼；阵眼满了，就和里面最空的一块对调（手机上阵眼在工坊页，拖不过去）
+  // 灵晶：嵌进취령진의 진안；진안满了，就和里面最空的一块对调（手机上진안在工坊页，拖不过去）
   if (s.id === 'spirit_crystal' && g !== 'power') {
     const low = weakestCrystal();
-    if (findSpot('power', s)) mv('power', '嵌入阵眼');
-    else if (low && (low.charge || 0) < (s.charge || 0)) out.push(`<button class="btn tiny" data-act="power-swap">换下阵眼里最空的一块（充能 ${low.charge || 0}）</button>`);
+    if (findSpot('power', s)) mv('power', '진안에 끼운다');
+    else if (low && (low.charge || 0) < (s.charge || 0)) out.push(`<button class="btn tiny" data-act="power-swap">진안에서 가장 빈 한 개를 교체(충전 ${low.charge || 0}）</button>`);
   }
-  S.machines.filter(m => MACHINES[m.type].in).slice(0, 12).forEach(m => { if (out.length < 7) { mv(gridOf(m, 'in'), `放进${MACHINES[m.type].name}`); mvAll(gridOf(m, 'in'), `放进${MACHINES[m.type].name}`); } });
-  // 蛊、蛊卵放进蛊盅的蛊虫格
-  S.machines.filter(m => MACHINES[m.type].pot).forEach(m => mv(gridOf(m, 'pot'), `放进${MACHINES[m.type].name}养`));
-  // 灵兽圈：灵宠放进同种或空的栏；饲料只喂吃它的那几栏
+  S.machines.filter(m => MACHINES[m.type].in).slice(0, 12).forEach(m => { if (out.length < 7) { mv(gridOf(m, 'in'), `넣는다${MACHINES[m.type].name}`); mvAll(gridOf(m, 'in'), `넣는다${MACHINES[m.type].name}`); } });
+  // 蛊、蛊卵넣는다蛊盅的蛊虫格
+  S.machines.filter(m => MACHINES[m.type].pot).forEach(m => mv(gridOf(m, 'pot'), `넣는다${MACHINES[m.type].name}养`));
+  // 灵兽圈：영령넣는다同种或空的栏；사료只喂吃它的那几栏
   S.machines.filter(m => MACHINES[m.type].stalls).forEach(m => [...Array(stallCount(m)).keys()].forEach(i => {
     if (out.length >= 7) return;
     const sp = stallSpecies(m, i), g = stallGrids(m, i);
-    if (isPet(s)) mv(g.pen, `放进兽栏${cn(i + 1)}`);
+    if (isPet(s)) mv(g.pen, `수란에 넣는다${cn(i + 1)}`);
     else if (sp && petMenu(sp).includes(s.id)) { mv(g.feed, `喂兽栏${cn(i + 1)}（${ITEMS[sp].name}）`); mvAll(g.feed, `喂兽栏${cn(i + 1)}`); }
   }));
-  S.machines.filter(m => MACHINES[m.type].mod && modAccepts(s, m.type)).forEach(m => mv(gridOf(m, 'mod'), `装进${MACHINES[m.type].name}`));
-  if (ITEMS[s.id].appraise) out.push(`<button class="btn tiny" data-act="appraise-own">${icon('ic_appraise')}鉴定</button>`);
+  S.machines.filter(m => MACHINES[m.type].mod && modAccepts(s, m.type)).forEach(m => mv(gridOf(m, 'mod'), `담는다${MACHINES[m.type].name}`));
+  if (ITEMS[s.id].appraise) out.push(`<button class="btn tiny" data-act="appraise-own">${icon('ic_appraise')}감정</button>`);
   if (canLace(s) && additives().length) out.push(`<button class="btn tiny" data-act="lace">${icon('ic_lace')}加料</button>`);
-  if (ITEMS[s.id].book) out.push('<button class="btn tiny" data-act="read-book">研读</button>');
+  if (ITEMS[s.id].book) out.push('<button class="btn tiny" data-act="read-book">탐독</button>');
   const seem = seemOf(s);
-  if (restoreOf(seem) || cureBy(seem)) out.push(`<button class="btn tiny" data-act="consume">服用${cureBy(seem) ? `（治${CONDS[cureBy(seem)].name}）` : ''}</button>`);
-  if (cultXp(seem)) out.push(`<button class="btn tiny" data-act="cultivate" data-uid="${s.uid}">服炼 +${cultXp(seem)}</button>`);
-  if (canBottle(s)) out.push('<button class="btn tiny" data-act="bottle">装瓶</button>');
-  if (s.mark && markVisible(s)) out.push(`<button class="btn tiny" data-act="erase" ${canErase(s) ? '' : `disabled title="须抹印术${cn(s.mark.str)}重"`}>抹印（${costText('erase', s.mark.str)}）</button>`);
+  if (restoreOf(seem) || cureBy(seem)) out.push(`<button class="btn tiny" data-act="consume">복용${cureBy(seem) ? `（治${CONDS[cureBy(seem)].name}）` : ''}</button>`);
+  if (cultXp(seem)) out.push(`<button class="btn tiny" data-act="cultivate" data-uid="${s.uid}">복용 제련 +${cultXp(seem)}</button>`);
+  if (canBottle(s)) out.push('<button class="btn tiny" data-act="bottle">병에 담는다</button>');
+  if (s.mark && markVisible(s)) out.push(`<button class="btn tiny" data-act="erase" ${canErase(s) ? '' : `disabled title="须낙인 지우기术${cn(s.mark.str)}重"`}>낙인 지우기（${costText('erase', s.mark.str)}）</button>`);
   if (canSeal(s)) out.push('<button class="btn tiny" data-act="seal">贴封印</button>');
-  if ((dressable(s) || isLaceable(s.id)) && !s.forged && s.lacedBy !== 'me' && !s.lacedSeen) out.push('<button class="btn tiny" data-act="inspect-own">验货</button>');
-  if (knownFlaw(s) && !s.forged && (s.fake ? COUNTERFEITS[s.id] : isDressed(s))) out.push('<button class="btn tiny" data-act="study">拆解研究</button>');
-  // 验出了别人掺的料：吃下这个亏、贱卖给货郎、当好货转手骗人（谈价时照常卖）、或者拆开学他的手法
-  if (s.laced && s.lacedSeen && s.lacedBy !== 'me' && !laceSkill(s.laced)) out.push(`<button class="btn tiny" data-act="study">尝出手法（学会${LACE[s.laced].name}的掺法）</button>`);
-  out.push(`<button class="btn tiny" data-act="sell-broker">卖给货郎 ${brokerPrice(s)}</button>`);
+  if ((dressable(s) || isLaceable(s.id)) && !s.forged && s.lacedBy !== 'me' && !s.lacedSeen) out.push('<button class="btn tiny" data-act="inspect-own">검품</button>');
+  if (knownFlaw(s) && !s.forged && (s.fake ? COUNTERFEITS[s.id] : isDressed(s))) out.push('<button class="btn tiny" data-act="study">뜯어서 연구한다</button>');
+  // 验出了别人掺的料：吃下这个亏、贱행상에게 판다、当好货转手骗人（값을 흥정时照常卖）、或者拆开学他的手法
+  if (s.laced && s.lacedSeen && s.lacedBy !== 'me' && !laceSkill(s.laced)) out.push(`<button class="btn tiny" data-act="study">수법을 알아냈다(배움${LACE[s.laced].name}的掺法）</button>`);
+  out.push(`<button class="btn tiny" data-act="sell-broker">행상에게 판다 ${brokerPrice(s)}</button>`);
   if (inCard) out.push('<button class="btn tiny ghost" data-act="trash-sel">丢弃</button>');
   return out.join('');
 }
@@ -873,14 +873,14 @@ function renderStorage() {
   const canSell = selectable(s) && LAYOUT === 'wide';
   $('#storage').innerHTML = `
     <div class="st-head"><b>库房</b>
-      ${canSell ? `<span class="st-sel">选中 <b>${esc(itemName(s))}</b>${selActions(s)}</span>`
-        : `<span class="muted small">${LAYOUT === 'tall' ? '点货看详情与操作，按住拖动挪位置' : '拖动整理；点选查看与出售'}</span>`}
-      <button class="btn tiny" data-act="tidy" title="大件先摆，尽量把地上的货收进库房">整理</button>
-      <span class="st-tool" title="鉴宝台：放照妖镜，决定你的鉴定术">${gridHTML('tool', '', 'mod')}<small>${LENS_NAMES[appraiseLevel()]}</small></span>
-      <span class="trash" data-drop="trash" title="拖到这里丢弃">弃</span></div>
-    ${handItems().length ? `<div class="st-hand">${gridHTML('hand', '手上：铺里放不下了。拖进空处，或点开服用、摆出、放进设备、卖掉、丢弃腾地方；收拾好才能接着做事')}</div>` : ''}
+      ${canSell ? `<span class="st-sel">선택됨 <b>${esc(itemName(s))}</b>${selActions(s)}</span>`
+        : `<span class="muted small">${LAYOUT === 'tall' ? '물건을 눌러 상세와 조작을 본다，누른 채 끌어 옮긴다' : '끌어서 정리. 눌러서 보기와 판매'}</span>`}
+      <button class="btn tiny" data-act="tidy" title="큰 것부터 놓는다，바닥의 물건은 되도록 창고에 넣는다">정리</button>
+      <span class="st-tool" title="감보대: 조요경을 올린다，네 감정술을 결정한다">${gridHTML('tool', '', 'mod')}<small>${LENS_NAMES[appraiseLevel()]}</small></span>
+      <span class="trash" data-drop="trash" title="여기로 끌어다 버린다">弃</span></div>
+    ${handItems().length ? `<div class="st-hand">${gridHTML('hand', '손에 든 것: 가게에 넣을 곳이 없다. 빈 곳으로 끌어다 놓는다，눌러서 복용, 진열, 설비에 넣기, 판매, 버려서 자리를 마련한다. 정리해야 다음 일을 할 수 있다')}</div>` : ''}
     <div class="st-body ${storeFit.cls || 'beside-row'}">${gridHTML('store', '')}
-      <div class="st-side">${gridHTML('floor', '地上（夜里遭贼）')}${S.grids.hidden ? gridHTML('hidden', '夹层暗格', 'stash') : ''}</div></div>`;
+      <div class="st-side">${gridHTML('floor', '바닥(밤에 도둑 든다)')}${S.grids.hidden ? gridHTML('hidden', '속층 암격', 'stash') : ''}</div></div>`;
   fitStorage();
 }
 
@@ -901,22 +901,22 @@ function fitStorage() {
   Object.assign(storeFit, { key, cls: best.cls });
 }
 
-// 触屏点一件货：立刻弹出详情卡，能做的事也在卡上；点别处收起并取消选中
-let peek = null;       // 详情卡上的货 uid
-let touchy = false;    // 最近一次按下是不是手指
+// 触屏点一件货：立刻弹出详情卡，能做的事也在卡上；点别处收起并取消선택됨
+let peek = null;       // 상세 카드의 물건 uid
+let touchy = false;    // 마지막으로 누른 게 손가락인지
 
 function renderCard() {
   const it = peek && S.items[peek], el = $('#itemcard');
   if (!it || (selectable(it) && sel !== it.uid)) { peek = null; el.innerHTML = ''; return; }
   const take = it.pos && it.pos.g === 'counter' && tradeCustomer() && S.customer.item === it.uid
-    ? `<button class="btn tiny" data-act="take-toggle">${(S.customer.take || []).includes(it.uid) ? '不收' : '收下'}</button>` : '';
+    ? `<button class="btn tiny" data-act="take-toggle">${(S.customer.take || []).includes(it.uid) ? '不收' : '받는다'}</button>` : '';
   el.innerHTML = `${itemTip(it)}<div class="ic-acts">${selectable(it) ? selActions(it, true) : take}</div>`;
 }
 
-// ───────────── 竖屏窗口：当前分页靠左、柜台靠右，宽窄高矮随内容，放不下就左右互相压住 ─────────────
+// ───────────── 竖屏窗口：当前分页靠左、카운터靠右，宽窄高矮随内容，放不下就左右互相压住 ─────────────
 
-let front = 'main';    // 叠放时压在上面的窗口：counter（柜台）/ main（库房或当前分页）
-const DOCK_PEEK = 56;  // 被压住的窗口至少露出这么宽，好点到它
+let front = 'main';    // 겹칠 때 위에 놓이는 창: counter(카운터)/ main（창고 또는 현재 페이지)
+const DOCK_PEEK = 56;  // 눌린 창은 적어도 이만큼 보여야 한다，잘 눌러 맞힌다
 
 function layoutDock() {
   const cw = $('#counter-panel'), mw = tab === 'store' ? $('#storage') : $('#side');
@@ -949,24 +949,24 @@ function raise(win) {
   layoutDock();
 }
 
-// 点到被压住的窗口：翻到上面来；顺带记下是手指还是鼠标
+// 点到被压住的窗口：翻到上面来；덧붙여记下是手指还是鼠标
 document.addEventListener('pointerdown', e => {
   touchy = e.pointerType !== 'mouse';
   const w = LAYOUT === 'tall' && e.target.closest && e.target.closest('#dock .win');
   if (w) raise(w.dataset.win);
 }, true);
 
-let handSeen = 0;       // 上回重绘时手上有几件货
+let handSeen = 0;       // 지난번 다시 그릴 때 손에 물건 몇 점이 있었다
 
 function renderAll() {
   if (!S) return;
   layoutHand();
   const held = handItems().length;
-  if (held > handSeen) { toast('铺里放不下了，多出的货先拿在手上', 'bad'); tab = 'store'; front = 'main'; }
+  if (held > handSeen) { toast('가게에 놓을 곳이 없다，넘치는 물건은 일단 손에 든다', 'bad'); tab = 'store'; front = 'main'; }
   handSeen = held;
   renderTopbar(); renderScene(); renderCounter(); renderSide(); renderStorage(); renderCard();
   if (modal) modal();
-  // 暗中举报的人出了门：赏金送到
+  // 몰래 신고한다的人出了门：赏金送到
   if (NOTICES.length) { const n = NOTICES.splice(0); toast(n.map(x => x.text.split('\n').join('<br>')).join('<br>'), n.some(x => x.cls === 'bad') ? 'bad' : 'good'); }
 }
 
@@ -976,25 +976,25 @@ function openModal(fn) { modal = fn; fn(); }
 function closeModal() { modal = null; $('#modal-layer').innerHTML = ''; $('#modal-layer').className = ''; }
 function modalHTML(html, cls = '') { $('#modal-layer').className = 'on'; $('#modal-layer').innerHTML = `<div class="modal paper ${cls}">${html}</div>`; }
 
-// 拂袖的机会小的时候差一点都要紧：一成以下精确到千分
+// 소매를 뿌리침的机会小的时候差一点都要紧：一成以下精确到千分
 const leavePct = p => p > 0 && p < 0.1 ? `${(Math.floor(p * 1000) / 10).toFixed(1)}%` : pct(p);
 
 function oddsBar(o) {
   return `<div class="odds"><i class="a" style="width:${o.accept * 100}%"></i><i class="c" style="width:${o.counter * 100}%"></i><i class="l" style="width:${o.leave * 100}%"></i></div>
-    <div class="odds-txt"><span class="good">成交 ${pct(o.accept)}</span><span>还价 ${pct(o.counter)}</span><span class="bad">拂袖 ${leavePct(o.leave)}</span></div>`;
+    <div class="odds-txt"><span class="good">성사 ${pct(o.accept)}</span><span>흥정 ${pct(o.counter)}</span><span class="bad">소매를 뿌리침 ${leavePct(o.leave)}</span></div>`;
 }
 
 // 货盘上每件货在这笔买卖里算什么
-const ROLE_TXT = { cure: '急需', want: '正中下怀', side: '顺带', extra: '多余' };
+const ROLE_TXT = { cure: '急需', want: '正中下怀', side: '덧붙여', extra: '多余' };
 const ROLE_CLS = { cure: 'good', want: 'good', side: 'muted', extra: 'bad' };
 
-// 谈价：货盘上的货卖给他、柜台上点中的货收下来，谈一个总价
+// 값을 흥정：货盘上的货卖给他、카운터上点中的货받는다来，谈一个总价
 function openDeal() {
   const c = S.customer;
   const h = { counter: null, result: null };
   let d = dealOf(c);
   const range = () => dealRange(c, d);
-  // 滑杆先停在“小赚”：他几乎不会翻脸的最高价
+  // 滑杆先停在“小赚”：他几乎不会翻脸的최고价
   const safe = () => dealPresets(c, d, range())[2][1];
   h.net = safe();
   const TA = ta(personOf(c));
@@ -1003,7 +1003,7 @@ function openDeal() {
     const it = g.it, canLie = knownFlaw(it) && !c.wantFake;
     return `<div class="d-row">${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}<span>${esc(itemName(it))}
       <small class="${ROLE_CLS[g.role]}">${ROLE_TXT[g.role]}</small></span><span class="muted">${g.role === 'extra' ? '压价收' : '心理价'} ${Math.round(g.v)}</span>
-      ${canLie ? `<span class="d-claim"><label class="${claimOf(c, it) !== 'honest' ? 'on' : ''}" data-act="d-claim" data-uid="${it.uid}" data-v="genuine">当真货</label><label class="${claimOf(c, it) === 'honest' ? 'on' : ''}" data-act="d-claim" data-uid="${it.uid}" data-v="honest">告知实情</label></span>` : ''}</div>`;
+      ${canLie ? `<span class="d-claim"><label class="${claimOf(c, it) !== 'honest' ? 'on' : ''}" data-act="d-claim" data-uid="${it.uid}" data-v="genuine">当真货</label><label class="${claimOf(c, it) === 'honest' ? 'on' : ''}" data-act="d-claim" data-uid="${it.uid}" data-v="honest">실정을 알린다</label></span>` : ''}</div>`;
   };
   let gp, tp;
   const render = () => {
@@ -1011,35 +1011,35 @@ function openDeal() {
     let body;
     if (h.result) body = `<div class="h-result ${h.result.cls}">${c.portrait ? `<img class="h-face" src="${asset('chars', portraitOf(c))}" alt="">` : ''}<span>${h.result.text}</span></div><div class="h-btns"><button class="btn primary" data-act="haggle-close">好</button></div>`;
     else if (h.counter != null) body = `<div class="h-result">“${voice(c.faction, h.counter >= 0 ? 'counterSell' : 'counterBuy', { n: Math.abs(h.counter) })}”<br><small>（${netTxt(h.counter)}）</small></div>
-        <div class="h-btns"><button class="btn primary" data-act="h-accept">接受</button>
+        <div class="h-btns"><button class="btn primary" data-act="h-accept">받아들인다</button>
         <button class="btn" data-act="h-again" ${c.patience > 0 ? '' : 'disabled'}>再议</button>
         <button class="btn ghost" data-act="h-quit">作罢</button></div>`;
     else body = `<div class="h-presets">${dealPresets(c, d, [lo, hi]).map(([n, v]) => `<button class="btn small" data-act="h-preset" data-v="${v}">${n} ${v}</button>`).join('')}</div>
         <div class="h-slider"><input type="range" id="h-range" min="${lo}" max="${hi}" value="${clamp(h.net, lo, hi)}"><b id="h-price">${netTxt(h.net)}</b></div>
         <div id="h-odds">${oddsBar(dealOdds(c, d, h.net))}</div>
-        <div class="h-btns"><span class="muted small">每回报价 ${costText('haggle', dealEffort(d))}</span><button class="btn primary" data-act="h-offer">报价</button><button class="btn ghost" data-act="haggle-close">再想想</button></div>`;
-    modalHTML(`<h3>谈价 · ${esc(c.name)} <span class="muted small">${FACTIONS[c.faction].name} ${patienceHTML(c)}</span></h3>
-      <div class="deal"><div class="d-col"><h4>卖给${TA}</h4>${(gp = pager(d.give, 4, 'deal-give')).items.map(giveRow).join('') || '<p class="muted small">货盘上没有他要的。</p>'}${gp.nav}
+        <div class="h-btns"><span class="muted small">每回부른 값 ${costText('haggle', dealEffort(d))}</span><button class="btn primary" data-act="h-offer">부른 값</button><button class="btn ghost" data-act="haggle-close">再想想</button></div>`;
+    modalHTML(`<h3>값을 흥정 · ${esc(c.name)} <span class="muted small">${FACTIONS[c.faction].name} ${patienceHTML(c)}</span></h3>
+      <div class="deal"><div class="d-col"><h4>卖给${TA}</h4>${(gp = pager(d.give, 4, 'deal-give')).items.map(giveRow).join('') || '<p class="muted small">진열판에 그가 원하는 게 없다。</p>'}${gp.nav}
           ${d.reject.length ? `<p class="muted small">${TA}不要：${d.reject.map(itemName).join('、')}</p>` : ''}</div>
-        <div class="d-col"><h4>收下${TA}的</h4>${(tp = pager(d.take, 4, 'deal-take')).items.map(t => `<div class="d-row">${itemHTML(Object.assign({}, t.it, { pos: null }), 'preview mini')}<span>${esc(itemName(t.it))}</span>
-          <span class="muted">开价 ${t.a} · 你估 ${Math.round(knownValue(t.it) * priceMul(t.it.id))}</span></div>`).join('') || '<p class="muted small">不收他的货。</p>'}${tp.nav}</div></div>
+        <div class="d-col"><h4>받는다${TA}的</h4>${(tp = pager(d.take, 4, 'deal-take')).items.map(t => `<div class="d-row">${itemHTML(Object.assign({}, t.it, { pos: null }), 'preview mini')}<span>${esc(itemName(t.it))}</span>
+          <span class="muted">开价 ${t.a} · 你估 ${Math.round(knownValue(t.it) * priceMul(t.it.id))}</span></div>`).join('') || '<p class="muted small">그의 물건은 받지 않는다。</p>'}${tp.nav}</div></div>
       ${c.wantCat ? `<div class="tip-row"><span>${TA}要 ${needText(c)}</span><span>${trayTally(c, d)}</span></div>` : ''}
-      ${compliant(c) ? `<div class="tip-row laced-txt"><span>${TA}由你摆布</span><span>开什么价都认，只是掏不出钱袋里没有的</span></div>` : ''}
-      <div class="tip-row"><span>${TA}心里的公道差价</span><span>${netTxt(d.N0)}</span></div>
-      ${d.give.length ? `<div class="tip-row"><span>对方预算</span><span>约 ${Math.round(c.budget * 0.85 / 10) * 10}–${Math.round(c.budget * 1.15 / 10) * 10}${d.N0 > c.budget * PURSE_OFFER ? '<span class="bad">，掏不出公道价</span>' : ''}</span></div>` : ''}
+      ${compliant(c) ? `<div class="tip-row laced-txt"><span>${TA}네가 정한다摆布</span><span>어떤 값을 불러도 인정한다，다만 돈주머니에 없는 건 낼 수 없다</span></div>` : ''}
+      <div class="tip-row"><span>${TA}마음속 공정 차액</span><span>${netTxt(d.N0)}</span></div>
+      ${d.give.length ? `<div class="tip-row"><span>상대 예산</span><span>约 ${Math.round(c.budget * 0.85 / 10) * 10}–${Math.round(c.budget * 1.15 / 10) * 10}${d.N0 > c.budget * PURSE_OFFER ? '<span class="bad">，공정한 값을 못 낸다</span>' : ''}</span></div>` : ''}
       <hr>${body}`, 'm-deal');
     const r = $('#h-range');
     if (r) r.oninput = () => { h.net = +r.value; $('#h-price').innerHTML = netTxt(h.net); $('#h-odds').innerHTML = oddsBar(dealOdds(c, d, h.net)); };
   };
   const ready = net => {
-    if (net < 0 && S.stones < -net) { toast('灵石不够', 'bad'); return false; }
+    if (net < 0 && S.stones < -net) { toast('영석不够', 'bad'); return false; }
     return true;
   };
   const finish = net => {
     const out = settleDeal(c, d, net);
-    h.result = out.caught === 'stolen' ? { cls: 'bad', text: '对方认出了货里有同门失窃之物，当场收走，余下的买卖也不做了！' }
-      : out.caught === 'laced' ? { cls: 'bad', text: `“你在这里头动了手脚！”${esc(c.name)}把东西摔回柜上，扬长而去。这事不会就这么算了。` }
-        : { cls: 'good', text: `成交！${out.sold.length ? `卖出${out.sold.join('、')}，进账 ${out.income}` : ''}${out.sold.length && out.bought.length ? '；' : ''}${out.bought.length ? `收下${out.bought.join('、')}，付出 ${out.paid}` : ''}。` };
+    h.result = out.caught === 'stolen' ? { cls: 'bad', text: '상대가 물건 속에서 같은 문파의 도난품을 알아봤다，그 자리에서 가져간다，나머지 거래도 하지 않는다！' }
+      : out.caught === 'laced' ? { cls: 'bad', text: `“네가 이 안에 손을 댔다！”${esc(c.name)}물건을 카운터에 내던졌다，떠나갔다. 이 일은 이대로 끝나지 않는다。` }
+        : { cls: 'good', text: `성사！${out.sold.length ? `卖出${out.sold.join('、')}，수입 ${out.income}` : ''}${out.sold.length && out.bought.length ? '；' : ''}${out.bought.length ? `받는다${out.bought.join('、')}，付出 ${out.paid}` : ''}。` };
     if (sel && !S.items[sel]) sel = null;
     // 被你狠宰了一刀还是买了：心里不痛快
     const k = (net - d.N0) / d.scale;
@@ -1048,10 +1048,10 @@ function openDeal() {
   };
   const respond = () => {
     if (!ready(h.net)) return;
-    // 由你摆布的人看出货不对也不敢声张
+    // 네가 정한다摆布的人看出货不对也不敢声张
     const caught = !compliant(c) && dealInspect(c, d);
     if (caught) {
-      h.result = { cls: 'bad', text: `“拿${esc(itemName(caught))}糊弄我？”对方一眼看穿，拂袖而去。` };
+      h.result = { cls: 'bad', text: `“拿${esc(itemName(caught))}나를 속여?” 상대가 한눈에 간파했다，소매를 뿌리며 떠난다。` };
       feel(c, 'angry');
       dismissCustomer(false);
       return;
@@ -1059,7 +1059,7 @@ function openDeal() {
     const out = roll(dealOdds(c, d, h.net));
     if (out === 'accept') finish(h.net);
     else if (out === 'counter') { if (!compliant(c)) c.patience--; h.counter = dealCounter(c, d, h.net); }
-    else { h.result = { cls: 'bad', text: `“${voice(c.faction, 'leave')}”对方转身走了。` }; feel(c, 'angry'); dismissCustomer(true); }
+    else { h.result = { cls: 'bad', text: `“${voice(c.faction, 'leave')}”상대가 돌아서서 갔다。` }; feel(c, 'angry'); dismissCustomer(true); }
   };
   modal = render;
   render();
@@ -1068,13 +1068,13 @@ function openDeal() {
   HANDLERS['h-offer'] = () => tiredOr('haggle', () => { respond(); render(); renderAll(); }, dealEffort(d));
   HANDLERS['h-accept'] = () => { if (!ready(h.counter)) return; finish(h.counter); h.counter = null; render(); renderAll(); };
   HANDLERS['h-again'] = () => { h.net = h.counter; h.counter = null; render(); };
-  HANDLERS['h-quit'] = () => { h.counter = null; h.result = { cls: 'bad', text: '谈崩了，对方悻悻离去。' }; feel(c, 'angry'); dismissCustomer(true); render(); renderAll(); };
+  HANDLERS['h-quit'] = () => { h.counter = null; h.result = { cls: 'bad', text: '谈崩了，상대가 풀이 죽어 떠났다。' }; feel(c, 'angry'); dismissCustomer(true); render(); renderAll(); };
 }
 
-// 来客此刻的神情：换上表情（null 为不变）；随后被送走的，带着这副神情在柜台前留一会儿
+// 来客此刻的神情：갈아 끼운다表情（null 为不变）；随后被送走的，带着这副神情在카운터前留一会儿
 function feel(c, mood) { if (c) { if (mood) c.mood = mood; parting = { c }; renderScene(); } }
 
-// 鉴定：mode 'commission' 委托、'counter' 看顾客的货、'own' 看自己的货。
+// 감정：mode 'commission' 委托、'counter' 看顾客的货、'own' 看自己的货。
 // 台上只摆这一件；照妖镜像一盏紫外灯，作伪的痕迹在镜里发出荧光
 function openAppraise(mode, uid) {
   const it = S.items[uid], kind = ITEMS[it.id].appraise, spec = APPRAISE[kind];
@@ -1092,14 +1092,14 @@ function openAppraise(mode, uid) {
         <img src="assets/appraise/loupe.webp" alt="" draggable="false" style="left:${-LOUPE.cx * g}px;top:${-LOUPE.cy * g}px;width:${LOUPE.w * g}px">
         <div class="lens-grip" style="top:${1.25 * g}px;height:${(LOUPE.end - 1.25) * g}px"></div></div></div>`;
   const buttons = () => {
-    if (mode === 'own') return `<button class="btn" data-act="ap-real">判为真品</button><button class="btn danger" data-act="ap-fake">判为赝品</button>
-      <button class="btn ghost" data-act="modal-close">放下</button>`;
-    if (mode === 'story') return `<button class="btn" data-act="ap-mark-real">心中有数：真品</button><button class="btn danger" data-act="ap-mark-fake">心中有数：赝品</button>
-      <button class="btn ghost" data-act="story-reopen">放下</button>`;
-    if (mode === 'commission') return `<button class="btn" data-act="ap-real">告诉${ta(personOf(c))}：真品</button><button class="btn danger" data-act="ap-fake">告诉${ta(personOf(c))}：赝品</button>
+    if (mode === 'own') return `<button class="btn" data-act="ap-real">진품으로 판정</button><button class="btn danger" data-act="ap-fake">위작으로 판정</button>
+      <button class="btn ghost" data-act="modal-close">내려놓는다</button>`;
+    if (mode === 'story') return `<button class="btn" data-act="ap-mark-real">알고 있다: 진품</button><button class="btn danger" data-act="ap-mark-fake">알고 있다: 위작</button>
+      <button class="btn ghost" data-act="story-reopen">내려놓는다</button>`;
+    if (mode === 'commission') return `<button class="btn" data-act="ap-real">告诉${ta(personOf(c))}：진품</button><button class="btn danger" data-act="ap-fake">告诉${ta(personOf(c))}：위작</button>
       <button class="btn ghost" data-act="modal-close">再想想</button>`;
-    return `${it.told ? '' : `<button class="btn danger" data-act="ap-dispute">指为赝品，压价</button>`}
-      <button class="btn ghost" data-act="modal-close">不动声色</button>`;
+    return `${it.told ? '' : `<button class="btn danger" data-act="ap-dispute">위작이라 지적한다，压价</button>`}
+      <button class="btn ghost" data-act="modal-close">태연하다</button>`;
   };
   const render = () => {
     modalHTML(`<h3>${icon('ic_appraise')}照妖镜 · ${spec.name}</h3>
@@ -1107,9 +1107,9 @@ function openAppraise(mode, uid) {
         <div class="ap-stage" id="ap-stage" style="width:${V}px;height:${V}px">
           <div class="ap-view">${appraiseImg(kind, [], it.flip)}</div>${loupe}</div>
         <div class="viewer">
-          <p class="ap-tip">${lv ? '按住镜柄挪动照妖镜，把整件东西照一遍。镜下一片幽紫，作伪的地方会<b class="uv-txt">泛出荧光</b>；真品通体一色，没有一处发亮。'
-            : '鉴宝台上没有照妖镜，手里只是一面放大镜：看得清纹路，照不出作伪。'}</p>
-          <p class="muted small">你的鉴定术：<b>${LENS_NAMES[lv]}</b>（第${cn(lv) || '零'}重）——做工高过它的作伪不会发光。</p>
+          <p class="ap-tip">${lv ? '거울 손잡이를 눌러 조요경을 움직인다，물건 전체를 비춰본다. 거울 아래가 온통 검보랏빛이다，위조한 부분이<b class="uv-txt">泛出荧光</b>；진품은 온통 한 빛이다，빛나는 곳이 한 곳도 없다。'
+            : '감보대에 조요경이 없다，손에 든 건 돋보기 하나뿐: 무늬는 잘 보인다，위조를 비추지 못한다。'}</p>
+          <p class="muted small">네 감정술：<b>${LENS_NAMES[lv]}</b>（第${cn(lv) || '零'}중) - 그것보다 솜씨가 좋은 위작은 빛나지 않는다。</p>
           ${mode === 'own' || mode === 'story' ? '' : talkHTML(c)}
           <div class="h-btns">${buttons()}</div></div></div>`, 'm-appraise');
     const stage = $('#ap-stage'), lens = $('#ap-lens'), arm = $('#lens-arm'), content = $('#lens-content');
@@ -1131,7 +1131,7 @@ function openAppraise(mode, uid) {
       const [x, y] = at(e);
       grip = e.target.closest('.lens-grip') ? clamp(Math.hypot(x - pos[0], y - pos[1]), 1.5 * g, LOUPE.end * g) : 2.4 * g;
       drag = e.pointerId;
-      try { stage.setPointerCapture(e.pointerId); } catch (err) { /* 合成的事件没有真指针 */ }
+      try { stage.setPointerCapture(e.pointerId); } catch (err) { /* 합성 이벤트에는 진짜 포인터가 없다 */ }
       follow(e); e.preventDefault();
     };
     stage.onpointermove = e => { if (drag === e.pointerId || (drag == null && e.pointerType === 'mouse')) follow(e); };
@@ -1143,15 +1143,15 @@ function openAppraise(mode, uid) {
     const fee = c.fee, res = finishAppraisal(c, fake);
     modal = null;
     if (res.caught) {
-      modalHTML(`<h3>被识破了</h3><p>${esc(c.name)}冷笑一声：“糊弄谁呢？”甩袖而去，酬金分文未给。
-        <span class="bad">${FACTIONS[c.faction].name}声望 -6</span></p>
-        <div class="h-btns"><button class="btn primary" data-act="ap-done">送客</button></div>`);
+      modalHTML(`<h3>被간파了</h3><p>${esc(c.name)}냉소했다: “누구를 속이려고?” 소매를 뿌리며 떠났다，수고비를 한 푼도 못 받았다。
+        <span class="bad">${FACTIONS[c.faction].name}평판 -6</span></p>
+        <div class="h-btns"><button class="btn primary" data-act="ap-done">손님을 보낸다</button></div>`);
     } else {
-      const offer = !res.ask ? '' : fake ? `<p>“既是赝品，留着也是占地方。<b>${res.ask}</b> 灵石，掌柜的收了吧？”</p>`
-        : `<p>“原来是真品……掌柜的若有意，<b>${res.ask}</b> 灵石出让给你。”</p>`;
-      modalHTML(`<h3>鉴定已毕</h3><p>你告诉${esc(c.name)}：此物是<b>${fake ? '赝品' : '真品'}</b>。对方信了，付了 ${fee} 灵石酬金。</p>${offer}
-        <div class="h-btns">${res.ask ? `<button class="btn primary" data-act="ap-buyback">回收（议价）</button>` : ''}
-        <button class="btn ${res.ask ? 'ghost' : 'primary'}" data-act="ap-done">${res.ask ? '不收，送客' : '送客'}</button></div>`);
+      const offer = !res.ask ? '' : fake ? `<p>“위작이라니，둬봤자 자리만 차지한다。<b>${res.ask}</b> 영석，주인장이 받아주시오？”</p>`
+        : `<p>“알고 보니 진품……주인장이 뜻이 있으면，<b>${res.ask}</b> 영석에 너에게 넘긴다。”</p>`;
+      modalHTML(`<h3>감정已毕</h3><p>你告诉${esc(c.name)}：此物是<b>${fake ? '위작' : '진품'}</b>。상대가 믿었다，付了 ${fee} 영석수고비。</p>${offer}
+        <div class="h-btns">${res.ask ? `<button class="btn primary" data-act="ap-buyback">회수(흥정)</button>` : ''}
+        <button class="btn ${res.ask ? 'ghost' : 'primary'}" data-act="ap-done">${res.ask ? '不收，손님을 보낸다' : '손님을 보낸다'}</button></div>`);
     }
     renderAll();
   };
@@ -1165,21 +1165,21 @@ function openAppraise(mode, uid) {
     const { caught } = disputeAsFake(c);
     feel(c, caught ? 'angry' : 'afraid');
     closeModal();
-    if (caught && c.patience <= 0) { dismissCustomer(false); toast(`${c.name}识破了你的伎俩，拂袖而去`, 'bad'); }
-    else if (caught) toast(`被识破了！${FACTIONS[c.faction].name}声望 -6，对方反而加价`, 'bad');
-    else toast(`对方信了，开价降到 ${customerItem().ask} 灵石`, 'good');
+    if (caught && c.patience <= 0) { dismissCustomer(false); toast(`${c.name}네 술수를 간파했다，소매를 뿌리며 떠난다`, 'bad'); }
+    else if (caught) toast(`被간파了！${FACTIONS[c.faction].name}평판 -6，상대가 도리어 값을 올렸다`, 'bad');
+    else toast(`상대가 믿었다，개시가를 낮췄다 ${customerItem().ask} 영석`, 'good');
     renderAll();
   };
 }
 
-// 说出鉴定结论前的察言观色
+// 说出감정结论前的察言观色
 function talkHTML(c) {
-  return `<div class="ap-talk"><span>${esc(c.name)} · 神色<b>${demeanor(c)}</b></span>
-    <span>若所言与真相不符，当场被识破约 <b class="bad">${pct(lieDetectChance(c))}</b></span></div>`;
+  return `<div class="ap-talk"><span>${esc(c.name)} · 안색<b>${demeanor(c)}</b></span>
+    <span>말이 사실과 다르면，그 자리에서 들통날 확률 약 <b class="bad">${pct(lieDetectChance(c))}</b></span></div>`;
 }
 
 function showReport(rep) {
-  openModal(() => modalHTML(`<h3>${icon('ic_night')}夜间报告 · 第 ${S.day - 1} 夜</h3>
+  openModal(() => modalHTML(`<h3>${icon('ic_night')}야간 보고 · 제 ${S.day - 1} 夜</h3>
     <div class="report">${rep.map(r => `<div class="rp-row ${r.cls || ''}">
       <img src="${asset(r.icon.startsWith('m_') ? 'machines' : 'ui', r.icon)}" alt=""><b>${r.title}</b><span>${esc(r.text)}</span></div>`).join('')}</div>
     <div class="h-btns"><button class="btn primary" data-act="report-ok">迎接第 ${S.day} 日</button></div>`, 'm-report'));
@@ -1189,21 +1189,21 @@ function showLandlord() {
   const owed = S.grace > 0, sun = S.flags.landlord === 'sun';
   const qianMood = mood(S.people.qian ? S.people.qian.aff : 0);
   const line = sun
-    ? owed ? `“欠租 <b>${S.rentOwed}</b> 灵石。宗门规矩，宽限两日。两日后交不上，按规矩收铺。”她在账册上记了一笔，“我不会多收你一文，也不会少收一文。”`
-      : `“租子收讫。下期 <b>${rentAmount()}</b> 灵石，第 ${S.rentDue} 日。”她头也不抬，“账目清楚，就不必多说。”`
-    : owed ? `“哟，交不起？宗门规矩，宽限两日，连本带罚 <b>${S.rentOwed}</b> 灵石。两日后再拿不出来……嘿嘿，这铺子可就换人了。”`
-      : qianMood === 'close' || qianMood === 'warm' ? `“自己人，租子收到了。下回 <b>${rentAmount()}</b> 灵石，第 ${S.rentDue} 日来取。”他笑眯眯地拍拍你，“有好事，记得想着老钱。”`
-        : qianMood === 'hostile' || qianMood === 'cold' ? `“租子收到了。”他皮笑肉不笑，“下回 <b>${rentAmount()}</b> 灵石，第 ${S.rentDue} 日。年轻人，杂役区的铺面，可不是谁都租得起的。”`
-          : `“租子收到了。下回是 <b>${rentAmount()}</b> 灵石，第 ${S.rentDue} 日来取。杂役区的铺面，可是一年比一年金贵喽。”`;
+    ? owed ? `“임대료 체납 <b>${S.rentOwed}</b> 영석. 종문 규정이다，이틀 유예한다. 이틀 뒤에도 못 내면，규정대로 가게를 거둔다.” 그녀가 장부에 한 줄 적었다，“나는 한 푼도 더 받지 않아，한 푼도 덜 받지 않는다。”`
+      : `“임대료 완납. 다음 회차 <b>${rentAmount()}</b> 영석，第 ${S.rentDue} 일.” 그녀가 고개도 들지 않았다，“账目清楚，더 말할 필요 없다。”`
+    : owed ? `“哟，못 내겠다고? 종문 규정이야，이틀 유예，连本带罚 <b>${S.rentOwed}</b> 영석. 이틀 뒤에도 못 내놓으면……嘿嘿，이 가게의 주인이 바뀐다。”`
+      : qianMood === 'close' || qianMood === 'warm' ? `“自己人，임대료는 받았다. 다음 <b>${rentAmount()}</b> 영석，第 ${S.rentDue} 일에 가지러 온다.” 그가 싱글벙글하며 너를 두드렸다，“有好事，늙은 전을 생각해줘。”`
+        : qianMood === 'hostile' || qianMood === 'cold' ? `“임대료는 받았다.” 그가 겉으로만 웃었다，“下回 <b>${rentAmount()}</b> 영석，第 ${S.rentDue} 일. 젊은이，잡역 구역의 가게，아무나 빌릴 수 있는 게 아니다。”`
+          : `“임대료는 받았다. 다음은 <b>${rentAmount()}</b> 영석，第 ${S.rentDue} 일에 가지러 온다. 잡역 구역의 가게는，그런데 해마다 몸값이 오른다니까。”`;
   openModal(() => modalHTML(`<div class="npc-talk"><img src="${asset('chars', landlordPerson().portrait)}" alt="">
     <div><h3>${landlordName()}</h3><p>${line}</p>
-    <p class="muted small">想买断铺契？${deedPrice()} 灵石，一个子儿不能少。</p>
+    <p class="muted small">가게 문서를 사들이고 싶다？${deedPrice()} 영석，한 푼도 깎을 수 없다。</p>
     <div class="h-btns"><button class="btn primary" data-act="modal-close">知道了</button></div></div></div>`, 'm-npc'));
 }
 
 // ───────────── 故事对话 ─────────────
 
-let storyDone = null;   // 对话结束后的去处（白天送客 / 夜里继续入定）
+let storyDone = null;   // 대화가 끝난 뒤의 행선지(낮에는 손님 배웅 / 밤에 계속 입정한다)
 
 function openStory(key, onDone) {
   const st = S.story[key], node = storyNode(st), p = storyPerson(st);
@@ -1220,7 +1220,7 @@ function openStory(key, onDone) {
       <h3>${icon(f.icon)}${esc(c.name)}<span class="muted">${esc(c.title || '')}</span>${p && !node.who ? personTags({ pid: p.pid }) : ''}</h3>
       <div class="st-text">${G(node.text(st, p)).split('\n').map(t => `<p>${esc(t)}</p>`).join('')}</div>
       ${it ? `<div class="st-item">${itemHTML(Object.assign({}, it, { pos: null }), 'preview')}<span class="muted">${esc(itemName(it))}</span>
-        ${ITEMS[it.id].appraise ? `<button class="btn small" data-act="story-appraise">${icon('ic_appraise')}照妖镜细看</button>` : ''}</div>` : ''}
+        ${ITEMS[it.id].appraise ? `<button class="btn small" data-act="story-appraise">${icon('ic_appraise')}조요경으로 자세히 본다</button>` : ''}</div>` : ''}
       <div class="st-choices">${chs.map((ch, i) => {
         const why = choiceState(ch, st, p);
         return `<button class="btn st-choice" data-act="story-choose" data-i="${i}" ${why ? `disabled title="${esc(why)}"` : ''}>
@@ -1238,7 +1238,7 @@ function openStory(key, onDone) {
       <div class="st-body"><h3>${icon(f.icon)}${esc(c.name)}</h3>
         <div class="st-text">${G(res.text || '').split('\n').map(t => `<p>${esc(t)}</p>`).join('')}</div>
         <div class="st-delta">${deltaHTML(before, pv)}</div>
-        <div class="h-btns"><button class="btn primary" data-act="story-done">继续</button></div></div></div>`, 'm-story');
+        <div class="h-btns"><button class="btn primary" data-act="story-done">계속</button></div></div></div>`, 'm-story');
     renderTopbar();
   };
   HANDLERS['story-appraise'] = () => openAppraise('story', it.uid);
@@ -1257,8 +1257,8 @@ function storyResultPortrait(key, c) {
 function deltaHTML(before, p) {
   const out = [];
   const d = S.stones - before.stones;
-  if (d) out.push(`<span class="${d > 0 ? 'good' : 'bad'}">灵石 ${d > 0 ? '+' : ''}${d}</span>`);
-  if (S.heat !== before.heat) out.push(`<span class="${S.heat > before.heat ? 'bad' : 'good'}">执法堂关注 ${S.heat > before.heat ? '+' : ''}${S.heat - before.heat}</span>`);
+  if (d) out.push(`<span class="${d > 0 ? 'good' : 'bad'}">영석 ${d > 0 ? '+' : ''}${d}</span>`);
+  if (S.heat !== before.heat) out.push(`<span class="${S.heat > before.heat ? 'bad' : 'good'}">집법당 주목 ${S.heat > before.heat ? '+' : ''}${S.heat - before.heat}</span>`);
   for (const k in FACTIONS) {
     const r = S.rep[k] - before.rep[k];
     if (r) out.push(`<span class="${r > 0 ? 'good' : 'bad'}">${FACTIONS[k].name}声望 ${r > 0 ? '+' : ''}${r}</span>`);
@@ -1269,7 +1269,7 @@ function deltaHTML(before, p) {
 
 // ───────────── 人物 ─────────────
 
-const STATUS_NAME = { alive: '在世', gone: '离去', dead: '亡故', jailed: '入狱' };
+const STATUS_NAME = { alive: '在世', gone: '떠났다', dead: '亡故', jailed: '入狱' };
 
 function knownPeople() {
   return Object.values(S.people).filter(p => p.visits || p.mem.length || p.life.length)
@@ -1278,7 +1278,7 @@ function knownPeople() {
 
 function tabPeople() {
   const list = knownPeople();
-  if (!list.length) return '<p class="muted">还没有结识任何人。开门迎客吧。</p>';
+  if (!list.length) return '<p class="muted">아직 아는 사람이 없다. 문을 열고 손님을 맞이하자。</p>';
   const pg = pager(list, LAYOUT === 'tall' ? 4 : 6, 'people');
   return `<div class="people">${pg.items.map(p => {
     const m = mood(p.aff), f = FACTIONS[p.faction];
@@ -1288,7 +1288,7 @@ function tabPeople() {
       <div class="pc-face"><img src="${asset('chars', personFace(p))}" alt=""></div>
       <div class="pc-info"><div><b>${esc(p.name)}</b> <span class="muted small">${esc(p.title || '')}</span>
         ${p.story && !p.official ? '<span class="tag gold">有故事</span>' : ''}${p.official ? '<span class="tag">官差</span>' : ''}${p.status !== 'alive' ? `<span class="tag fake">${STATUS_NAME[p.status]}</span>` : ''}
-        ${p.status === 'alive' && p.addict ? '<span class="tag fake">成瘾</span>' : ''}${p.status === 'alive' && guBound(p) ? '<span class="tag laced">中蛊</span>' : ''}${p.status === 'alive' && p.soulBound ? '<span class="tag laced">受控</span>' : ''}${p.status === 'alive' && p.loveGu ? '<span class="tag love">情蛊</span>' : ''}${p.status === 'alive' && p.wish ? `<span class="tag real">求${ITEMS[p.wish].name}</span>` : ''}
+        ${p.status === 'alive' && p.addict ? '<span class="tag fake">중독</span>' : ''}${p.status === 'alive' && guBound(p) ? '<span class="tag laced">中蛊</span>' : ''}${p.status === 'alive' && p.soulBound ? '<span class="tag laced">受控</span>' : ''}${p.status === 'alive' && p.loveGu ? '<span class="tag love">정고</span>' : ''}${p.status === 'alive' && p.wish ? `<span class="tag real">求${ITEMS[p.wish].name}</span>` : ''}
         ${p.status === 'alive' ? condList(p).filter(c => CONDS[c.kind]).map(c => `<span class="tag fake">${c.label}</span>`).join('') : ''}${isHealer(p) && p.status === 'alive' ? '<span class="tag real">懂医术</span>' : ''}</div>
         <div class="pc-aff"><span style="color:${f.color}">${f.name}</span><span class="aff-bar"><i class="${p.aff >= 0 ? 'pos' : 'neg'}" style="width:${Math.abs(p.aff) / 2}%"></i></span>
           <span class="mood-${m}">${MOOD_NAME[m]}</span></div>
@@ -1304,26 +1304,26 @@ function openPerson(pid) {
     <div class="st-portrait"><img src="${asset('chars', personFace(p))}" alt=""></div>
     <div class="st-body"><h3>${icon(f.icon)}${esc(p.name)}<span class="muted">${esc(p.title || '')} · ${STATUS_NAME[p.status]}</span></h3>
       <p class="muted">${esc(p.bio)}</p>
-      <p>好感 <b class="mood-${m}">${p.aff}（${MOOD_NAME[m]}）</b> · 来过 ${p.visits} 回 · 神色${demeanor(p)}</p>
+      <p>好感 <b class="mood-${m}">${p.aff}（${MOOD_NAME[m]}）</b> · 왔다 갔다 ${p.visits} 회 · 안색${demeanor(p)}</p>
       <p class="p-traits">${personTraits(p)}</p>
       ${st && st.summary ? `<p class="st-sum">${esc(st.summary)}</p>` : ''}
       ${p.status === 'alive' ? personActions(p) : ''}
       ${p.status === 'alive' && p.visits > 0 ? loreHTML(p) : ''}
       <ul class="timeline">${rows.length ? pg.items.map(r => `<li class="${r.type}"><span class="muted">第${r.d}日</span>${esc(r.t)}
-        ${r.a ? `<span class="${r.a > 0 ? 'good' : 'bad'}">${r.a > 0 ? '+' : ''}${r.a}</span>` : ''}</li>`).join('') : '<li class="muted">尚无往来</li>'}</ul>${pg.nav}
+        ${r.a ? `<span class="${r.a > 0 ? 'good' : 'bad'}">${r.a > 0 ? '+' : ''}${r.a}</span>` : ''}</li>`).join('') : '<li class="muted">아직 왕래가 없다</li>'}</ul>${pg.nav}
       <div class="h-btns"><button class="btn primary" data-act="modal-close">合上</button></div></div></div>`, 'm-story'); });
 }
 
-// 打听门道：他像是懂哪些行当的门道、肯不肯说、要价多少
+// 요령을 캐낸다：他像是懂哪些行当的门道、肯不肯说、要价多少
 function loreHTML(p) {
   const tips = loreKnown(p).filter(t => !loreLearned(t.id));
-  if (!tips.length) return loreKnown(p).length ? '<p class="small muted">他懂的门道你都知道了。</p>' : '';
+  if (!tips.length) return loreKnown(p).length ? '<p class="small muted">그가 아는 요령은 너도 다 안다。</p>' : '';
   const asked = p.loreDay === S.day;
-  return `<div class="p-lore"><b>打听门道</b>${asked ? '<span class="muted small">（今天已打听过）</span>' : `<span class="muted small">（${costText('talk')}；一天一回）</span>`}
+  return `<div class="p-lore"><b>요령을 캐낸다</b>${asked ? '<span class="muted small">（오늘은 이미 알아봤다)</span>' : `<span class="muted small">（${costText('talk')}；하루 한 번)</span>`}
     ${tips.map(t => { const o = loreOffer(p, t);
       const tag = `${t.topic}<em class="muted">·${LORE_TIER[t.tier]}${t.evil ? '·偏门' : ''}</em>`;
       if (o.kind === 'refuse') return `<div class="lore-row"><span>${tag}</span><span class="muted small">${esc(o.why)}</span></div>`;
-      return `<div class="lore-row"><span>${tag}</span><button class="btn tiny${o.kind === 'sell' ? ' danger' : ''}" data-act="ask-lore" data-pid="${p.pid}" data-id="${t.id}" ${asked ? 'disabled' : ''}>${o.kind === 'sell' ? `出 ${o.price} 灵石请教` : '请教'}</button></div>`;
+      return `<div class="lore-row"><span>${tag}</span><button class="btn tiny${o.kind === 'sell' ? ' danger' : ''}" data-act="ask-lore" data-pid="${p.pid}" data-id="${t.id}" ${asked ? 'disabled' : ''}>${o.kind === 'sell' ? `出 ${o.price} 영석가르침을 청한다` : '가르침을 청한다'}</button></div>`;
     }).join('')}</div>`
     .replace(/他/g, ta(p));
 }
@@ -1332,138 +1332,138 @@ function loreHTML(p) {
 function openLoreBook() {
   const got = Object.entries(S.lore || {}).sort((a, b) => a[1].day - b[1].day);
   modalHTML(`<h3>${icon('ic_ledger')}见闻录</h3>
-    <p class="muted small">从杂役区各色人等嘴里打听来的门道。懂哪行的人、交情多深、肯不肯说，都在「人物」页里看。</p>
-    <ul class="timeline">${got.length ? got.map(([id, x]) => { const t = loreTip(id); return t ? `<li><span class="muted">第${x.day}日 · ${esc(x.from)}</span><b>${t.topic}</b>${esc(t.text)}</li>` : ''; }).join('') : '<li class="muted">还没打听到什么。</li>'}</ul>
+    <p class="muted small">잡역 구역의 온갖 사람들에게서 캐낸 요령. 누가 어느 바닥을 아는지, 얼마나 친한지, 말해줄지 말지，모두 「인물」 페이지에서 본다。</p>
+    <ul class="timeline">${got.length ? got.map(([id, x]) => { const t = loreTip(id); return t ? `<li><span class="muted">第${x.day}日 · ${esc(x.from)}</span><b>${t.topic}</b>${esc(t.text)}</li>` : ''; }).join('') : '<li class="muted">아직 알아낸 게 없다。</li>'}</ul>
     <div class="h-btns"><button class="btn primary" data-act="modal-close">合上</button></div>`, 'm-gift');
 }
 
 function personTraits(p) {
   const t = [];
-  for (const c of condList(p)) t.push(`<b class="bad" title="比斗 -${c.combat}">${c.label}</b>`);
+  for (const c of condList(p)) t.push(`<b class="bad" title="비무 -${c.combat}">${c.label}</b>`);
   t.push(`<span title="体魄">体魄 ${Math.max(0, Math.round(p.health))}</span>`);
-  t.push(`<span>手头${p.budgetMul >= 1.3 ? '宽裕' : p.budgetMul < 0.6 ? '拮据' : '寻常'}</span>`);
-  t.push(`<span>贪念${p.greed > 0.65 ? '重' : p.greed < 0.35 ? '淡' : '中'}</span>`);
-  t.push(`<span title="你的势力 ${playerPower()}">势力 ${npcPower(p)}</span>`, `<span title="你是${realmName()}">境界·${realmName(npcLevel(p))}</span>`, `<span>眼力${['全无', '粗浅', '寻常', '老道', '毒辣'][p.eye || 0]}</span>`);
-  if (p.noble) t.push('<span class="laced-txt">权贵 · 好面子</span>');
+  t.push(`<span>손에${p.budgetMul >= 1.3 ? '宽裕' : p.budgetMul < 0.6 ? '쪼들림' : '寻常'}</span>`);
+  t.push(`<span>탐욕${p.greed > 0.65 ? '重' : p.greed < 0.35 ? '淡' : '中'}</span>`);
+  t.push(`<span title="네 세력 ${playerPower()}">势力 ${npcPower(p)}</span>`, `<span title="你是${realmName()}">境界·${realmName(npcLevel(p))}</span>`, `<span>안목${['全无', '천박', '寻常', '노도사', '독랄'][p.eye || 0]}</span>`);
+  if (p.noble) t.push('<span class="laced-txt">권귀 · 체면을 중시</span>');
   if (isWeak(p)) t.push('<span class="muted">弱者</span>');
-  if (p.informant) t.push('<span class="good">你的耳目</span>');
-  if (p.owed >= 2) t.push('<span class="good">欠你人情</span>');
-  if (p.soulBound) t.push('<span class="laced-txt">受控：识海里种着你的魂印，难违你意</span>');
-  if (p.wantsFakes) t.push('<span class="laced-txt">爱收假货转手</span>');
-  if (p.official || p.integrity > 0.5) t.push(`<span>守规矩${p.integrity > 0.7 ? '极严' : p.integrity > 0.4 ? '尚严' : '松'}</span>`);
-  if (p.wish) t.push(`<span class="good">所求：${ITEMS[p.wish].name}</span>`);
-  if (isHealer(p)) t.push(`<span class="good">懂医术：治${CAST[p.pid].healer.heals.map(k => CONDS[k].name).join('、')}</span>`);
-  if (p.desperate) t.push('<span class="bad">走投无路</span>');
-  if (p.addict) t.push(`<span class="bad">成瘾 ${p.addict}</span>`);
-  if (guBound(p)) t.push(`<span class="laced-txt">中蛊：吃下了你的${GU_STAGES[p.controlled.stage || 0].name}，不从就蛊噬其心</span>`);
-  if (p.loveGu) t.push(`<span class="love-txt">中了你的情蛊：${ta(p)}死你也活不成</span>`);
+  if (p.informant) t.push('<span class="good">네 눈과 귀</span>');
+  if (p.owed >= 2) t.push('<span class="good">너에게 빚짐人情</span>');
+  if (p.soulBound) t.push('<span class="laced-txt">통제됨: 식해에 네 혼인이 심어져 있다，难违你意</span>');
+  if (p.wantsFakes) t.push('<span class="laced-txt">가짜를 받아 되파는 걸 좋아한다</span>');
+  if (p.official || p.integrity > 0.5) t.push(`<span>守规矩${p.integrity > 0.7 ? '극도로 엄격' : p.integrity > 0.4 ? '尚严' : '松'}</span>`);
+  if (p.wish) t.push(`<span class="good">원하는 것：${ITEMS[p.wish].name}</span>`);
+  if (isHealer(p)) t.push(`<span class="good">의술을 안다: 치료${CAST[p.pid].healer.heals.map(k => CONDS[k].name).join('、')}</span>`);
+  if (p.desperate) t.push('<span class="bad">갈 곳이 없다</span>');
+  if (p.addict) t.push(`<span class="bad">중독 ${p.addict}</span>`);
+  if (guBound(p)) t.push(`<span class="laced-txt">고에 걸림: 네 것을 먹었다${GU_STAGES[p.controlled.stage || 0].name}，거역하면 고가 심장을 갉아먹는다</span>`);
+  if (p.loveGu) t.push(`<span class="love-txt">네 정고에 걸렸다：${ta(p)}그가 죽으면 너도 못 산다</span>`);
   return t.join('');
 }
 
 function personActions(p) {
   const out = [];
-  if (canGift(p)) out.push(`<button class="btn small" data-act="gift-open" data-pid="${p.pid}">${icon('ic_gift')}送礼</button>`,
-    ...[50, 150, 400].map(n => `<button class="btn small" data-act="gift-stones" data-pid="${p.pid}" data-n="${n}" ${S.stones < n ? 'disabled' : ''}>送 ${n} 灵石</button>`));
-  else if (p.giftedDay === S.day) out.push('<span class="muted small">今日已送过礼</span>');
-  if (p.secret && p.secret.known && !p.secret.filed) out.push(`<button class="btn small" data-act="file-secret" data-pid="${p.pid}">${icon('ic_secret')}录成密报</button>`);
+  if (canGift(p)) out.push(`<button class="btn small" data-act="gift-open" data-pid="${p.pid}">${icon('ic_gift')}선물한다</button>`,
+    ...[50, 150, 400].map(n => `<button class="btn small" data-act="gift-stones" data-pid="${p.pid}" data-n="${n}" ${S.stones < n ? 'disabled' : ''}>送 ${n} 영석</button>`));
+  else if (p.giftedDay === S.day) out.push('<span class="muted small">오늘은 이미 선물했다</span>');
+  if (p.secret && p.secret.known && !p.secret.filed) out.push(`<button class="btn small" data-act="file-secret" data-pid="${p.pid}">${icon('ic_secret')}밀보로 적는다</button>`);
   if (isHealer(p) && p.status === 'alive') out.push(healButton(p));
   if (p.status === 'alive') out.push(...treatButtons(p));
-  if (guBound(p)) out.push(`<button class="btn small ghost" data-act="uncontrol" data-pid="${p.pid}">解蛊</button>`);
-  if (p.indentured) out.push(`<span class="small bad">在你后院做苦力</span><button class="btn small" data-act="release" data-pid="${p.pid}">放${ta(p)}走</button>`);
+  if (guBound(p)) out.push(`<button class="btn small ghost" data-act="uncontrol" data-pid="${p.pid}">고를 푼다</button>`);
+  if (p.indentured) out.push(`<span class="small bad">네 뒤뜰에서 고역을 한다</span><button class="btn small" data-act="release" data-pid="${p.pid}">放${ta(p)}走</button>`);
   if (S.phase === 'night' && killable(p) && p.pid !== 'beggar') {
     const why = canKill(p);
-    out.push(`<button class="btn small danger" data-act="ambush" data-pid="${p.pid}" ${why || S.scavenged ? `disabled title="${esc(why || '今夜已出过门')}"` : ''}>夜里截杀${why ? '' : `（成算 ${pct(killOdds(p, true))}）`}</button>`);
+    out.push(`<button class="btn small danger" data-act="ambush" data-pid="${p.pid}" ${why || S.scavenged ? `disabled title="${esc(why || '오늘 밤은 이미 외출했다')}"` : ''}>밤에 길을 막아 죽인다${why ? '' : `（성공 확률 ${pct(killOdds(p, true))}）`}</button>`);
   }
   const l = loanOf(p);
-  const debt = l && l.defaulted ? `<div class="p-lever"><b class="bad">欠你 ${l.owe} 灵石还不上</b>
-      <button class="btn tiny danger" data-act="debt" data-pid="${p.pid}" data-how="mine">卖去矿上</button>
-      <button class="btn tiny danger" data-act="debt" data-pid="${p.pid}" data-how="labor">收作苦力</button>
-      <button class="btn tiny" data-act="debt" data-pid="${p.pid}" data-how="extend">宽限七日（利滚利）</button>
-      <button class="btn tiny" data-act="debt" data-pid="${p.pid}" data-how="forgive">一笔勾销</button></div>`
-    : l ? `<p class="small muted">欠你 ${l.owe} 灵石，第 ${l.due} 日到期。</p>` : '';
+  const debt = l && l.defaulted ? `<div class="p-lever"><b class="bad">너에게 빚짐 ${l.owe} 영석을 못 갚으면</b>
+      <button class="btn tiny danger" data-act="debt" data-pid="${p.pid}" data-how="mine">광산으로 판다</button>
+      <button class="btn tiny danger" data-act="debt" data-pid="${p.pid}" data-how="labor">고역으로 부린다</button>
+      <button class="btn tiny" data-act="debt" data-pid="${p.pid}" data-how="extend">이레 유예(이자에 이자)</button>
+      <button class="btn tiny" data-act="debt" data-pid="${p.pid}" data-how="forgive">일필휘지로 지운다</button></div>`
+    : l ? `<p class="small muted">너에게 빚짐 ${l.owe} 영석，第 ${l.due} 日到期。</p>` : '';
   const levers = leversOf(p).map(k => {
     const L = LEVERS[k];
-    return `<div class="p-lever"><span class="laced-txt">凭${L.name}</span><span class="muted small">成算 ${pct(L.odds(p))} · ${esc(gx(p, L.note(p)))}</span>
+    return `<div class="p-lever"><span class="laced-txt">凭${L.name}</span><span class="muted small">성공 확률 ${pct(L.odds(p))} · ${esc(gx(p, L.note(p)))}</span>
       ${commandList(p, k).map(c => `<button class="btn tiny danger" data-act="command" data-pid="${p.pid}" data-id="${c.id}" data-lever="${k}" ${c.ready ? '' : `disabled title="${c.why}"`}>${esc(c.label)}${c.ready ? '' : `（${c.why}）`}</button>`).join('')}</div>`;
   }).join('');
   return (out.length ? `<div class="p-actions">${out.join('')}</div>` : '') + debt + levers;
 }
 
-// 求诊：懂医术的人总有这颗按钮，用不了就把缘由写在旁边（手机上没有悬停提示）
+// 진료 요청：懂医术的人总有这颗按钮，用不了就把缘由写在旁边（手机上없다悬停提示）
 function healButton(p) {
   const why = healBlock(p), can = healable(p).length, fee = can ? healFee(p) : null;
-  return `<button class="btn small" data-act="seek-heal" data-pid="${p.pid}" ${why ? 'disabled' : ''}>${icon('ic_stamina')}求诊${!can ? '' : fee == null ? '（不肯治）' : `（${fee} 灵石）`}</button>${why ? `<span class="muted small">${esc(why)}</span>` : ''}`;
+  return `<button class="btn small" data-act="seek-heal" data-pid="${p.pid}" ${why ? 'disabled' : ''}>${icon('ic_stamina')}진료 요청${!can ? '' : fee == null ? '（치료하지 않겠다)' : `（${fee} 영석）`}</button>${why ? `<span class="muted small">${esc(why)}</span>` : ''}`;
 }
 
-// 替他治伤毒：就是把对症的药送给他（与送礼同一回事，一天只送一回）；手里没有就说缺什么。
+// 替他治伤毒：就是把对症的药준다他（与선물한다同一回事，一天只送一回）；手里없다就说缺什么。
 // 掺进来的尸毒不在此列，药治不了
 function treatButtons(p) {
   const kinds = Object.keys(CONDS).filter(k => condSev(p, k));
   if (!kinds.length) return [];
   const TA = ta(p), med = Object.values(S.items).find(it => HELD(it) && cureBy(it, p) && !knownFlaw(it) && it.lacedBy !== 'me');
-  if (!med) return [`<span class="small muted">${TA}${kinds.map(k => CONDS[k].name).join('、')}在身，送${[...new Set(kinds.flatMap(k => CONDS[k].cure))].map(id => ITEMS[id].name).join('、')}能治</span>`];
-  const why = canGift(p) ? '' : '今日已送过东西';
+  if (!med) return [`<span class="small muted">${TA}${kinds.map(k => CONDS[k].name).join('、')}在身，送${[...new Set(kinds.flatMap(k => CONDS[k].cure))].map(id => ITEMS[id].name).join('、')}고칠 수 있다</span>`];
+  const why = canGift(p) ? '' : '오늘은 이미 물건을 보냈다';
   return [`<button class="btn small" data-act="treat" data-pid="${p.pid}" data-uid="${med.uid}" ${why ? 'disabled' : ''}>${icon('ic_stamina')}用${esc(itemName(med))}替${TA}治${CONDS[cureBy(med, p)].name}</button>${why ? `<span class="muted small">${why}</span>` : ''}`];
 }
 
-// 因果：未了的孽债、下一桩恶事的赌注、恶名带来的损失
+// 因果：갚지 못한 빚、下一桩恶事的赌注、악명带来的损失
 function openFate() {
   const F = S.fate;
   modalHTML(`<h3>${icon('ic_heat')}因果</h3>
-    <p>每做一桩恶事就欠下一笔孽债，几日后见分晓：五成风平浪静，五成报应上门。报应要赔的本金随你作的恶越滚越大，赔不起就被人打上门、抄走货、招来执法堂。
-      行善能冲淡旧孽，隔一阵子不作恶，孽也会慢慢淡去。</p>
-    <p>你一共作过 <b>${F.total}</b> 桩恶事：<span class="good">${F.buried} 桩没人追究</span>，<span class="bad">${F.erupted} 桩遭了报应${F.busts ? `（${F.busts} 回赔不起）` : ''}</span>。</p>
-    <p>眼下再作一桩小恶，若败露约赔 <b>${fateStake(1)}</b> 灵石；出卖、销赃约 <b>${fateStake(2)}</b>；害人性命约 <b>${fateStake(3)}</b>。</p>
-    ${F.infamy ? `<p class="bad">恶名 ${F.infamy}：${[fateCustomerLoss() ? `每日少来 ${fateCustomerLoss()} 位客人` : '', `客人压价 ${Math.round(infamyDiscount() * 100)}%`,
-      fateTrusted() ? '' : '没人再来托付、求助', fateClean() ? '' : '好报难来'].filter(Boolean).join('；')}。</p>` : ''}
-    <h4>未了的孽债</h4>
+    <p>악행 하나마다 빚 하나씩 진다，며칠 뒤 판가름 난다: 절반은 무사히，절반은 보복이 찾아온다. 보복에 물어야 할 원금은 네가 저지른 악행만큼 불어난다，배상하지 못하면 사람들이 쳐들어오고, 물건을 압수당하고, 집법당을 부른다。
+      선행이 옛 빚을 흐린다，한동안 악행을 저지르지 않으면，빚도 서서히 옅어진다。</p>
+    <p>너는 모두 ~을 저질렀다 <b>${F.total}</b> 桩恶事：<span class="good">${F.buried} 건은 캐묻는 이가 없다</span>，<span class="bad">${F.erupted} 건은 보복을 당했다${F.busts ? `（${F.busts} 회 배상 불가)` : ''}</span>。</p>
+    <p>지금 다시 작은 악행 하나를 저지르면，들통나면 약 ~을 배상 <b>${fateStake(1)}</b> 영석. 배신, 장물 판매는 약 <b>${fateStake(2)}</b>；사람 목숨을 해치면 약 <b>${fateStake(3)}</b>。</p>
+    ${F.infamy ? `<p class="bad">악명 ${F.infamy}：${[fateCustomerLoss() ? `每日少来 ${fateCustomerLoss()} 位客人` : '', `손님이 깎는다 ${Math.round(infamyDiscount() * 100)}%`,
+      fateTrusted() ? '' : '더는 맡기거나 도움을 청하는 이가 없다', fateClean() ? '' : '보답은 좀처럼 오지 않는다'].filter(Boolean).join('；')}。</p>` : ''}
+    <h4>갚지 못한 빚</h4>
     <ul class="timeline">${F.debts.length ? F.debts.map(d => `<li><span class="muted">第${d.day}日</span>${esc(d.what || SINS[d.kind].name)}<span class="bad">若败露赔 ${d.stake}</span>
-      <span class="muted">${d.due <= S.day + 1 ? '就在这一两日' : `约 ${d.due - S.day} 日内`}</span></li>`).join('') : '<li class="muted">没有未了的孽债</li>'}</ul>
+      <span class="muted">${d.due <= S.day + 1 ? '바로 이 이틀 안에' : `约 ${d.due - S.day} 이내`}</span></li>`).join('') : '<li class="muted">미수금이 없다</li>'}</ul>
     <div class="h-btns"><button class="btn primary" data-act="modal-close">合上</button></div>`, 'm-gift');
 }
 
-// 求医：点顶栏的伤毒打开。手上的药、结识的医者；一个医者也不认得，就只能靠药
+// 치료를 구함：点顶栏的伤毒打开。손에 든 약、아는 의원；一个医者也不认得，就只能靠药
 function openHeal() {
   if (!Object.keys(S.conds).length) { closeModal(); return; }
   const meds = cureItems(), docs = healers().filter(p => healable(p).length);
   const cureNames = Object.entries(CONDS).filter(([k]) => condSev('me', k))
     .map(([k, C]) => `${C.name}：${C.cure.map(id => ITEMS[id].name).join('、')}`).join('；');
-  modalHTML(`<h3>${icon('ic_stamina')}求医</h3>
+  modalHTML(`<h3>${icon('ic_stamina')}치료를 구함</h3>
     <p class="bad">${condText('me')}</p>
-    <h4>手上的药</h4>
+    <h4>손에 든 약</h4>
     <div class="gift-list">${meds.length ? meds.map(it => `<div class="gift-row">
       ${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}<span>${esc(itemName(it))}</span>
-      <span class="good">治${CONDS[cureBy(it)].name}</span><button class="btn small" data-act="heal-use" data-uid="${it.uid}">服下</button></div>`).join('')
-      : `<p class="muted small">手上没有对症的药（${cureNames}）。</p>`}</div>
-    <h4>结识的医者</h4>
+      <span class="good">治${CONDS[cureBy(it)].name}</span><button class="btn small" data-act="heal-use" data-uid="${it.uid}">복용한다</button></div>`).join('')
+      : `<p class="muted small">손에 맞는 약이 없다（${cureNames}）。</p>`}</div>
+    <h4>아는 의원</h4>
     <div class="gift-list">${docs.length ? docs.map(p => `<div class="gift-row">
       <img class="heal-face" src="${asset('chars', personFace(p))}" alt=""><span>${esc(p.name)}<em class="muted small"> ${esc(p.title)} · ${MOOD_NAME[mood(p.aff)]}</em>
-      <br><small>能治你的${healable(p).map(k => CONDS[k].name).join('、')}</small></span>${healButton(p)}</div>`).join('')
-      : `<p class="muted small">${healers().length ? '结识的医者治不了你身上的毛病。' : '你还没结识懂医术的人，只能靠手上的药。轻伤、微毒静养几天也会好；毒发以上不治只会更重。'}</p>`}</div>
+      <br><small>고칠 수 있다你的${healable(p).map(k => CONDS[k].name).join('、')}</small></span>${healButton(p)}</div>`).join('')
+      : `<p class="muted small">${healers().length ? '아는 의원도 네 병은 고치지 못한다。' : '아직 의술을 아는 사람을 알지 못한다，가진 약에만 의지할 수 있다. 가벼운 상처와 미약한 독은 며칠 요양하면 낫지만, 독이 퍼진 이상은 치료하지 않으면 악화된다。'}</p>`}</div>
     <div class="h-btns"><button class="btn primary" data-act="modal-close">合上</button></div>`, 'm-gift m-heal');
 }
 
 function openGift(pid) {
   const p = S.people[pid];
   const items = Object.values(S.items).filter(it => HELD(it)).sort((a, b) => giftValue(p, b) - giftValue(p, a));
-  openModal(() => { const pg = pager(items.filter(it => S.items[it.uid]), 6, `gift-${pid}`); modalHTML(`<h3>${icon('ic_gift')}送礼 · ${esc(p.name)}</h3>
-    <p class="muted small">${ta(p)}看重的是对${ta(p)}的用处：${p.wish ? `最想要<b>${ITEMS[p.wish].name}</b>；` : ''}${p.addict ? '离不开忘忧散；' : ''}也看他手头是否宽裕、贪念轻重。掺了料的东西，送出去就由不得你了。</p>
+  openModal(() => { const pg = pager(items.filter(it => S.items[it.uid]), 6, `gift-${pid}`); modalHTML(`<h3>${icon('ic_gift')}선물한다 · ${esc(p.name)}</h3>
+    <p class="muted small">${ta(p)}중시하는 건${ta(p)}的用处：${p.wish ? `最원한다<b>${ITEMS[p.wish].name}</b>；` : ''}${p.addict ? '망우산을 끊지 못한다；' : ''}그의 형편과 탐욕의 정도도 본다. 재료를 섞은 물건은，내보내면 네 마음대로 못 한다。</p>
     <div class="gift-list">${items.length ? pg.items.map(it => `<div class="gift-row" data-act="gift-give" data-pid="${pid}" data-uid="${it.uid}">
       ${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}<span>${esc(itemName(it))}${lacedKnown(it) ? `<em class="laced-txt">（${LACE[it.laced].verb}）</em>` : ''}</span>
       <span class="good">好感约 +${giftAff(p, giftValue(p, it)) + (p.wish === it.id ? 10 : 0)}</span>
-      ${lacedKnown(it) && LACE[it.laced].detect ? `<span class="bad small">识破 ${Math.round(laceDetectChance(p, it) * 100)}%</span>` : ''}</div>`).join('') : '<p class="muted">手头没有可送的东西。</p>'}</div>${pg.nav}
-    <div class="h-btns"><button class="btn ghost" data-act="person" data-pid="${pid}">返回</button></div>`, 'm-gift'); });
+      ${lacedKnown(it) && LACE[it.laced].detect ? `<span class="bad small">간파 ${Math.round(laceDetectChance(p, it) * 100)}%</span>` : ''}</div>`).join('') : '<p class="muted">손에 줄 만한 것이 없다。</p>'}</div>${pg.nav}
+    <div class="h-btns"><button class="btn ghost" data-act="person" data-pid="${pid}">돌아가기</button></div>`, 'm-gift'); });
 }
 
 function openLace() {
   const it = S.items[sel];
   openModal(() => modalHTML(`<h3>${icon('ic_lace')}加料 · ${esc(itemName(it))}</h3>
-    <p class="muted small">加了料的货外表看不出分别，照常估价、照常出售或送人。料要吃下去才发作：买下或收下的人揣回去，自己吃了，或转送给别人——谁吃下去，谁受其害；收货时够精明的会当场识破。</p>
+    <p class="muted small">재료를 섞은 물건은 겉으로는 구분이 안 된다，평소대로 값을 매기고 팔거나 선물한다. 재료는 먹어야 발작한다. 사거나 받은 사람이 품에 넣어가면，自己吃了，다른 사람에게 돌린다 - 누가 먹든，누가 피해를 입는지. 물건을 받을 때 영리한 사람은 그 자리에서 간파한다。</p>
     <div class="lace-list">${additives().map(a => {
       const L = LACE[ITEMS[a.id].additive], why = laceBlock(it, a);
       return `<div class="lace-row"><div class="lace-ic">${itemHTML(Object.assign({}, a, { pos: null }), 'preview mini')}</div>
         <div><b>${esc(itemName(a))}</b> → ${L.verb}<p class="small">${L.desc}</p>
-        <p class="small muted">${L.detect ? `被识破的基础几率 ${Math.round(L.detect * 100)}%，对方越精明、越不信你越容易识破${a.id === 'gu' ? '；蛊越毒越隐蔽' : ''}。` : '无害，不必担心被识破。'}</p>
+        <p class="small muted">${L.detect ? `들통날 기본 확률 ${Math.round(L.detect * 100)}%，상대가 영리할수록, 너를 믿지 않을수록 간파하기 쉽다${a.id === 'gu' ? '；고가 독할수록 숨기 쉽다' : ''}。` : '무해，들통날 걱정이 없다。'}</p>
         ${why ? `<p class="small bad">${esc(why)}</p>` : ''}</div>
         <button class="btn small ${L.detect ? 'danger' : ''}" data-act="lace-do" data-uid="${a.uid}" ${why ? 'disabled' : ''}>${L.verb.replace('了', '')}</button></div>`;
     }).join('')}</div>
@@ -1487,44 +1487,44 @@ function openMarket(key) {
   const d = DEALERS[key];
   if (d.need && !d.need()) key = 'ghost';
   const dd = DEALERS[key], st = dealerStock(key);
-  const tabs = Object.entries(DEALERS).map(([k, x]) => `<button class="tab ${k === key ? 'on' : ''}" data-act="mk-tab" data-k="${k}" ${x.need && !x.need() ? 'disabled title="要魔宗声望 15 或魔宗功勋 5"' : ''}>${x.name}</button>`).join('');
+  const tabs = Object.entries(DEALERS).map(([k, x]) => `<button class="tab ${k === key ? 'on' : ''}" data-act="mk-tab" data-k="${k}" ${x.need && !x.need() ? 'disabled title="마종 평판 15 또는 마종 공훈 5 필요"' : ''}>${x.name}</button>`).join('');
   const offers = st.offers.map((o, i) => {
     const unit = dealerBuyPrice(key, o.id), mk = Math.round(rawValue({ id: o.id, q: 60 }) * priceMul(o.id));
     return `<div class="shop-row" title="市价约 ${mk}/件"><img src="${asset('items', ITEMS[o.id].icon || (o.id === 'water' ? 'water_murky' : o.id))}" alt=""><b>${ITEMS[o.id].name}</b>
-      <span class="muted small">${o.lot}件×${o.lots}批 · 市价${mk}</span>${stoneTxt(unit)}
+      <span class="muted small">${o.lot}件×${o.lots}배치 · 시가${mk}</span>${stoneTxt(unit)}
       <button class="btn small" data-act="mk-buy" data-k="${key}" data-i="${i}" ${o.lots > 0 && S.stones >= unit * o.lot ? '' : 'disabled'}>进一批 ${unit * o.lot}</button></div>`;
   }).join('');
   const goods = sellable(key);
   const wants = st.wants.filter(w => w.left > 0).map(w => ITEMS[w.id].name + `（${w.left}）`).join('、');
   const sells = goods.map(it => `<div class="shop-row">${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}<b>${esc(itemName(it))}</b>
-      <span class="muted small">${it.stolen > 0 ? '赃物 · ' : ''}${isFlawed(it) && knownFlaw(it) ? '有问题 · ' : ''}</span>${stoneTxt(dealerSellPrice(key, it))}
+      <span class="muted small">${it.stolen > 0 ? '장물 · ' : ''}${isFlawed(it) && knownFlaw(it) ? '有问题 · ' : ''}</span>${stoneTxt(dealerSellPrice(key, it))}
       <button class="btn small" data-act="mk-sell" data-k="${key}" data-uid="${it.uid}">出手</button></div>`).join('');
   openModal(() => modalHTML(`<div class="market">
     <div class="mk-head"><img src="${asset('scene', 'ghost_market')}" alt=""><div class="mk-who"><img src="${asset('chars', dd.portrait)}" alt="">
       <div><h3>${dd.name}</h3><p class="small">${dd.desc}</p>
-      <p class="small muted">${isGhostNight() ? '今夜鬼市开张，货多。' : ''}${st.mod < 1 ? '你今夜谈下了好价。' : st.mod > 1 ? '对方提防着你，价贵了一成。' : ''}</p>
+      <p class="small muted">${isGhostNight() ? '오늘 밤 귀시가 열린다，물건이 많다。' : ''}${st.mod < 1 ? '너는 오늘 밤 좋은 값을 받아냈다。' : st.mod > 1 ? '상대가 너를 경계한다，값이 1할 비싸다。' : ''}</p>
       <button class="btn small" data-act="mk-talk" data-k="${key}" ${st.talked ? 'disabled' : ''}>话术博弈（${costText('talk')}）</button></div></div></div>
     <nav class="mk-tabs">${tabs}</nav>
-    <div class="mk-cols"><div><h4>进货</h4>${offers}</div>
-      <div><h4>出货</h4><p class="muted small">收：${wants || '今夜不收了'}</p>${sells || '<p class="muted small">你手里没有他要的货。</p>'}</div></div>
+    <div class="mk-cols"><div><h4>상품 매입</h4>${offers}</div>
+      <div><h4>出货</h4><p class="muted small">收：${wants || '오늘 밤은 그만 받는다'}</p>${sells || '<p class="muted small">네 손에 그가 원하는 물건이 없다。</p>'}</div></div>
     <div class="h-btns"><button class="btn primary" data-act="mk-leave">回铺</button></div></div>`, 'm-market'));
 }
 
 function showInspectResult(res) {
   const e = official('enforcer');
   openModal(() => modalHTML(`<div class="npc-talk"><img src="${asset('chars', e.portrait)}" alt="">
-    <div><h3>${esc(e.name)} · 执法堂巡查</h3>${res.ignored ? '<p>他在陈列柜前站了站，目光从你的货上扫过去，像什么也没看见。“……行，干干净净。”</p>'
-      : res.bribed ? '<p>“……今日这铺子，干干净净。”</p>'
-      : res.found.length ? `<p>“搜出${res.found.map(esc).join('、')}！充公，罚 ${res.fine} 灵石。下回再犯，提头来见。”</p>`
-        : '<p>“哼，算你识相。”巡查翻检一番，一无所获地走了。</p>'}
+    <div><h3>${esc(e.name)} · 집법당 순찰</h3>${res.ignored ? '<p>그가 진열장 앞에 잠시 섰다，눈이 네 물건을 훑고 지나갔다，아무것도 못 본 척한다。“……行，깨끗하다。”</p>'
+      : res.bribed ? '<p>“……오늘 이 가게는，깨끗하다。”</p>'
+      : res.found.length ? `<p>“찾아냈다${res.found.map(esc).join('、')}！充公，罚 ${res.fine} 영석. 다음에 또 저지르면，목을 들고 온다。”</p>`
+        : '<p>“哼，사정을 아는군.” 순찰이 한 바퀴 뒤지고，빈손으로 떠났다。</p>'}
     <div class="h-btns"><button class="btn primary" data-act="inspect-done">送走巡查</button></div></div></div>`, 'm-npc'));
 }
 
 function openScavengeSelect() {
-  openModal(() => modalHTML(`<h3>${icon('ic_scavenge')}外出拾荒</h3><div class="locs">
+  openModal(() => modalHTML(`<h3>${icon('ic_scavenge')}밖에 나가 폐품을 줍는다</h3><div class="locs">
     ${allLocations().map(l => `<div class="loc" data-act="scav-go" data-id="${l.id}"><img src="${asset('scene', l.bg)}" alt="">
-      <b>${l.name}</b><p class="small">${l.desc}</p><p class="muted small">可翻找 ${l.tries} 次 · 初始遇险 ${pct(l.danger)}${l.hazard.cond ? ` · 遇险可能${CONDS[l.hazard.cond[0]].name}<b class="bad">${deathWarn(l.hazard.cond[0])}</b>` : ''}</p></div>`).join('')}</div>
-    ${condText('me') ? `<p class="bad small">${condText('me')}带着伤毒去翻，更耗力、更容易出事。</p>` : ''}
+      <b>${l.name}</b><p class="small">${l.desc}</p><p class="muted small">可뒤진다 ${l.tries} 회 · 처음 위험 ${pct(l.danger)}${l.hazard.cond ? ` · 위험에 처함可能${CONDS[l.hazard.cond[0]].name}<b class="bad">${deathWarn(l.hazard.cond[0])}</b>` : ''}</p></div>`).join('')}</div>
+    ${condText('me') ? `<p class="bad small">${condText('me')}상처와 독을 안고 뒤진다，힘이 더 들고 사고가 나기 쉽다。</p>` : ''}
     <div class="h-btns"><button class="btn ghost" data-act="modal-close">还是算了</button></div>`, 'm-locs'));
 }
 
@@ -1533,13 +1533,13 @@ function renderScavenge() {
   const pend = pendingScavItem();
   modalHTML(`<h3>${icon('ic_scavenge')}${loc.name}</h3>
     <div class="scav"><div class="scav-bg"><img src="${asset('scene', loc.bg)}" alt="">
-      <div class="scav-stats"><span>剩余 ${sc.tries} 次</span><span class="good">发现 ${pct(loc.find)}</span><span class="bad">遇险 ${pct(o.danger)}</span></div></div>
+      <div class="scav-stats"><span>剩余 ${sc.tries} 次</span><span class="good">发现 ${pct(loc.find)}</span><span class="bad">위험에 처함 ${pct(o.danger)}</span></div></div>
       <div class="scav-side">
-        ${gridHTML('basket', '背篓')}
-        ${pend && !pend.pos ? `<div class="grid-label">手上（拖进背篓，或丢弃）</div><div class="hand">${itemHTML(pend)}</div>` : ''}
+        ${gridHTML('basket', '바구니')}
+        ${pend && !pend.pos ? `<div class="grid-label">손에(바구니에 넣기，아니면 버린다)</div><div class="hand">${itemHTML(pend)}</div>` : ''}
         <ul class="log">${sc.lines.slice(-6).reverse().map(l => `<li class="${l.cls || ''}">${esc(l.text)}</li>`).join('')}</ul>
         <div class="h-btns">
-          <button class="btn primary" data-act="scav-search" ${sc.tries > 0 && !sc.ended && !(pend && !pend.pos) ? '' : 'disabled'}>翻找</button>
+          <button class="btn primary" data-act="scav-search" ${sc.tries > 0 && !sc.ended && !(pend && !pend.pos) ? '' : 'disabled'}>뒤진다</button>
           <button class="btn" data-act="scav-home">回铺</button>
           <span class="trash" data-drop="trash">弃</span></div></div></div>`, 'm-scav');
 }
@@ -1554,40 +1554,40 @@ function showEnding() {
     <div class="stats">
       <div><span>开局</span><b>${start.name} · ${d.name}</b></div>
       <div><span>坚持</span><b>${S.day} 日</b></div>
-      <div><span>总进账</span><b>${st.income}</b></div>
-      <div><span>成交笔数</span><b>${st.sales}</b></div>
-      <div><span>家底估值</span><b>${netWorth()}</b></div>
-      <div><span>鉴定委托</span><b>${st.appraisals}</b></div>
+      <div><span>总수입</span><b>${st.income}</b></div>
+      <div><span>거래 건수</span><b>${st.sales}</b></div>
+      <div><span>자산 평가</span><b>${netWorth()}</b></div>
+      <div><span>감정委托</span><b>${st.appraisals}</b></div>
       <div><span>遭遇巡查</span><b>${st.inspections}</b></div>
-      <div><span>境界 · 善名</span><b>${realmName()} · ${VIRTUE_NAME(S.virtue)}</b></div>
-      <div><span>手上人命</span><b>${st.kills || 0}</b></div>
-      <div><span>靠山</span><b>${S.cliques.joined ? CLIQUES[S.cliques.joined].name : '—'}</b></div>
-      <div><span>最大一笔</span><b>${st.bestSale ? `${st.bestSale.name} ${st.bestSale.price}（第${st.bestSale.day}日）` : '—'}</b></div>
-      <div><span>最妙一转手</span><b>${st.bestFlip ? `${st.bestFlip.name}：${st.bestFlip.cost}→${st.bestFlip.price}` : '—'}</b></div>
+      <div><span>경지 · 선명</span><b>${realmName()} · ${VIRTUE_NAME(S.virtue)}</b></div>
+      <div><span>손에 묻은 목숨</span><b>${st.kills || 0}</b></div>
+      <div><span>뒷배</span><b>${S.cliques.joined ? CLIQUES[S.cliques.joined].name : '—'}</b></div>
+      <div><span>최고 한 건</span><b>${st.bestSale ? `${st.bestSale.name} ${st.bestSale.price}（第${st.bestSale.day}일)` : '—'}</b></div>
+      <div><span>최고의 되팔기</span><b>${st.bestFlip ? `${st.bestFlip.name}：${st.bestFlip.cost}→${st.bestFlip.price}` : '—'}</b></div>
     </div>
     ${profileHTML()}
-    <div class="h-btns"><button class="btn primary" data-act="to-title">回到山门</button></div></div>`, 'm-ending'));
+    <div class="h-btns"><button class="btn primary" data-act="to-title">산문으로 돌아간다</button></div></div>`, 'm-ending'));
 }
 
 // ───────────── 结局画像 ─────────────
 
-let PF = null;   // 收场时算好的画像，图上点选时取用
+let PF = null;   // 끝날 때 계산된 초상，그림에서 눌러 꺼낸다
 
 function profileHTML() {
   const sc = traitScores(), arc = archetype(sc), pts = wealthSeries();
   PF = { sc, pts };
   const top = sc.indexOf(arc.top);
   return `<div class="pf-sec">
-    <h4>掌柜画像</h4>
+    <h4>주인장 초상</h4>
     <div class="pf">
       <div class="pf-chart">${radarSVG(sc, top)}<div class="pf-read" id="pf-read">${traitRead(sc[top])}</div></div>
       <div class="pf-text">
-        <b class="pf-name">${arc.name}</b>${arc.also ? `<span class="muted small">　兼有几分${arc.also.name}</span>` : ''}
+        <b class="pf-name">${arc.name}</b>${arc.also ? `<span class="muted small">　얼마간 겸한다${arc.also.name}</span>` : ''}
         <p>${arc.text}</p>
         <ul class="pf-list">${sc.map((t, i) => `<li data-pf="${i}" class="${i === top ? 'on' : ''}"><span>${t.name}</span><b>${t.v}</b><small>${esc(t.basis)}</small></li>`).join('')}</ul>
       </div></div>
     <div class="pf">
-      ${pts.length > 1 ? `<div class="pf-wealth"><h4>家底走势</h4>${wealthSVG(pts)}<div class="pf-read" id="wl-read">${wealthRead(pts)}</div>
+      ${pts.length > 1 ? `<div class="pf-wealth"><h4>자산 추이</h4>${wealthSVG(pts)}<div class="pf-read" id="wl-read">${wealthRead(pts)}</div>
         <details class="wl-table"><summary>逐日明细</summary><table><tr><th>日</th><th>进</th><th>出</th><th>余</th></tr>
           ${S.stats.days.map(d => `<tr><td>第 ${d.day} 日</td><td>+${d.income}</td><td>-${d.expense}</td><td>${d.stones}</td></tr>`).join('')}</table></details></div>` : ''}
       <div class="pf-text"><h4>下一局</h4>
@@ -1614,7 +1614,7 @@ function radarSVG(sc, on) {
   </svg>`;
 }
 
-// 家底走势：每夜的灵石，标出最高与收场；按住或悬停看某一日
+// 자산 추이：每夜的영석，标出최고与마무리；按住或悬停看某一日
 const WL = { w: 320, h: 132, l: 40, r: 66, t: 16, b: 20 };
 
 function wealthScale(pts) {
@@ -1633,24 +1633,24 @@ function wealthSVG(pts) {
   const hi = pts.reduce((m, p) => p.v > m.v ? p : m, pts[0]);
   const line = pts.map((p, i) => `${i ? 'L' : 'M'}${s.x(p.day).toFixed(1)},${s.y(p.v).toFixed(1)}`).join('');
   const base = s.y(0).toFixed(1);
-  return `<svg class="wealth" viewBox="0 0 ${WL.w} ${WL.h}" role="img" aria-label="家底走势：最高 ${hi.v} 灵石（第 ${hi.day} 日），收场 ${last.v} 灵石">
+  return `<svg class="wealth" viewBox="0 0 ${WL.w} ${WL.h}" role="img" aria-label="자산 추이: 최고 ${hi.v} 영석（第 ${hi.day} 일)，마무리 ${last.v} 영석">
     ${s.ticks.map(v => `<line class="rd-grid" x1="${WL.l}" x2="${WL.w - WL.r}" y1="${s.y(v)}" y2="${s.y(v)}"/><text class="wl-tick" x="${WL.l - 6}" y="${s.y(v)}" text-anchor="end" dominant-baseline="middle">${v}</text>`).join('')}
     <text class="wl-tick" x="${WL.l}" y="${WL.h - 4}">第 ${pts[0].day} 日</text>
     <text class="wl-tick" x="${WL.w - WL.r}" y="${WL.h - 4}" text-anchor="end">第 ${last.day} 日</text>
     <path class="wl-area" d="${line}L${s.x(last.day).toFixed(1)},${base}L${s.x(pts[0].day).toFixed(1)},${base}Z"/>
     <path class="wl-line" d="${line}"/>
-    ${hi !== last ? `<text class="wl-note" x="${s.x(hi.day)}" y="${s.y(hi.v) - 7}" text-anchor="middle">最高 ${hi.v}</text>` : ''}
+    ${hi !== last ? `<text class="wl-note" x="${s.x(hi.day)}" y="${s.y(hi.v) - 7}" text-anchor="middle">최고 ${hi.v}</text>` : ''}
     <circle class="rd-dot" cx="${s.x(last.day)}" cy="${s.y(last.v)}" r="4"/>
-    <text class="wl-note" x="${s.x(last.day) + 8}" y="${s.y(last.v)}" dominant-baseline="middle">收场 ${last.v}</text>
+    <text class="wl-note" x="${s.x(last.day) + 8}" y="${s.y(last.v)}" dominant-baseline="middle">마무리 ${last.v}</text>
     <line class="wl-cross" id="wl-cross" y1="${WL.t}" y2="${WL.h - WL.b}"/><circle class="rd-dot wl-cross" id="wl-dot" r="4"/>
     <rect class="wl-hit" x="${WL.l}" y="0" width="${WL.w - WL.l - WL.r}" height="${WL.h}"/>
   </svg>`;
 }
 
 function wealthRead(pts, p) {
-  if (p) return `<b>第 ${p.day} 日</b> · 灵石 ${p.v}`;
+  if (p) return `<b>第 ${p.day} 日</b> · 영석 ${p.v}`;
   const hi = pts.reduce((m, q) => q.v > m.v ? q : m, pts[0]);
-  return `最高 <b>${hi.v}</b>（第 ${hi.day} 日）· 收场 <b>${pts[pts.length - 1].v}</b>`;
+  return `최고 <b>${hi.v}</b>（第 ${hi.day} 일) · 끝 <b>${pts[pts.length - 1].v}</b>`;
 }
 
 // 点选蛛网图的顶点、名字或下面那一行：亮起这一样，读出依据
@@ -1663,7 +1663,7 @@ function pfPick(e) {
   $('#pf-read').innerHTML = traitRead(PF.sc[i]);
 }
 
-// 家底走势上按住或悬停：十字线落到最近的那一日；移开就收起
+// 자산 추이上按住或悬停：十字线落到最近的那一日；移开就收起
 function wlTrack(e) {
   const cross = $('#wl-cross');
   if (!PF || !cross) return;
@@ -1696,20 +1696,20 @@ function showTitle() {
   closeModal();
   $('#title-screen').innerHTML = `<img class="title-bg" src="${asset('scene', 'title_bg')}" alt="">
     <div class="title-box"><h1>魔门当铺</h1><h2>· 来路不明 ·</h2>
-      <p>人、仙、魔、妖四方争斗。你在血煞宗杂役区开了间当铺。<br>租子一涨再涨——买下铺契之前，别被执法堂锁走。</p>
+      <p>인, 선, 마, 요 네 세력이 다툰다. 너는 혈살종 잡역 구역에 전당포를 열었다。<br>임대료가 계속 오른다 - 가게 문서를 사기 전까지，집법당에 끌려가지 마。</p>
       <div class="title-btns">${hasSave() ? '<button class="btn primary big" data-act="continue">续上前缘</button>' : ''}
-        <button class="btn big ${hasSave() ? '' : 'primary'}" data-act="new">新开一局</button></div></div>`;
+        <button class="btn big ${hasSave() ? '' : 'primary'}" data-act="new">새 판을 시작한다</button></div></div>`;
 }
 
 function showSetup() {
   const pickd = { diff: 'normal', start: 'apprentice' };
   const render = () => modalHTML(`<h3>开局</h3>
     <h4>世道</h4><div class="cards">${DIFFICULTIES.map(d => `<div class="card ${pickd.diff === d.id ? 'on' : ''}" data-act="set-diff" data-id="${d.id}">
-      <b>${d.name}</b><p class="small">${d.desc}</p><p class="muted small">铺契 ${d.deed} · 租金 ×${d.rent}</p></div>`).join('')}</div>
+      <b>${d.name}</b><p class="small">${d.desc}</p><p class="muted small">가게 문서 ${d.deed} · 임대료 ×${d.rent}</p></div>`).join('')}</div>
     <h4>出身</h4><div class="cards starts">${STARTS.map(s => `<div class="card ${pickd.start === s.id ? 'on' : ''}" data-act="set-start" data-id="${s.id}">
       <b>${s.name}${s.tag ? `<span class="tag real">${s.tag}</span>` : ''}</b><p class="small">${s.desc}</p>
-      <p class="muted small">起手 ${s.stones} 灵石${(s.machines || []).length ? ' · ' + s.machines.map(m => MACHINES[m].name).join('、') : ''}</p></div>`).join('')}</div>
-    <div class="h-btns"><button class="btn ghost" data-act="modal-close">返回</button><button class="btn primary" data-act="start">入局</button></div>`, 'm-setup');
+      <p class="muted small">시작 수 ${s.stones} 영석${(s.machines || []).length ? ' · ' + s.machines.map(m => MACHINES[m].name).join('、') : ''}</p></div>`).join('')}</div>
+    <div class="h-btns"><button class="btn ghost" data-act="modal-close">돌아가기</button><button class="btn primary" data-act="start">入局</button></div>`, 'm-setup');
   openModal(render);
   HANDLERS['set-diff'] = el => { pickd.diff = el.dataset.id; render(); };
   HANDLERS['set-start'] = el => { pickd.start = el.dataset.id; render(); };
@@ -1719,11 +1719,11 @@ function showSetup() {
 function showIntro() {
   openModal(() => modalHTML(`<div class="npc-talk"><img src="${asset('chars', 'landlord')}" alt="">
     <div><h3>钱执事</h3>
-    <p>“新来的掌柜？老规矩：铺面是宗门的，租子七日一收，一期比一期高。攒够 <b>${deedPrice()}</b> 灵石，铺契就归你。”</p>
-    <p>“还有——仙门的东西别碰，执法堂的眼睛比血月还亮。妖族那帮畜生……你自己掂量。”</p>
-    <p class="muted small">提示：拖动物品整理格子；陈列柜决定客流；夜里设备按「工坊」顺序消耗灵力运转。悬停在任何货物上查看详情。<br>
-      杂役区的每个人都记得你做过的事。「人物」页可查看他们与你的往来和各自的命数。</p>
-    <div class="h-btns"><button class="btn primary" data-act="modal-close">接过钥匙</button></div></div></div>`, 'm-npc'));
+    <p>“새로 온 주인장? 규칙은 그대로다: 가게는 종문의 것，임대료는 이레마다 거둔다，회차마다 오른다. 모으면 <b>${deedPrice()}</b> 영석，가게 문서가 네 것이다。”</p>
+    <p>“그리고 - 선문 물건은 건드리지 마，집법당의 눈은 혈월보다 밝다. 요족 놈들은 짐승이야……네가 알아서 판단해。”</p>
+    <p class="muted small">안내: 아이템을 끌어 칸을 정리하세요. 진열장이 손님 흐름을 결정합니다. 밤에는 설비가 「작업장」 순서로 영력을 소모하며 작동합니다. 아무 물건 위에 마우스를 올리면 상세 정보를 봅니다。<br>
+      잡역 구역의 모든 사람은 네가 한 일을 기억합니다. 「인물」 페이지에서 너와의 왕래와 각자의 운명을 볼 수 있습니다。</p>
+    <div class="h-btns"><button class="btn primary" data-act="modal-close">열쇠를 받는다</button></div></div></div>`, 'm-npc'));
 }
 
 function enterGame() {
@@ -1736,10 +1736,10 @@ function enterGame() {
 
 // ───────────── 动作分发 ─────────────
 
-// 手上还拿着放不下的货：先腾地方再往下走，把库房翻出来给你收拾
+// 손에 아직 넣을 곳 없는 물건을 들고 있다：先腾地方再往下走，把库房翻出来给你收拾
 function handBusy() {
   if (!handItems().length) return false;
-  toast('手上还拿着放不下的货，先腾出地方', 'bad');
+  toast('손에 아직 넣을 곳 없는 물건을 들고 있다，먼저 자리를 만든다', 'bad');
   tab = 'store'; front = 'main'; renderAll();
   return true;
 }
@@ -1756,16 +1756,16 @@ const HANDLERS = {
   continue: () => { load(); enterGame(); },
   'to-title': () => showTitle(),
   'modal-close': () => { closeModal(); renderAll(); },
-  menu: () => openModal(() => modalHTML(`<h3>卷宗</h3><p>进度会在每天清晨自动存档。</p>
-    <div class="h-btns"><button class="btn" data-act="lore-book">见闻录（${Object.keys(S.lore || {}).length}）</button><button class="btn" data-act="save-quit">存档并回山门</button><button class="btn ghost" data-act="modal-close">继续经营</button></div>`)),
+  menu: () => openModal(() => modalHTML(`<h3>卷宗</h3><p>진행 상황은 매일 아침 자동 저장된다。</p>
+    <div class="h-btns"><button class="btn" data-act="lore-book">见闻录（${Object.keys(S.lore || {}).length}）</button><button class="btn" data-act="save-quit">저장하고 산문으로</button><button class="btn ghost" data-act="modal-close">경영을 계속한다</button></div>`)),
   'save-quit': () => { save(); showTitle(); },
   open: () => { if (handBusy()) return; openShop(); closeModal(); HANDLERS.next(); },
   next: () => {
     if (handBusy()) return;
     const c = nextCustomer();
-    if (!c) toast('今日已无客人');
+    if (!c) toast('오늘은 손님이 없다');
     if (c && c.kind === 'story') { renderAll(); HANDLERS['story-talk'](); return; }
-    if (c && c.kind === 'sell' && c.wanted) toast(`此人是通缉犯，悬赏 ${c.wanted} 灵石`, 'bad');
+    if (c && c.kind === 'sell' && c.wanted) toast(`이 사람은 수배범이다，현상금 ${c.wanted} 영석`, 'bad');
     // 竖屏：来客谈买卖时，下方直接摊开库房，方便把货放上货盘
     if (LAYOUT === 'tall' && c && ['buy', 'sell'].includes(c.kind)) tab = 'store';
     front = 'counter';
@@ -1773,8 +1773,8 @@ const HANDLERS = {
   },
   close: () => {
     if (handBusy()) return;
-    if (S.customer) { toast('柜台前还有客人，先把人送走'); return; }
-    if (S.queue.length && !confirm(`门外还有 ${S.queue.length} 位客人，这就打烊？`)) return;
+    if (S.customer) { toast('카운터 앞에 손님이 있다，먼저 사람을 보낸다'); return; }
+    if (S.queue.length && !confirm(`门外아직 있다 ${S.queue.length} 位客人，这就마감？`)) return;
     closeShop(); tab = 'workshop'; front = 'counter'; renderAll();
   },
   dismiss: () => { dismissCustomer(false); renderAll(); },
@@ -1783,26 +1783,26 @@ const HANDLERS = {
   'take-toggle': () => { toggleTake(S.customer, S.customer.item); renderAll(); },
   'to-tray': () => {
     const it = S.items[sel], spot = findSpot('tray', it);
-    if (!spot) { toast('货盘放不下了', 'bad'); return; }
+    if (!spot) { toast('진열판에 놓을 곳이 없다', 'bad'); return; }
     toTray(it, spot.x, spot.y); renderAll();
   },
   flatter: () => tiredOr('flatter', () => { const r = flatter(S.customer); feel(S.customer, r.ok ? 'pleased' : 'angry'); toast(r.text, r.ok ? 'good' : 'bad'); renderAll(); }),
   'haggle-close': () => { closeModal(); renderAll(); checkOver(); },
-  report: () => { reportWanted(S.customer); renderAll(); toast(`你不动声色地托人报了执法堂。买卖照做，等${ta(personOf(S.customer))}出了门，赏金自会送到`, 'warn'); },
+  report: () => { reportWanted(S.customer); renderAll(); toast(`너는 아는 척하지 않고 사람을 시켜 집법당에 알렸다. 장사는 계속한다，等${ta(personOf(S.customer))}出了门，상금은 알아서 온다`, 'warn'); },
   'appraise-counter': () => tiredOr('appraise', () => openAppraise('counter', S.customer.item)),
   'appraise-commission': () => tiredOr('appraise', () => openAppraise('commission', S.customer.item)),
   'appraise-own': () => tiredOr('appraise', () => openAppraise('own', sel)),
   'inspect-own': () => tiredOr('inspect', () => HANDLERS['inspect-own-go']()),
   'inspect-own-go': () => {
     const it = S.items[sel], r = quickInspect(it);
-    toast(r.laced ? `验出来了：${itemName(it)}被人${LACE[r.laced].verb}！吃下这个亏、贱卖、当好货转手，还是拆开学他的手法，由你。`
-      : r.found ? `验出来了：${itemName(it)}以次充好，表面${it.sq}，实际只有${it.q}！` : `以你的眼力（${LENS_NAMES[r.lv]}），看不出${itemName(it)}有毛病。`, r.found || r.laced ? 'bad' : '');
+    toast(r.laced ? `验出来了：${itemName(it)}남에게${LACE[r.laced].verb}！이 손해를 삼키고, 헐값에 팔거나, 좋은 물건인 척 되판다，아니면 뜯어서 그의 수법을 배운다，네가 정한다。`
+      : r.found ? `验出来了：${itemName(it)}하급을 상급으로，겉면${it.sq}，실제로는 ~뿐${it.q}！` : `네 안목으로는（${LENS_NAMES[r.lv]}），看不出${itemName(it)}有毛病。`, r.found || r.laced ? 'bad' : '');
     renderAll();
   },
   'inspect-item': () => tiredOr('inspect', () => HANDLERS['inspect-item-go']()),
   'inspect-item-go': () => {
     const it = customerItem(), r = quickInspect(it);
-    toast(r.laced ? `这货被人${LACE[r.laced].verb}！` : r.found ? `以次充好！表面${it.sq}，实际只有${it.q}。` : `以你的眼力（${LENS_NAMES[r.lv]}），看不出毛病。`, r.found || r.laced ? 'bad' : '');
+    toast(r.laced ? `这货남에게${LACE[r.laced].verb}！` : r.found ? `하급을 상급으로! 겉은${it.sq}，실제로는 ~뿐${it.q}。` : `네 안목으로는（${LENS_NAMES[r.lv]}），흠을 찾지 못한다。`, r.found || r.laced ? 'bad' : '');
     renderAll();
   },
   'dispute-flaw': () => tiredOr('dispute', () => HANDLERS['dispute-go']()),
@@ -1810,34 +1810,34 @@ const HANDLERS = {
     const c = S.customer, r = disputeFlaw(c);
     feel(c, r.angry || r.caught ? 'angry' : 'afraid');
     if (r.angry || r.caught) {
-      toast(r.angry ? `${c.name}恼羞成怒：“你什么意思？”` : `${c.name}把你挑的毛病一条条驳了回去。`, 'bad');
+      toast(r.angry ? `${c.name}화가 나서 소리쳤다: “무슨 뜻이야？”` : `${c.name}네가 잡은 흠을 하나하나 반박했다。`, 'bad');
       if (c.patience <= 0) dismissCustomer(false);
-    } else toast(r.bluff ? `${c.name}被你说得心虚，让了三成价。` : `${c.name}认了，开价降到 ${customerItem().ask}。`, 'good');
+    } else toast(r.bluff ? `${c.name}네 말에 찔려，3할을 깎아줬다。` : `${c.name}인정했다，개시가를 낮췄다 ${customerItem().ask}。`, 'good');
     renderAll();
   },
   consume: () => { const err = consume(S.items[sel]); if (err) toast(err, 'bad'); else sel = null; renderAll(); },
-  bottle: () => { const err = bottle(S.items[sel]); toast(err || '装进了玉净瓶，修士们会出个好价钱。', err ? 'bad' : 'good'); renderAll(); },
-  erase: () => { const err = eraseMark(S.items[sel]); toast(err || '烙印抹净了，来路从此干干净净。', err ? 'bad' : 'good'); renderAll(); },
-  seal: () => { const it = S.items[sel], err = sealItem(it); toast(err || `${itemName(it)}贴上了正派封印——眼力不到的人，只当是名门正品。`, err ? 'bad' : 'good'); renderAll(); },
+  bottle: () => { const err = bottle(S.items[sel]); toast(err || '옥정병에 담았다，수사들이 좋은 값을 쳐줄 것이다。', err ? 'bad' : 'good'); renderAll(); },
+  erase: () => { const err = eraseMark(S.items[sel]); toast(err || '낙인을 지웠다，출처가 이제 깨끗하다。', err ? 'bad' : 'good'); renderAll(); },
+  seal: () => { const it = S.items[sel], err = sealItem(it); toast(err || `${itemName(it)}정파 봉인을 붙였다 - 안목이 모자란 사람은，명문 정품으로만 여긴다。`, err ? 'bad' : 'good'); renderAll(); },
   retreat: () => { const err = toggleRetreat(); if (err) toast(err, 'bad'); renderAll(); },
   market: () => { if (handBusy()) return; const err = visitMarket(); if (err) { toast(err, 'bad'); return; } openMarket('ghost'); renderTopbar(); },
   'mk-tab': el => openMarket(el.dataset.k),
   'mk-buy': el => { const err = buyLot(el.dataset.k, +el.dataset.i); if (err) toast(err, 'bad'); openMarket(el.dataset.k); renderAll(); },
-  'mk-sell': el => { const r = sellToDealer(el.dataset.k, S.items[el.dataset.uid]); if (r.err) toast(r.err, 'bad'); else toast(`出手，得 ${r.price} 灵石`, 'good'); openMarket(el.dataset.k); renderAll(); },
+  'mk-sell': el => { const r = sellToDealer(el.dataset.k, S.items[el.dataset.uid]); if (r.err) toast(r.err, 'bad'); else toast(`出手，得 ${r.price} 영석`, 'good'); openMarket(el.dataset.k); renderAll(); },
   'mk-talk': el => { const r = talkDealer(el.dataset.k); toast(r.err || r.text, r.err || !r.ok ? 'bad' : 'good'); openMarket(el.dataset.k); renderTopbar(); },
   'mk-leave': () => { closeModal(); renderAll(); },
-  redeem: el => { const err = redeemMerit(el.dataset.f, +el.dataset.i); toast(err || '兑换成功，已放进库房', err ? 'bad' : 'good'); renderAll(); },
+  redeem: el => { const err = redeemMerit(el.dataset.f, +el.dataset.i); toast(err || '교환 성공，창고에 넣었다', err ? 'bad' : 'good'); renderAll(); },
   probe: () => { const r = probe(S.customer); if (r.err) toast(r.err, 'bad'); else showIntel(r); renderAll(); },
   'secret-report': () => { const r = reportSecret(S.customer); if (r.err) toast(r.err, 'bad'); else showIntel(r); renderAll(); },
   'secret-blackmail': () => { const c = S.customer, r = blackmail(c); feel(c, r.cls === 'good' ? 'afraid' : 'angry'); showIntel(r); renderAll(); checkOver(); },
   'secret-keep': () => { showIntel(keepSecret(S.customer)); renderAll(); },
   'read-book': () => { const it = S.items[sel], err = readBook(it); if (err) toast(err, 'bad'); else { sel = null; toast('读通了。', 'good'); } renderAll(); },
-  study: () => { const it = S.items[sel], err = studyFake(it); if (err) toast(err, 'bad'); else { if (!S.items[sel]) sel = null; toast('你摸清了门道。', 'good'); } renderAll(); },
+  study: () => { const it = S.items[sel], err = studyFake(it); if (err) toast(err, 'bad'); else { if (!S.items[sel]) sel = null; toast('네가 요령을 알아냈다。', 'good'); } renderAll(); },
   'buy-book': el => {
     const p = +el.dataset.p;
     if (S.stones < p || ITEMS[el.dataset.id].book.lv > BOOK_SHOP_MAX) return;
     const it = giveItem(el.dataset.id);
-    if (it) { spend(p, `买下${itemName(it)}。`); toast(`${itemName(it)}已放进库房，选中后可研读`, 'good'); }
+    if (it) { spend(p, `买下${itemName(it)}。`); toast(`${itemName(it)}창고에 넣었다，고르면 탐독할 수 있다`, 'good'); }
     renderAll();
   },
   'ap-done': () => { dismissCustomer(false); closeModal(); renderAll(); },
@@ -1850,7 +1850,7 @@ const HANDLERS = {
   'scav-search': () => {
     const r = scavSearch();
     if (r && r.hazard) toast(r.hazard.text, 'bad');
-    if (r && r.escaped) toast('遁地符一燃，你从险地脱身了', '');
+    if (r && r.escaped) toast('둔지부가 타자마자，너는 위험한 곳에서 빠져나왔다', '');
     if (r && r.tired) toast(r.tired, 'bad');
     if (checkOver()) return;
     renderScavenge(); renderTopbar();
@@ -1877,12 +1877,12 @@ const HANDLERS = {
   dao: () => openDao(),
   cultivate: el => {
     const it = S.items[el.dataset.uid];
-    if (it.id === realm().key && !(flawedKey(it) && knownFlaw(it)) && !confirm(`${itemName(it)}是你破境的钥匙，真要直接服炼？`)) return;
+    if (it.id === realm().key && !(flawedKey(it) && knownFlaw(it)) && !confirm(`${itemName(it)}네 경지 돌파의 열쇠다，정말 바로 복용할까？`)) return;
     const err = cultivate(it); if (err) toast(err, 'bad'); else if (!S.items[sel]) sel = null; if (modal) openDao(); renderAll(); },
   breakthrough: () => { const r = breakthrough(); if (r.err) { toast(r.err, 'bad'); return; } closeModal(); showIntel({ text: r.text, cls: r.ok ? 'good' : 'bad' }); renderAll(); },
   kill: () => {
     const c = S.customer, p = personOf(c);
-    if (!confirm(`对${p.name}下手？杀人夺宝，损阴德，被人看见就是大祸。`)) return;
+    if (!confirm(`对${p.name}손을 쓸까? 죽이고 빼앗는다，损阴德，들키면 큰 화다。`)) return;
     feel(c, 'afraid');
     const r = killPerson(p, 'counter');
     if (r.err) { toast(r.err, 'bad'); return; }
@@ -1893,61 +1893,61 @@ const HANDLERS = {
   },
   ambush: el => {
     const p = S.people[el.dataset.pid];
-    if (!confirm(`今夜去截杀${p.name}？`)) return;
+    if (!confirm(`오늘 밤 길을 막아 죽인다${p.name}？`)) return;
     const r = killPerson(p, 'night');
     if (r.err) { toast(r.err, 'bad'); return; }
     showIntel({ text: r.text, cls: r.ok ? 'good' : 'bad' }); renderAll(); checkOver();
   },
   soulmark: () => { const r = soulMark(personOf(S.customer)); if (r.err) toast(r.err, 'bad'); else showIntel({ text: r.text, cls: r.ok ? 'good' : 'bad' }); renderAll(); checkOver(); },
-  'file-secret': el => { const it = makeIntel('secret', { p: S.people[el.dataset.pid] }); toast(`录成了一份${itemName(it)}，放进库房`, 'good'); openPerson(el.dataset.pid); renderAll(); },
+  'file-secret': el => { const it = makeIntel('secret', { p: S.people[el.dataset.pid] }); toast(`한 부로 적어냈다${itemName(it)}，창고에 넣는다`, 'good'); openPerson(el.dataset.pid); renderAll(); },
   release: el => { release(S.people[el.dataset.pid]); openPerson(el.dataset.pid); renderAll(); },
   debt: el => { const p = S.people[el.dataset.pid]; toast(collectDebt(p, el.dataset.how)); openPerson(p.pid); renderAll(); },
-  'plea-help': () => { const p = personOf(S.customer), err = helpWeak(S.customer); if (err) toast(err, 'bad'); else toast(`${ta(p)}磕了个头，千恩万谢地走了`, 'good'); renderAll(); },
+  'plea-help': () => { const p = personOf(S.customer), err = helpWeak(S.customer); if (err) toast(err, 'bad'); else toast(`${ta(p)}磕了个头，거듭 감사하며 떠났다`, 'good'); renderAll(); },
   'plea-lend': () => { const err = lendTo(S.customer); if (err) toast(err, 'bad'); renderAll(); },
-  'plea-labor': () => { const p = personOf(S.customer); indenture(p); toast(`${p.name}进了你的后院，往后替你烧炉搬货`); renderAll(); },
+  'plea-labor': () => { const p = personOf(S.customer); indenture(p); toast(`${p.name}네 뒤뜰에 들어왔다，앞으로 너를 위해 화로를 때고 물건을 나른다`); renderAll(); },
   'plea-away': () => { turnAway(S.customer); renderAll(); },
   'cq-tribute': el => { const err = cliqueTribute(el.dataset.k, +el.dataset.n); if (err) toast(err, 'bad'); renderAll(); },
   'cq-offer': el => { const r = cliqueOffer(el.dataset.k, S.items[sel]); sel = null; toast(r.text, r.bad ? 'bad' : 'good'); renderAll(); },
-  'cq-join': el => { const err = joinClique(el.dataset.k); toast(err || `你投到了${CLIQUES[el.dataset.k].head}门下`, err ? 'bad' : 'good'); renderAll(); },
-  'cq-leak': el => { const err = leakDirt(S.items[sel], el.dataset.k); if (err) toast(err, 'bad'); else { sel = null; toast(`${CLIQUES[el.dataset.k].head}收下了内幕，眼里有光`, 'good'); } renderAll(); },
+  'cq-join': el => { const err = joinClique(el.dataset.k); toast(err || `너는 ~에 투자했다${CLIQUES[el.dataset.k].head}문하`, err ? 'bad' : 'good'); renderAll(); },
+  'cq-leak': el => { const err = leakDirt(S.items[sel], el.dataset.k); if (err) toast(err, 'bad'); else { sel = null; toast(`${CLIQUES[el.dataset.k].head}내막을 받아들였다，眼里有光`, 'good'); } renderAll(); },
   'opp-deliver': el => { const r = deliverOpp(findOpp(el.dataset.key), S.items[el.dataset.uid]); if (sel && !S.items[sel]) sel = null; toast(r.text, r.bad ? 'bad' : 'good'); renderAll(); },
   'opp-take': el => { const r = takeOpp(findOpp(el.dataset.key)); toast(r.err || r.text, r.err ? 'bad' : 'good'); renderAll(); },
   'power-swap': () => {
     const it = S.items[sel], low = weakestCrystal(), at = it.pos;
     placeItem(it, 'power', low.pos.x, low.pos.y); placeItem(low, at.g, at.x, at.y);
-    toast(`灵晶嵌进阵眼，换下的那块（充能 ${low.charge || 0}）放回了原处`, 'good');
+    toast(`영정을 진안에 끼운다，교체한 그 개(충전 ${low.charge || 0}）원래 자리에 놓았다`, 'good');
     sel = peek = null; renderAll();
   },
   'move-to': el => {
     const it = S.items[sel], gid = el.dataset.g, sp = findSpot(gid, it);
-    if (!sp) { toast('放不下了', 'bad'); return; }
+    if (!sp) { toast('놓을 곳이 없다', 'bad'); return; }
     placeMoved(it, gid, sp.x, sp.y); sel = peek = null; renderAll();
   },
-  // 同一处的同种货一并放进饲料格：一份一份叠，叠满了另起一格，放不下的留在原处
+  // 같은 곳의同种货一并넣는다사료格：一份一份叠，叠满了另起一格，放不下的留在原处
   'move-all': el => {
     const it = S.items[sel], gid = el.dataset.g, list = itemsIn(it.pos.g).filter(o => o.id === it.id);
     let n = 0;
     for (const o of [it, ...list.filter(o => o !== it)]) { const sp = findSpot(gid, o); if (!sp) break; placeMoved(o, gid, sp.x, sp.y); n++; }
-    toast(n < list.length ? `放进去 ${n} 份，还有 ${list.length - n} 份放不下` : `${n} 份${itemName(it)}都放进去了`, n < list.length ? 'bad' : 'good');
+    toast(n < list.length ? `넣는다去 ${n} 份，아직 있다 ${list.length - n} 개가 안 들어간다` : `${n} 份${itemName(it)}모두 넣었다`, n < list.length ? 'bad' : 'good');
     sel = peek = null; renderAll();
   },
-  // 整摞取出：每份各占库房一格，品相照旧；库房满了放地上，再满就留在原处
+  // 整摞取出：每份各占库房一格，품질은 그대로；库房满了放地上，再满就留在原处
   unpile: () => {
     const pile = stackOf(S.items[sel]);
     let n = 0;
     for (const o of pile) { const gid = ['store', 'floor'].find(x => findSpot(x, o)); if (!gid) break; const sp = findSpot(gid, o); placeMoved(o, gid, sp.x, sp.y); n++; }
-    toast(n < pile.length ? `取出 ${n} 份，库房和地上都满了，还剩 ${pile.length - n} 份` : `${n} 份都收回来了`, n < pile.length ? 'bad' : 'good');
+    toast(n < pile.length ? `取出 ${n} 份，창고와 바닥이 모두 가득 찼다，남은 ${pile.length - n} 份` : `${n} 개를 모두 거둬들였다`, n < pile.length ? 'bad' : 'good');
     sel = peek = null; renderAll();
   },
-  tidy: () => { if (!tidy()) toast('已经摆得够紧了，再要地方只能出手或丢弃', 'bad'); renderAll(); },
+  tidy: () => { if (!tidy()) toast('이미 빽빽하게 놓았다，더 자리가 필요하면 팔거나 버려야 한다', 'bad'); renderAll(); },
   'trash-sel': () => { const it = S.items[sel]; if (knownValue(it) > 30 && !confirm(`丢弃${itemName(it)}？`)) return; destroyItem(it); sel = null; renderAll(); },
-  'buy-intel': el => { const err = buyIntel(+el.dataset.i); toast(err || '密报已放进库房，悬停可看写的什么', err ? 'bad' : 'good'); renderAll(); },
+  'buy-intel': el => { const err = buyIntel(+el.dataset.i); toast(err || '밀보가 창고에 들어갔다，마우스를 올리면 내용을 본다', err ? 'bad' : 'good'); renderAll(); },
   'gift-open': el => openGift(el.dataset.pid),
   'heal-open': () => openModal(openHeal),
   'lore-book': () => openModal(openLoreBook),
   'ask-lore': el => {
     const p = S.people[el.dataset.pid], o = loreOffer(p, loreTip(el.dataset.id));
-    if (o.kind === 'sell' && o.price > 150 && !confirm(`出 ${o.price} 灵石向${p.name}请教？`)) return;
+    if (o.kind === 'sell' && o.price > 150 && !confirm(`出 ${o.price} 영석向${p.name}가르침을 청한다？`)) return;
     const r = askLore(p, el.dataset.id, o.kind === 'sell');
     if (r.err) toast(r.err, 'bad'); else if (r.text) { showIntel({ text: r.text, cls: 'good' }); }
     renderAll();
@@ -1966,21 +1966,21 @@ const HANDLERS = {
     const p = S.people[el.dataset.pid], it = S.items[el.dataset.uid], k = cureBy(it, p), name = itemName(it);
     if (sel === it.uid) sel = null;
     const sev0 = condSev(p, k), r = giveGift(p, it), left = condSev(p, k);
-    toast(r.caught ? `${p.name}发现药里动了手脚！` : left >= sev0 ? `${p.name}服下${name}，可不见好`
-      : left ? `${p.name}服下${name}，${CONDS[k].name}减轻到${CONDS[k].grade[left - 1]}（好感 +${r.gain}）` : `${p.name}服下${name}，${CONDS[k].name}好了（好感 +${r.gain}）`, r.caught || left >= sev0 ? 'bad' : left ? 'warn' : 'good');
+    toast(r.caught ? `${p.name}약에 손을 댄 걸 알아챘다！` : left >= sev0 ? `${p.name}복용한다${name}，나아지지 않는다`
+      : left ? `${p.name}복용한다${name}，${CONDS[k].name}减轻到${CONDS[k].grade[left - 1]}（好感 +${r.gain}）` : `${p.name}복용한다${name}，${CONDS[k].name}됐다(호감 +${r.gain}）`, r.caught || left >= sev0 ? 'bad' : left ? 'warn' : 'good');
     openPerson(p.pid); renderAll();
   },
   'gift-give': el => {
     const p = S.people[el.dataset.pid], it = S.items[el.dataset.uid];
-    if (knownValue(it) > 300 && !confirm(`把${itemName(it)}送给${p.name}？`)) return;
+    if (knownValue(it) > 300 && !confirm(`把${itemName(it)}준다${p.name}？`)) return;
     const r = giveGift(p, it);
     if (sel === it.uid) sel = null;
-    toast(r.caught ? `${p.name}发现礼物里动了手脚！` : `${p.name}收下了，好感 +${r.gain}`, r.caught ? 'bad' : 'good');
+    toast(r.caught ? `${p.name}선물에 손을 댄 걸 알아챘다！` : `${p.name}받는다了，好感 +${r.gain}`, r.caught ? 'bad' : 'good');
     openPerson(p.pid); renderAll();
   },
   'gift-stones': el => {
     const p = S.people[el.dataset.pid], gain = giveStones(p, +el.dataset.n);
-    toast(`${p.name}收下了灵石，好感 +${gain}`, 'good'); openPerson(p.pid); renderAll();
+    toast(`${p.name}영석을 받았다，好感 +${gain}`, 'good'); openPerson(p.pid); renderAll();
   },
   command: el => {
     const p = S.people[el.dataset.pid], r = runCommand(p, el.dataset.id, el.dataset.lever);
@@ -1988,7 +1988,7 @@ const HANDLERS = {
   },
   uncontrol: el => { releaseControl(S.people[el.dataset.pid]); openPerson(el.dataset.pid); renderAll(); },
   lace: () => openLace(),
-  'lace-do': el => { const err = laceWith(S.items[sel], S.items[el.dataset.uid]); if (err) { toast(err, 'bad'); return; } closeModal(); renderAll(); toast('料已下好。从外面看，什么也看不出来。'); },
+  'lace-do': el => { const err = laceWith(S.items[sel], S.items[el.dataset.uid]); if (err) { toast(err, 'bad'); return; } closeModal(); renderAll(); toast('재료는 넣었다. 밖에서 보면，아무것도 알아볼 수 없다。'); },
   'report-ok': () => {
     closeModal();
     if (S.landlordVisit) { S.landlordVisit = false; showLandlord(); }
@@ -2001,17 +2001,17 @@ const HANDLERS = {
   'm-toggle': el => { const m = machineById(el); m.on = !m.on; renderAll(); },
   'm-remove': el => {
     const m = machineById(el);
-    if (confirm(`拆除${MACHINES[m.type].name}？只能退回三成旧料钱。`)) { removeMachine(m); renderAll(); }
+    if (confirm(`철거${MACHINES[m.type].name}？3할의 헌 자재 값만 돌려받는다。`)) { removeMachine(m); renderAll(); }
   },
   collect: el => { collectPuppetCash(machineById(el)); renderAll(); },
   'buy-supply': el => { const err = buySupply(S.supply[+el.dataset.i]); if (err) toast(err, 'bad'); renderAll(); },
-  'gu-seal': el => { const m = machineById(el); m.seal = !m.seal; toast(m.seal ? '封上盅口：今夜起蛊虫相食，最凶的吞掉最弱的' : '揭开盅口：照常喂养', m.seal ? 'bad' : ''); renderAll(); },
-  'buy-stall': el => { const m = S.machines.find(x => x.mid === +el.dataset.mid), err = buyStall(m); toast(err || `${MACHINES[m.type].name}加盖了一栏`, err ? 'bad' : 'good'); renderAll(); },
-  'buy-machine': el => { const err = buyMachine(el.dataset.type); if (err) toast(err, 'bad'); else { tab = 'workshop'; toast('设备已安置在后院', 'good'); } renderAll(); },
+  'gu-seal': el => { const m = machineById(el); m.seal = !m.seal; toast(m.seal ? '독 단지를 봉한다: 오늘 밤부터 고충이 서로 잡아먹는다，가장 흉한 것이 가장 약한 것을 삼켰다' : '독 단지를 연다: 평소대로 먹인다', m.seal ? 'bad' : ''); renderAll(); },
+  'buy-stall': el => { const m = S.machines.find(x => x.mid === +el.dataset.mid), err = buyStall(m); toast(err || `${MACHINES[m.type].name}한 칸을 늘렸다`, err ? 'bad' : 'good'); renderAll(); },
+  'buy-machine': el => { const err = buyMachine(el.dataset.type); if (err) toast(err, 'bad'); else { tab = 'workshop'; toast('설비가 뒤뜰에 설치됐다', 'good'); } renderAll(); },
   'buy-upgrade': el => { const err = buyUpgrade(el.dataset.id); if (err) toast(err, 'bad'); renderAll(); },
   'sell-broker': () => {
     const it = S.items[sel];
-    if (knownValue(it) > 150 && !confirm(`只按四成折价卖给货郎，确定？`)) return;
+    if (knownValue(it) > 150 && !confirm(`4할로 깎아 행상에게 판다，확인？`)) return;
     sellToBroker(it); sel = null; renderAll();
   },
   'pay-rent': () => { payRentEarly(); renderAll(); },
@@ -2093,7 +2093,7 @@ document.addEventListener('pointerup', () => {
   drag = null;
   dragEnd = Date.now();
   if (!started) {
-    // 触屏：再点一下正开着详情的货才收起；鼠标照旧点一下选中、再点取消
+    // 触屏：再点一下正开着详情的货才收起；鼠标照旧点一下선택됨、再点取消
     d.el.classList.remove('dragging');
     sel = (touchy ? peek : sel) === it.uid ? null : it.uid;
     if (touchy) peek = sel;
@@ -2140,7 +2140,7 @@ function dragHover(x, y) {
   }, w ? 150 : 400) };
 }
 
-// 拖完、点完货松手后的那下点击不算数：货已重绘，免得落到空处被当成“点空处取消选中”
+// 拖完、点完货松手后的那下点击不算数：货已重绘，免得落到空处被当成“点空处取消선택됨”
 document.addEventListener('click', e => { if (Date.now() - dragEnd < 300) { dragEnd = 0; e.stopPropagation(); e.preventDefault(); } }, true);
 
 // 挪货：拖放与点按共用
@@ -2151,16 +2151,16 @@ function placeMoved(it, gid, x, y) {
   if (S.scav && S.scav.pending === it.uid) S.scav.pending = null;
   if (gid === 'display' && from !== 'display' && isBanned(it)) {
     const t = tolerance(landlordPerson());
-    toast(`${itemName(it)}是违禁品。管事${landlordPerson().name}看见了多半会${TOLERANCE_NAME[t]}。`, t === 'ignore' ? '' : 'bad');
+    toast(`${itemName(it)}금지품이다. 관리가${landlordPerson().name}보면 대개${TOLERANCE_NAME[t]}。`, t === 'ignore' ? '' : 'bad');
   }
   if (from === 'tool' || gid === 'tool') {
     peak('lens', appraiseLevel());
     const found = recheckStock();
-    toast(found.length ? `换上${LENS_NAMES[appraiseLevel()]}，重新审视库房：${found.join('、')}有问题！` : `鉴宝台换上了${LENS_NAMES[appraiseLevel()]}`, found.length ? 'bad' : '');
+    toast(found.length ? `갈아 끼운다${LENS_NAMES[appraiseLevel()]}，창고를 다시 살핀다：${found.join('、')}有问题！` : `감보대에 올려놓았다${LENS_NAMES[appraiseLevel()]}`, found.length ? 'bad' : '');
   }
 }
 
-// 点空格子、画面等没有按钮的地方：收起详情卡、取消选中。点到别的按钮只收卡，选中留给那个按钮用（如进献）
+// 点空格子、画面等없다按钮的地方：收起详情卡、取消선택됨。点到别的按钮只收卡，선택됨留给那个按钮用（如바친다）
 document.addEventListener('click', e => {
   if (!S || !(sel || peek) || e.target.closest('#itemcard, .item, #modal-layer')) return;
   if (e.target.closest('[data-act]')) { peek = null; renderCard(); return; }
