@@ -6,7 +6,7 @@ defineCharacter(ecologyCharacter({
   "name": "사홍수",
   "faction": "mo",
   "sex": "f",
-  "title": "성인 고향사(蠱香師)",
+  "title": "성인 고향사",
   "age": 28,
   "art": "a clearly adult 28-year-old Chinese female demonic incense specialist, mature confident seductive gaze and faint knowing smile, elegant burgundy layered fully opaque fitted robes, restrained neckline, long sleeves, brass incense censer and closed fragrance vials, alluring non-explicit portrait, no nudity",
   "problem": "그녀가 배합한 혹심향을 귀인이 비율을 바꿨는데 취해 쓰러진 이는 그녀 탓이 되었다. 원래 배합의 견본을 되찾고 싶어 한다.",

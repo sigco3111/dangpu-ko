@@ -6,7 +6,7 @@ defineCharacter(ecologyCharacter({
   "name": "악청석",
   "faction": "xian",
   "sex": "f",
-  "title": "진악원 호산 무수(武修)",
+  "title": "진악원 호산 무수",
   "age": 41,
   "art": "a 41-year-old tall powerful broad muscular Chinese female body cultivator, thick brows and healed old arm scar, fully clothed modest heavy fabric martial outfit, sand weight belt and iron training rings, thick cloth forearm wraps, no sword",
   "problem": "호산 당번이 갑자기 두 배로 늘었는데 다친 동문은 체질 단련 재료를 받지 못해, 그녀가 수련 쇠고리를 맡기러 왔다.",

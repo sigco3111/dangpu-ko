@@ -13,8 +13,8 @@ const FACTIONS = {
 
 const CATS = {
   dan: '단약', qi: '법기', cai: '영재', yao: '요재', yin: '영음',
-  fu: '부록', gu: '고충', wan: '진완', ju: '진구(陣具)', ji: '비급', za: '잡동사니',
-  hun: '혼백', shi: '시괴', zhi: '요식(妖植)', chong: '영총', xin: '소식',
+  fu: '부록', gu: '고충', wan: '진완', ju: '진구', ji: '비급', za: '잡동사니',
+  hun: '혼백', shi: '시괴', zhi: '요식', chong: '영총', xin: '소식',
 };
 
 // 各品类吸引的顾客派系权重
@@ -65,15 +65,15 @@ const ITEMS = {
   pill_recipe:    { name: '단방·축기', cat: 'ji', w: 1, h: 1, base: 400, desc: '단로 모듈 칸에 넣으면 축기단을 만들 수 있다.', mod: 'danlu' },
   jade_slip:      { name: '기보 옥간', cat: 'ji',  w: 1, h: 1, base: 260, desc: '연기대 모듈: 현철 주괴 셋으로 제식 비검 하나. 연기 이중이면 신병 배료에 날을 세워 마검을 만드는 기보이기도 하다.', mod: 'forge' },
   sword_std:      { name: '제식 비검', cat: 'qi',  w: 1, h: 3, base: 220, war: 1, desc: '혈살종 외문 제자의 기본 지급 비검.' },
-  soul_banner:    { name: '섭혼편',   cat: 'qi',  w: 2, h: 3, base: 950, war: 0.6, desc: '내문의 마기(魔器). 편(幡) 안에 무수한 잔혼이 갇혀 있다.' },
+  soul_banner:    { name: '섭혼편',   cat: 'qi',  w: 2, h: 3, base: 950, war: 0.6, desc: '내문의 마기. 편 안에 무수한 잔혼이 갇혀 있다.' },
   xian_sword:     { name: '청소검',   cat: 'qi',  w: 1, h: 3, base: 1400, war: 0.4, desc: '선문의 명검. 마종 경내에 숨겨 두는 것만으로 중죄다.', contra: true },
   xian_talisman:  { name: '태청부',   cat: 'fu',  w: 1, h: 1, base: 130, war: 0.5, desc: '선문 호부. 마수가 만지면 손이 덴다.', contra: true },
   xian_robe:      { name: '선문 도포', cat: 'wan', w: 2, h: 2, base: 300, lux: true, desc: '정도 제자의 제식 도포.', contra: true },
   demon_charm:    { name: '혈문 호부', cat: 'fu',  w: 1, h: 1, base: 55,  war: 0.6, desc: '마종 제자가 지니는 호부.' },
-  jade_pendant:   { name: '옛 옥패',   cat: 'wan', w: 1, h: 1, base: 380, lux: true, desc: '전조(前朝)의 반룡 옥패. 모조품이 넘친다.', appraise: 'jade' },
+  jade_pendant:   { name: '옛 옥패',   cat: 'wan', w: 1, h: 1, base: 380, lux: true, desc: '전조의 반룡 옥패. 모조품이 넘친다.', appraise: 'jade' },
   bronze_mirror:  { name: '청동 고경', cat: 'wan', w: 2, h: 2, base: 600, lux: true, desc: '상고 여덟 잎 꽃무늬 거울. 요괴의 본모습을 비춘다고 한다.', appraise: 'mirror' },
   scroll_manual:  { name: '찢긴 공법서', cat: 'ji',  w: 1, h: 2, base: 150, lux: true, desc: '이름 모를 공법의 찢긴 쪽. 다 모을 수도 익힐 수도 없다. 산수들은 기연으로 여기고, 권귀들은 서재 장식으로 쓴다.' },
-  fire_disk:      { name: '취화진반', cat: 'ju',  w: 1, h: 1, base: 160, desc: '연기로 모듈: 밤마다 화로 수 2→4, 하지만 완성 정(錠) 품질이 내려간다.', mod: 'furnace' },
+  fire_disk:      { name: '취화진반', cat: 'ju',  w: 1, h: 1, base: 160, desc: '연기로 모듈: 밤마다 화로 수 2→4, 하지만 완성 정 품질이 내려간다.', mod: 'furnace' },
   dan_fire:       { name: '단화진반', cat: 'ju',  w: 1, h: 1, base: 90,  desc: '단로가 새겨진 붉은 구리 진반. 화로 불을 진정시켜 꺼지지 않게 한다. 단로 모듈: 밤마다 한 화로 추가, 완성 단약 품질 +20.', mod: 'danlu' },
   soul_bell:      { name: '섭혼령',   cat: 'qi',  w: 1, h: 1, base: 240, war: 0.5, mod: 'soulfurnace', desc: '흔들면 정신이 아득해진다. 연혼로 모듈 칸에 걸면 혼을 화로로 이끌어 밤마다 한 화로 추가.' },
   soul_wisp:      { name: '유혼',     cat: 'hun', w: 1, h: 1, base: 28,  war: 0.5, desc: '난장 고개를 떠도는 잔혼. 셋이면 혼주 하나를 만들 수 있다.' },
@@ -107,7 +107,7 @@ const ITEMS = {
   god_blank:      { name: '신병 배료', cat: 'qi',  w: 1, h: 2, base: 1250, war: 0.8, desc: '천계 신병의 배료. 내문 장로가 직접 찾아와 사 가기를 청한다.' },
   incense:        { name: '안신향',   cat: 'za',  w: 1, h: 1, base: 26,  desc: '작은 안신향 한 화로. 피우면 정신 +40.' },
   lens1:          { name: '동테 조요경', cat: 'qi', w: 1, h: 1, base: 60,   tool: 1, desc: '감정술 일중: 감보대에 올리면 조잡한 위조를 꿰뚫어 본다.' },
-  lens2:          { name: '옥수 조요경', cat: 'qi', w: 1, h: 1, base: 380,  tool: 2, desc: '감정술 이중: 흔한 하품 충상품, 방고(仿古) 수법은 숨을 데가 없다.' },
+  lens2:          { name: '옥수 조요경', cat: 'qi', w: 1, h: 1, base: 380,  tool: 2, desc: '감정술 이중: 흔한 하품 충상품, 방고 수법은 숨을 데가 없다.' },
   lens3:          { name: '조골영경',   cat: 'qi', w: 1, h: 1, base: 950,  tool: 3, desc: '감정술 삼중: 정교한 위작도 골상까지 비춰 낸다.' },
   lens4:          { name: '천목주',     cat: 'qi', w: 1, h: 1, base: 2300, tool: 4, desc: '감정술 사중: 천의무봉의 위조도 앞에서는 빈틈투성이.' },
   bone_flute:     { name: '뼈피리',     cat: 'qi',  w: 1, h: 2, base: 140, war: 0.4, desc: '요괴 뼈로 만들어 작은 귀를 부릴 수 있다.' },
@@ -115,7 +115,7 @@ const ITEMS = {
   cult_corpse:    { name: '수사 유체', cat: 'shi', w: 1, h: 2, base: 160, war: 0.4, desc: '수위를 지닌 이가 죽어 남긴 육신. 영기가 흩어지지 않아 썩지 않는다. 연시관에 혼정 하나를 더하면 시왕을 만들 수 있다.' },
   live_soul:      { name: '생혼',     cat: 'hun', w: 1, h: 1, base: 150, war: 0.6, desc: '산 채로 뽑아낸 혼백. 영지가 꺼지지 않았다. 연혼로에 혼주 하나를 더해 혼정으로 만들고, 바로 복용 수련해도 수위가 오른다.' },
   blood_essence:  { name: '정혈',     cat: 'cai', w: 1, h: 1, base: 80,  war: 0.4, desc: '수사의 심장 정혈. 두 개에 요단, 혈영지를 더해 혈영단을 만든다(연단 이중). 복용 수련으로도 수위가 오른다.' },
-  soul_crystal:   { name: '혼정',     cat: 'hun', w: 1, h: 1, base: 650, war: 0.8, desc: '생혼과 혼주로 만든 결정. 시왕 만들기와 마검 주조의 혼핵이며, 원영(元嬰)을 두드리는 자량이기도 하다.' },
+  soul_crystal:   { name: '혼정',     cat: 'hun', w: 1, h: 1, base: 650, war: 0.8, desc: '생혼과 혼주로 만든 결정. 시왕 만들기와 마검 주조의 혼핵이며, 원영을 두드리는 자량이기도 하다.' },
   corpse_king:    { name: '시왕',     cat: 'shi', w: 1, h: 3, base: 2400, war: 1, desc: '수사 유체에 혼정을 심장으로 해 만든 시왕. 힘이 축기에 맞먹는다. 전당과 귀시에서 천정부지 값을 부른다.' },
   blood_infant:   { name: '혈영단',   cat: 'dan', w: 1, h: 1, base: 1500, war: 0.5, desc: '요단, 정혈, 혈영지로 만든 마단. 먹으면 수위가 급등한다. 축기 수사가 결단하는 열쇠다.' },
   demon_blade:    { name: '섭혼마검', cat: 'qi',  w: 1, h: 3, base: 4200, war: 0.8, desc: '신병 배료에 혼정으로 날을 세우고, 검 안에 생혼이 갇힌다(연기 이중, 기보 옥간 필요). 내문 장로가 직접 찾아와 사 가기를 청한다.' },
@@ -139,11 +139,11 @@ const TECHS = {
   brew:    { name: '양주', icon: 'book_brew',    machines: ['winejar'],              max: 4, desc: '영주 중마다 품질 +10. 이중이면 하룻밤에 완성.' },
   water:   { name: '세령', icon: 'book_water',   machines: ['pool'],                 max: 4, desc: '중마다 정제가 빨라진다.' },
   forgery: { name: '위조', icon: 'book_forgery', machines: ['forgery'],              max: 4, desc: '중마다 하품을 상품으로 둔갑시키는 솜씨와 모조 솜씨가 좋아진다. 솜씨가 좋을수록 간파하는 이가 줄어든다.' },
-  erase:   { name: '지우개(抹印)', icon: 'book_erase',   machines: [],                       max: 4, desc: '장물에 남은 원래 주인의 신식 낙인을 지운다. 낙인이 몇 중이면 지우개 술도 몇 중이 필요하다. 보물의 주인 낙인은 깊어 사중까지 간다. 깨끗이 지운 장물은 누구도 자취를 쫓아오지 못한다.' },
+  erase:   { name: '지우개', icon: 'book_erase',   machines: [],                       max: 4, desc: '장물에 남은 원래 주인의 신식 낙인을 지운다. 낙인이 몇 중이면 지우개 술도 몇 중이 필요하다. 보물의 주인 낙인은 깊어 사중까지 간다. 깨끗이 지운 장물은 누구도 자취를 쫓아오지 못한다.' },
   talisman:{ name: '부록', icon: 'book_talisman', machines: ['fudesk'],              max: 4, desc: '중마다 한 장 더 그리고 품질 +8. 이중이면 취화진부를, 삼중이면 정파 봉인부를 그린다.' },
   // 养蛊人独门，没有秘籍、没人教、功勋也换不到：养蛊攒经验自动升重（见 js/gu.js）
   gumaster:{ name: '고충 숙련', icon: 'gu_gold', machines: ['gupot'], max: 4, exclusive: true,
-             desc: '고충 기르는 이의 독문 솜씨. 다른 데서는 못 배운다. 알 깨우기, 먹이기, 성장, 산란, 독 뱉기, 잡아먹기 모두 경험이 쌓이고, 차면 자동으로 중이 오른다. 중마다 고충이 빨리 자라고 알을 자주 낳으며 자손의 독이 강해진다. 고충을 심을 수 있다 — 몇 중이면 몇 계 고충을 부리고, 수위가 너보다 높지 않은 이에게 심는다(사중이면 한 경지 높은 이에게도 가능). 삼중이면 미혼화를 금잠에게 먹여 정고(情蠱)를 만든다.' },
+             desc: '고충 기르는 이의 독문 솜씨. 다른 데서는 못 배운다. 알 깨우기, 먹이기, 성장, 산란, 독 뱉기, 잡아먹기 모두 경험이 쌓이고, 차면 자동으로 중이 오른다. 중마다 고충이 빨리 자라고 알을 자주 낳으며 자손의 독이 강해진다. 고충을 심을 수 있다 — 몇 중이면 몇 계 고충을 부리고, 수위가 너보다 높지 않은 이에게 심는다(사중이면 한 경지 높은 이에게도 가능). 삼중이면 미혼화를 금잠에게 먹여 정고를 만든다.' },
   beast:   { name: '어수', icon: 'book_beast',   machines: ['pen'],                  max: 4, desc: '중마다 영총이 밤마다 하나 더 먹고 하나 더 내며, 빨리 자라고 산출 품질 +10. 보물찾기 쥐가 물어 오는 것도 더 비싸진다.' },
 };
 
@@ -175,7 +175,7 @@ const TEACH_AFF = [55, 80];   // 三重、四重各要多少好感
 const TEACHERS = {
   refine:   { who: ['duan_yinghuo', 'li_duangang', 'lu_tiechui'], lines: ['화로 솜씨는 하나 가르칠 때마다 밥줄이 하나 준다. 하지만 넌 나를 후하게 대했다 — 보고 나면 태우고, 내가 준 것이라 하지 마라.',
     '종문의 신병은 전부 이 솜씨로 만들고, 완성되면 장로의 이름으로 기록한다. 네가 배우면 앞으로 만드는 것은 네 이름으로 남을 것이다.'] },
-  alchemy:  { who: ['ye_danping', 'mu_qingdan', 'lu_pinxiang'], lines: ['단방에서 이 두루마리는 적전(嫡傳)에게만 보인다. 적전은 이걸로 주안단을 지어 장로 부인에게 판다. 네가 배워서 제대로 된 것이라도 지어 봐라.',
+  alchemy:  { who: ['ye_danping', 'mu_qingdan', 'lu_pinxiang'], lines: ['단방에서 이 두루마리는 적전에게만 보인다. 적전은 이걸로 주안단을 지어 장로 부인에게 판다. 네가 배워서 제대로 된 것이라도 지어 봐라.',
     '구전 뒤에도 한 전이 더 있다. 단방은 장로의 독문이라지만, 사실 내가 삼십 년을 대신 지어 준 것이다.'] },
   soul:     { who: ['gui_dengpo', 'dugu_que'], lines: ['혼이라는 건, 만들 때 말을 들어선 안 된다. 오래 들으면 만들기가 아까워진다 — 그러면 장사를 못 한다.',
     '마지막 이 중은 많은 혼을 하나로 만드는 것이다. 종문은 이를 \'귀종\'이라 부르고, 나는 입 막기라 부른다.'] },
@@ -194,7 +194,7 @@ const TEACHERS = {
   erase:    { who: ['hui_qiaosuo', 'gui_dengpo'], lines: ['신식 낙인도 자물쇠. 자물쇠면 열쇠가 있다. 이 솜씨는 본래 주인 잃은 이의 자물쇠를 열어 주던 것인데, 나중에 찾아온 이는 대개 주인이 아니었다.',
     '가장 깊은 낙인은 보물의 원래 주인이 남긴 것이다. 그걸 지우면 이 물건의 내력에서 한 사람을 지우는 것과 같다. 정말 배우겠는가? — 좋아, 배우는 것이다.'] },
   talisman: { who: ['fu_shoumo', 'mo_yanqing'], lines: ['명문정파의 입신의 근본 — 솔직히 말해, 부적을 명문처럼 그리는 법을 가르치는 것이다. 네 가게에 쓸모가 있다.',
-    '천서의 부적은 천인(天人)만 그릴 수 있다고 종문은 말한다. 나는 평생 그리면서 늘 천인의 이름을 붙였다.'] },
+    '천서의 부적은 천인만 그릴 수 있다고 종문은 말한다. 나는 평생 그리면서 늘 천인의 이름을 붙였다.'] },
   beast:    { who: ['wen_lingqi', 'tu_baigu'], lines: ['짐승이 사람 마음을 제일 잘 안다: 먹이는 이를 주인으로 안다. 사람도 같다. 다만 잊는 게 빠를 뿐.',
     '영수각의 길들이기란, 솔직히 굶긴 뒤 구해 주는 것이다. 이 중이 가르치는 것은 딱 알맞게 구하는 법이다.'] },
 };
@@ -299,7 +299,7 @@ const STARTS = [
     machines: ['coffin', 'soulfurnace'], rep: { mo: 8, ren: -10 },
     items: [['corpse', 1, { fresh: 6 }], ['soul_wisp', 3], ['soul_pearl', 1]] },
   { id: 'digger', name: '줍는 나그네', stones: 120, perks: { digger: true },
-    desc: '늘 옛 전장과 종문 폐허에서 파먹고 산다. 눈썰미와 손놀림이 빨라 줍기마다 두 번 더 뒤진다. 낡은 기정(연기대) 하나, 금 간 단로 하나로 캐낸 깨진 기물과 폐단을 다시 제련한다 — 깨진 기물은 주운 부서진 검과 현철광으로 메우니 연기로가 필요 없다. 진안(陣眼)에는 영정 하나를 더 박았다.',
+    desc: '늘 옛 전장과 종문 폐허에서 파먹고 산다. 눈썰미와 손놀림이 빨라 줍기마다 두 번 더 뒤진다. 낡은 기정(연기대) 하나, 금 간 단로 하나로 캐낸 깨진 기물과 폐단을 다시 제련한다 — 깨진 기물은 주운 부서진 검과 현철광으로 메우니 연기로가 필요 없다. 진안에는 영정 하나를 더 박았다.',
     machines: ['forge', 'danlu'], crystals: 1,   // 炼器台加炼丹炉要 6 点灵力，正好吃满聚灵阵；多一块充满的灵晶垫着
     items: [['broken_relic', 2], ['waste_pill', 4], ['iron_ingot', 3]] },
   { id: 'tamer', name: '육수사', stones: 180,
@@ -308,11 +308,11 @@ const STARTS = [
     items: [['bones', 4], ['broken_bowl', 2]],
     into: [['pen', 'b0', 'treasure_rat', 2, { growth: 60 }], ['pen', 'b1', 'gold_bug', 2, { growth: 60 }]] },
   { id: 'talisman', name: '부적 그리는 선생', stones: 200,
-    desc: '낙패한 부사(符師). 부적 책상 하나, 좋은 글씨. 종이와 주사는 싸지만 그려낸 부적은 폭리다.',
+    desc: '낙패한 부사. 부적 책상 하나, 좋은 글씨. 종이와 주사는 싸지만 그려낸 부적은 폭리다.',
     machines: ['fudesk'], tech: { talisman: 1 },
     items: [['fu_paper', 8], ['cinnabar', 8], ['incense', 2]] },
   { id: 'smith', name: '연기장', stones: 260,
-    desc: '연기방 출신 장인. 화로 하나 대(臺) 하나, 기보 옥간 하나. 화로에서는 현철을 녹이고 대에서는 비검을 만든다. 현철이 네 손에서 몇 곱절이 된다.',
+    desc: '연기방 출신 장인. 화로 하나 대 하나, 기보 옥간 하나. 화로에서는 현철을 녹이고 대에서는 비검을 만든다. 현철이 네 손에서 몇 곱절이 된다.',
     machines: ['furnace', 'forge'], tech: { refine: 1 },
     items: [['iron_ore', 6], ['iron_ingot', 2]],
     into: [['forge', 'mod', 'jade_slip', 1, {}]] },
@@ -341,7 +341,7 @@ const UPGRADES = [
   { id: 'hijack',  name: '영맥 무단 연결',   price: 400,  desc: '밤마다 영력 +6. 하지만 밤마다 10% 확률로 들켜 집법당 주목 +10.' },
   { id: 'master',  name: '감보 심득',   price: 650,  desc: '감정 의뢰 보수 두 배. 진위를 말할 때 더 믿음을 준다.' },
   { id: 'vein',    name: '영석 광맥 계약', price: 1200, desc: '영석 광맥 한 구간을 통으로 빌린다: 밤마다 영력 +10, 매일 아침 현철광 넷이 오고, 취령 샘에서 물 한 병이 더 나온다.' },
-  { id: 'quiet',   name: '정실(靜室)',       price: 450,  desc: '뒤뜰에 조용한 방을 하나 마련: 밤마다 체력과 정신을 20 더 회복.' },
+  { id: 'quiet',   name: '정실',       price: 450,  desc: '뒤뜰에 조용한 방을 하나 마련: 밤마다 체력과 정신을 20 더 회복.' },
 ];
 
 // 市况：cats 为品类价格修正
@@ -349,7 +349,7 @@ const MARKET_EVENTS = [
   { text: '잡역 구역은 평온하다.', cats: {} },
   { text: '외문 소시합이 다가와 제자들이 법기를 앞다퉈 산다.', cats: { qi: 0.3 } },
   { text: '단회가 열려 단약 시세가 오른다.', cats: { dan: 0.25 } },
-  { text: '요조(妖潮)가 물러나 요재가 넘친다.', cats: { yao: -0.25 } },
+  { text: '요조가 물러나 요재가 넘친다.', cats: { yao: -0.25 } },
   { text: '영천이 마른다는 소문이 돌아 영음이 귀해진다.', cats: { yin: 0.35 } },
   { text: '선문의 포위 토벌이 임박해 집법당이 순찰을 강화한다.', cats: { fu: 0.2 }, heat: 1.6 },
   { text: '연기방에 재료가 모자라 영재 매입가가 오른다.', cats: { cai: 0.25 } },
@@ -416,7 +416,7 @@ const LOCATIONS = [
     loot: [['bones', 10], ['broken_bowl', 3], ['demon_charm', 3], ['jade_pendant', 1.5], ['soul_bell', 1], ['bone_flute', 1], ['scroll_manual', 1],
            ['corpse', 4], ['soul_wisp', 4], ['soul_grudge', 0.6]],
     scrolls: ['corpse', 'soul', 'erase'],
-    hazard: { text: '시기(尸氣)가 몸을 파고들어 피를 토하며 가게로 돌아왔다. 약을 사느라 영석을 좀 썼다.', cost: 15, cond: ['poisoned', 1], end: true } },
+    hazard: { text: '시기가 몸을 파고들어 피를 토하며 가게로 돌아왔다. 약을 사느라 영석을 좀 썼다.', cost: 15, cond: ['poisoned', 1], end: true } },
   { id: 'beastcave', name: '만마굴 외곽', bg: 'loc_beastcave', tries: 5, find: 0.6, danger: 0.14,
     desc: '요수 출몰지. 요재와 영초가 풍부하다. 요단을 가져가면 요족의 원한을 산다.',
     loot: [['herb_blood', 4], ['herb_dew', 4], ['beast_hide', 2], ['yao_core', 1.5], ['gu_egg', 2], ['spirit_crystal', 1.5], ['spirit_fruit', 3],

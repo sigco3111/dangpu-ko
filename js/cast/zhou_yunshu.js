@@ -6,7 +6,7 @@ defineCharacter(ecologyCharacter({
   "name": "주운서",
   "faction": "ren",
   "sex": "f",
-  "title": "미행(米行) 여장부꾼",
+  "title": "미행 여장부꾼",
   "age": 29,
   "art": "a 29-year-old Chinese woman bookkeeper with square jaw and calm eyes, charcoal short-sleeved outer smock over full-length linen dress, small abacus and bound tally slips",
   "problem": "미행의 모자란 장부가 전부 그녀 앞으로 기록되어, 폐장부에서 고쳐진 한 쪽을 되찾고 싶어 한다.",

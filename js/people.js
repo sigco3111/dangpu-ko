@@ -48,7 +48,7 @@ const FACE_SEX = {
   xian_spy: 'f', xian_spy_f1: 'f', xian_spy_f2: 'f', yao_fox: 'f', yao_fox_f1: 'f', yao_fox_f2: 'f', yao_tiger_f2: 'f', yao_snake: 'f', noble_f2: 'f',
 };
 // 同一身份，男女叫法不同
-const TITLE_SEX = { 内门师姐: { m: '내문 사형' }, 蒙面女修: { m: '복면 수사' }, 杂役少年: { f: '잡역 소녀' } };
+const TITLE_SEX = { '내문 사배': { m: '내문 사형' }, '복면 여수사': { m: '복면 수사' }, '잡역 소년': { f: '잡역 소녀' } };
 const NOBLE_TITLE = { m: ['내문 공자', '장로 일가'], f: ['세가 소저', '장로 일가'] };
 
 function faceKey(portrait, face) {

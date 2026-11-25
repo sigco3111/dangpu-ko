@@ -14,7 +14,7 @@ defineCharacter(ecologyCharacter({
   "moodArt": { "thrall": "mind-controlled thrall: eyes completely clouded milky white without pupils, blank slack face, black veins spreading over the face and neck. Nothing around the head: no mist, no smoke, no glow, plain transparent background around the figure" },
   "problem": "밤새 누군가 열어젖힌 창고 문엔 발자국이 없어, 울림을 가려낼 딱딱이 한 벌을 고치고 싶어 한다.",
   "pressure": "창고주는 야간 순찰 기록을 고치라 하며, 이미 빈 곳간을 숨기려 한다.",
-  "success": "딱딱이는 옛 시각대로 울렸고, 빈 창고의 날짜는 양선(糧船) 장부와 맞아떨어졌다.",
+  "success": "딱딱이는 옛 시각대로 울렸고, 빈 창고의 날짜는 양선 장부와 맞아떨어졌다.",
   "failure": "순찰부는 바꿔치기됐고, 그녀의 순찰 패가 먼저 빼앗겼다.",
   "item": "scrap_sword",
   "start_day": 21,
