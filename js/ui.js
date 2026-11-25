@@ -175,20 +175,20 @@ function counterCls(it) {
 const PHASE_NAME = { morning: '아침 · 개점 전', day: '낮 · 영업 중', night: '밤 · 마감함' };
 
 function renderTopbar() {
-  const due = S.grace > 0 ? `<span class="bad">임대료 체납 ${S.rentOwed} · 宽限 ${S.grace} 日</span>`
-    : `임대료 ${rentAmount()} · 第 ${S.rentDue} 日（${S.rentDue - S.day} 이후）`;
+  const due = S.grace > 0 ? `<span class="bad">임대료 체납 ${S.rentOwed} · 유예 ${S.grace}일</span>`
+    : `임대료 ${rentAmount()} · 제 ${S.rentDue}일(${S.rentDue - S.day}일 뒤)`;
   const plan = powerPlan();
   const deedP = clamp(S.stones / deedPrice() * 100, 0, 100);
   $('#topbar').innerHTML = `
-    <div class="tb-day" title="${calendar().yearText}">${icon(S.phase === 'night' ? 'ic_night' : 'ic_day')}<b>第 ${S.day} 日</b>
+    <div class="tb-day" title="${calendar().yearText}">${icon(S.phase === 'night' ? 'ic_night' : 'ic_day')}<b>제 ${S.day}일</b>
       <span class="tb-cal">${calendar().text}${annualOf() ? ` · <em>${annualOf().name}</em>` : ''}<br>${PHASE_NAME[S.phase]}</span></div>
     ${S.plan && S.plan.inspect && S.plan.tipped && S.plan.day === S.day ? `<div class="tb-cell tipchip" title="${esc(S.plan.tipped)}전해 들은 소문">${icon('ic_heat')}오늘 순찰</div>` : ''}
     <div class="tb-cell dao" data-act="dao" title="수련: 단약과 혼백을 복용한다，경지 돌파에는 열쇠가 필요하다. 눌러서 본다">${icon('ic_dao')}<span>${realmName()}<br><small>${realm().need ? `${S.cult.xp}/${realm().need}` : '圆满'}</small></span></div>
-    ${S.fate && (S.fate.n || S.fate.debts.length || S.fate.infamy) ? `<div class="tb-cell fate" data-act="fate-open" title="인과: 눌러서 빚을 본다">孽<b>${S.fate.debts.length}</b>${S.fate.infamy ? `<small>악명${S.fate.infamy}</small>` : ''}</div>` : ''}
-    <div class="tb-cell" title="善名 ${S.virtue}：좋은 사람 노릇에 돈이 든다，선명이 지나치면 호구로 여겨진다. 하지만 네가 도운 사람은，가끔 돌아와 보답한다">善<b>${VIRTUE_NAME(S.virtue)}</b></div>
-    ${condList('me').map(c => CONDS[c.kind] ? `<div class="tb-cell cond" data-act="heal-open" title="${esc(CONDS[c.kind].desc)}点开치료를 구함">${c.label}</div>`
+    ${S.fate && (S.fate.n || S.fate.debts.length || S.fate.infamy) ? `<div class="tb-cell fate" data-act="fate-open" title="인과: 눌러서 빚을 본다">업<b>${S.fate.debts.length}</b>${S.fate.infamy ? `<small>악명${S.fate.infamy}</small>` : ''}</div>` : ''}
+    <div class="tb-cell" title="선명 ${S.virtue}: 좋은 사람 노릇에 돈이 든다，선명이 지나치면 호구로 여겨진다. 하지만 네가 도운 사람은，가끔 돌아와 보답한다">선<b>${VIRTUE_NAME(S.virtue)}</b></div>
+    ${condList('me').map(c => CONDS[c.kind] ? `<div class="tb-cell cond" data-act="heal-open" title="${esc(CONDS[c.kind].desc)}눌러 치료를 구함">${c.label}</div>`
       : `<div class="tb-cell cond" title="체력이나 정신이 바닥나면 겨루기와 몸싸움에서 손해를 본다，거짓말이 들통나기 쉽다">${c.label}</div>`).join('')}
-    <div class="tb-cell power" title="잡역 구역에서 네 세력：${powerParts().map(([k, v]) => `${k} ${v > 0 ? '+' : ''}${v}`).join('，')}">势 <b>${playerPower()}</b></div>
+    <div class="tb-cell power" title="잡역 구역에서 네 세력：${powerParts().map(([k, v]) => `${k} ${v > 0 ? '+' : ''}${v}`).join('，')}">세 <b>${playerPower()}</b></div>
     <div class="tb-cell war st${S.world.stage}" title="사방이 긴장한다 ${tension()}：${warStage().text}">${icon('ic_war')}<span>${warStage().name}</span></div>
     <div class="tb-cell big">${stoneTxt(S.stones)}</div>
     <div class="tb-cell vit" title="체력: 운반, 뒤지기, 화로 열기에는 힘이 필요하다">${icon('ic_stamina')}<span class="meter st"><i style="width:${S.vit.st}%"></i></span><span>${S.vit.st}</span></div>
@@ -199,7 +199,7 @@ function renderTopbar() {
       <span class="meter"><i style="width:${S.heat}%"></i></span><span>${S.heat}</span></div>
     <div class="tb-cell" title="가게 문서 ${deedPrice()} 영석">${icon('ic_deed')}<span class="meter gold"><i style="width:${deedP}%"></i></span></div>
     <div class="tb-spacer"></div>
-    <button class="btn small ghost" data-act="menu">卷宗</button>`;
+    <button class="btn small ghost" data-act="menu">문서</button>`;
 }
 
 // ───────────── 场景与카운터 ─────────────
@@ -207,7 +207,7 @@ function renderTopbar() {
 function speechFor(c) {
   if (!c) {
     if (S.phase === 'morning') return `아침 종이 세 번 울렸다。${todayText()}${S.market.text}${tipText()}`;
-    if (S.phase === 'night') return '血月当空，잡역 구역에 등롱 몇 개만 남았다. 잡동사니를 주우러 가자，일찍 쉬는 게 낫다？';
+    if (S.phase === 'night') return '핏빛 달이 떠오른 밤, 잡역 구역에 등롱 몇 개만 남았다. 잡동사니를 주우러 갈까, 일찍 쉴까?';
     // 门口自有“请下一位”的牌子，人走光了才提醒去点마감牌
     return S.queue.length ? '' : `오늘의 손님은 다 갔다。${LAYOUT === 'tall' ? '왼쪽의 「마감」' : '문의 마감 패를 누른다'}，설령 마감해도。`;
   }
@@ -221,12 +221,12 @@ function speechFor(c) {
 function tipText() {
   if (!(S.plan && S.plan.inspect && S.plan.tipped && S.plan.day === S.day)) return '';
   const banned = bannedShown();
-  return `${S.plan.tipped}전갈이 왔다: 오늘 집법당이 순찰을 온다（${S.plan.reason}）。${banned.length ? `진열장에 아직 놓여 있다${banned.map(itemName).join('、')}！` : ''}문을 열기 전에 금물과 장물을 치운다，藏进暗格。`;
+  return `${S.plan.tipped}전갈이 왔다: 오늘 집법당이 순찰을 온다(${S.plan.reason}). ${banned.length ? `진열장에 아직 놓여 있다${banned.map(itemName).join(' · ')}!` : ''}문을 열기 전에 금물과 장물을 치워 암격에 숨긴다.`;
 }
 
 function composeLine(c) {
   const it = customerItem(), f = c.faction, addr = ADDRESS[f];
-  const brought = c.kind === 'buy' && goodsOf().length ? `另外，这${goodsOf().map(itemName).join('、')}팔고 싶어한다。` : '';
+  const brought = c.kind === 'buy' && goodsOf().length ? `그리고 이 ${goodsOf().map(itemName).join(' · ')}도 팔고 싶어한다.` : '';
   const peek = c.reporting ? `（${ta(personOf(c))}네 진열장을 한참 노려보았다，표정이 좀 이상하다.)` : '';
   if (c.kind === 'inspect') return '집법당 순찰이다! 카운터 안팎이，전부 열어라。';
   if (c.kind === 'story') return `（${c.name}할 말이 있는 듯하다.)`;
@@ -234,15 +234,15 @@ function composeLine(c) {
   if (c.offended) return '네 진열장에 우리 일족의 요단, 요피를 내놨다고? 쳇! 이런 가게，들어오지 않아도 된다。';
   if (c.kind === 'plea') return greeting(c) + pleaLine(c);
   if (c.kind === 'sell' && it) {
-    if (c.afterAppraisal) return c.told === 'fake' ? `위작이라니，둬봤자 자리만 차지한다。${it.ask} 영석，${addr}收了吧。`
-      : `진품이라니……${it.ask} 영석，${addr}要不要？`;
-    if (it.disputed === 'ok') return `啊？……罢了罢了，这${itemName(it)}${it.ask} 영석，${addr}收了吧。`;
-    if (it.disputed === 'caught') return `그딴 소리 마! 내${itemName(it)}제대로 된 물건이다，${it.ask} 영석，한 푼도 깎을 수 없다。`;
+    if (c.afterAppraisal) return c.told === 'fake' ? `위작이라니, 둬봤자 자리만 차지한다. ${it.ask} 영석, ${addr} 받아주시오.`
+      : `진품이라니…… ${it.ask} 영석, ${addr} 사시겠소?`;
+    if (it.disputed === 'ok') return `아? ……됐다 됐어, 이 ${itemName(it)} ${it.ask} 영석, ${addr} 받아주시오.`;
+    if (it.disputed === 'caught') return `그딴 소리 마! 내 ${itemName(it)} 제대로 된 물건이다. ${it.ask} 영석, 한 푼도 깎을 수 없다.`;
     const goods = goodsOf();
     const vars = { item: goods.map(itemName).join('、'), ask: goods.reduce((s, g) => s + g.ask, 0) };
     let line = goods.some(g => ITEMS[g.id].contra) ? voice(f, 'contra', vars) : lineOf(c, 'sell', vars);
     if (goods.some(g => g.stolen)) line += voice(f, 'stolen');
-    if (c.wantId) line += `겸사겸사……有${ITEMS[c.wantId].name}이라면，我也要${needCn(c.need || 1)}${needUnit(c)}。`;
+    if (c.wantId) line += `겸사겸사…… ${ITEMS[c.wantId].name}이 있다면, 나도 ${needCn(c.need || 1)}${needUnit(c)} 필요하오.`;
     return peek + greeting(c) + line;
   }
   if (c.noble) return nobleLine(c);
@@ -315,7 +315,7 @@ function renderScene() {
   const door = $('#door'), act = S.phase === 'morning' ? 'open' : S.phase === 'day' && !c && S.queue.length ? 'next' : '';
   door.style.display = act ? '' : 'none';
   door.dataset.act = act;
-  door.firstChild.textContent = act === 'open' ? '문을 열고 손님을 맞는다' : `다음 손님 · 문 밖 ${S.queue.length} 位`;
+  door.firstChild.textContent = act === 'open' ? '문을 열고 손님을 맞는다' : `다음 손님 · 문 밖 ${S.queue.length}명`;
   const sign = $('#closesign');
   sign.style.display = S.phase === 'day' ? '' : 'none';
   sign.classList.toggle('due', !c && !S.queue.length);
@@ -326,7 +326,7 @@ let talk = { text: '', i: 0 };
 
 function speechParts(text) {
   if (LAYOUT !== 'tall' || !text) return text ? [text] : [];
-  const max = Math.max(24, Math.floor(($('#scene').clientWidth - 112) / 18) * 2 - 1);   // 18px 字两行，끝에 한 칸을 남긴다 ▼
+  const max = Math.max(24, Math.floor(($('#scene').clientWidth - 112) / 18) * 2 - 1);   // 18px 글자 두 줄, 끝에 한 칸을 남긴다 ▼
   const out = [];
   const bits = text.match(/[^。！？!?…]+(?:[。！？!?…]+[」”’）)]*)?/g) || [text];
   bits.flatMap(b => b.length > max ? b.match(/[^，、；]+[，、；]?/g) : [b]).forEach(b => {
@@ -360,7 +360,7 @@ function personTags(c) {
   const p = personOf(c);
   if (!p) return '';
   const m = mood(p.aff);
-  return `<span class="tag mood-${m}" title="好感 ${p.aff}">${MOOD_NAME[m]}</span>${p.visits > 1 ? `<span class="tag">第 ${p.visits} 回来</span>` : '<span class="tag">初见</span>'}`;
+  return `<span class="tag mood-${m}" title="호감 ${p.aff}">${MOOD_NAME[m]}</span>${p.visits > 1 ? `<span class="tag">${p.visits}번째 방문</span>` : '<span class="tag">첫 만남</span>'}`;
 }
 
 function patienceHTML(c) {
