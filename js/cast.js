@@ -23,9 +23,9 @@ defineCharacter({
 function defineCharacter(def) {
   const need = ['id', 'name', 'faction', 'sex', 'title', 'portrait', 'nodes', 'start'];
   const miss = need.filter(k => def[k] == null);
-  if (miss.length) throw new Error(`角色 ${def.id || '?'} 缺少 ${miss.join('、')}`);
-  if (STORIES[def.id] && !CAST[def.id]) throw new Error(`角色 id ${def.id} 与已有故事重名`);
-  if (!def.nodes[def.start.node || Object.keys(def.nodes)[0]]) throw new Error(`角色 ${def.id} 的起始节点不存在`);
+  if (miss.length) throw new Error(`캐릭터 ${def.id || '?'} 누락: ${miss.join(', ')}`);
+  if (STORIES[def.id] && !CAST[def.id]) throw new Error(`캐릭터 id ${def.id}이(가) 기존 이야기와 겹침`);
+  if (!def.nodes[def.start.node || Object.keys(def.nodes)[0]]) throw new Error(`캐릭터 ${def.id}의 시작 노드가 없음`);
   CAST[def.id] = def;
   STORIES[def.id] = {
     person: { pid: def.id, name: def.name, faction: def.faction, portrait: def.portrait, title: def.title, sex: def.sex,
@@ -81,7 +81,7 @@ function castTick() {
 function castEvent(p, ev, ...args) {
   const def = castOf(p), fn = def && def.on && def.on[ev];
   if (!fn) return null;
-  try { return fn(S.story[def.id], p, ...args) || null; } catch (e) { console.error(`角色 ${def.id} 的 ${ev} 钩子出错`, e); return null; }
+  try { return fn(S.story[def.id], p, ...args) || null; } catch (e) { console.error(`캐릭터 ${def.id}의 ${ev} 훅 오류`, e); return null; }
 }
 
 function castNight() {
