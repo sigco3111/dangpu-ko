@@ -61,7 +61,7 @@ function itemTags(it) {
   if (ITEMS[it.id].contra) tags.push(['contra', '선문 금물']);
   if (ITEMS[it.id].illicit) tags.push(['stolen', '마종 금약']);
   if (lacedKnown(it)) tags.push(['laced', it.lacedBy === 'me' ? `몰래${LACE[it.laced].verb}` : `남에게${LACE[it.laced].verb}（걸러냈다)`]);
-  if (it.mark) tags.push(['stolen', markVisible(it) ? `원주인의 낙인 · ${cn(it.mark.str)}重` : '남은 신식이 있는 듯하다, 제대로 보이지 않는다']);
+  if (it.mark) tags.push(['stolen', markVisible(it) ? `원주인의 낙인 · ${cn(it.mark.str)}중` : '남은 신식이 있는 듯하다, 제대로 보이지 않는다']);
   if (it.sealed) tags.push(['laced', `정파 봉인을 붙임 · 솜씨${GRADE_NAMES[it.grade]}`]);
   if (it.bottled) tags.push(['real', '옥정병에 담음']);
   if (restoreOf(seemOf(it))) { const r = restoreOf(seemOf(it)); tags.push(['', `복용 가능: ${r[0] ? `체력+${r[0]} ` : ''}${r[1] ? `정신+${r[1]}` : ''}`]); }
@@ -94,7 +94,7 @@ function itemStats(it) {
   if (it.id === 'gu_egg' || it.id === 'gu_venom') rows.push(['독성', it.tox]);
   if (it.id === 'spirit_crystal') rows.push(['충전', `${it.charge || 0}/${CRYSTAL_CAP}`]);
   if (isSeed(it) && it.growth) rows.push(['생장', `${it.growth}%`]);
-  if (it.id === 'corpse') rows.push(['신선', `还能放 ${Math.max(0, Math.ceil(it.fresh / seasonOf().rot))} 日`]);
+  if (it.id === 'corpse') rows.push(['신선', `앞으로 ${Math.max(0, Math.ceil(it.fresh / seasonOf().rot))}일 보관 가능`]);
   if (it.cost != null) rows.push(['매입가', `${it.cost}`]);
   return rows;
 }
