@@ -374,14 +374,14 @@ function renderCounter() {
   if (S.phase === 'morning' || (S.phase === 'day' && !c)) { el.innerHTML = ''; return; }
   if (S.phase === 'night') {
     el.innerHTML = `<div class="cp-col wide">
-        <h3>夜</h3>
+        <h3>밤</h3>
         <p>설비는 네가 입정하는 동안 작동한다，「작업장」 페이지 순서로 영력을 쓴다，네 체력과 정신도 소모된다 - 기력이 모자라면 설비가 멈춘다. 쉬면 회복된다。</p>
-        <p class="muted small">${S.scavenged ? '오늘 밤은 이미 나갔다。' : `오늘 밤 한 번 외출할 수 있다: 폐품 줍기(뒤질 때마다 ${costText('dig')}），아니면 귀시로 간다（${costText('market')}${isGhostNight() ? '，오늘 밤 귀시가 열린다，물건이 많고 집법당을 건드리지 않는다' : '，非귀시夜，집법당 주목 +2'}）。`}
+        <p class="muted small">${S.scavenged ? '오늘 밤은 이미 나갔다.' : `오늘 밤 한 번 외출할 수 있다: 폐품 줍기(뒤질 때마다 ${costText('dig')}), 아니면 귀시로 간다(${costText('market')}${isGhostNight() ? ', 오늘 밤 귀시가 열린다. 물건이 많고 집법당을 건드리지 않는다' : ', 귀시가 아닌 밤, 집법당 주목 +2'}）。`}
           ${S.retreat ? '<b class="good">오늘 밤 폐관한다：</b>모든 화로의 산출이 더 좋아진다，지화로로는 신병 배료를 제련할 수 있다. 쉬면 조금 회복된다。' : `폐관（${costText('retreat')}）：오늘 밤 직접 화로를 지킨다。`}</p>
       </div>
       <div class="cp-actions">
         <button class="btn" data-act="scavenge" ${S.scavenged ? 'disabled' : ''}>${icon('ic_scavenge')}밖에 나가 폐품을 줍는다</button>
-        <button class="btn" data-act="market" ${S.scavenged ? 'disabled' : ''}>귀시${isGhostNight() ? '（开张）' : ''}</button>
+        <button class="btn" data-act="market" ${S.scavenged ? 'disabled' : ''}>귀시${isGhostNight() ? '(개장)' : ''}</button>
         <button class="btn ${S.retreat ? 'danger' : ''}" data-act="retreat">${S.retreat ? '폐관을 취소한다' : '폐관'}</button>
         <button class="btn primary big" data-act="sleep">입정하며 쉰다</button></div>`;
     return;
@@ -391,32 +391,32 @@ function renderCounter() {
   const pp = personOf(c), secretKnown = pp && pp.secret && pp.secret.known && pp.status === 'alive';
   const intel = !pp || pp.story || pp.official || ['story', 'inspect'].includes(c.kind) ? ''
     : secretKnown ? `<div class="intel">${icon('ic_secret')}<b>${esc(pp.secret.type)}</b>${c.confided ? `（${ta(pp)}스스로 너에게 털어놓은 것)` : ''}——
-        向${CHANNEL_NAME[pp.secret.to]}신고하면 상금 약 ${pp.secret.bounty}、${FACTIONS[pp.secret.to].name}功勋 ${pp.secret.merit}${channelOpen(pp.secret.to) ? '' : `（아직 연줄이 없다：${channelHint(pp.secret.to)}）`}
-        ${c.reportedSecret ? `<span class="intel-acts muted small">몰래 소식을 전했다，等${ta(pp)}出门</span>` : `<span class="intel-acts"><button class="btn tiny danger" data-act="secret-report" title="${esc(sinHint(['betray', 2]))}" ${channelOpen(pp.secret.to) ? '' : 'disabled'}>举报</button>
+        ${CHANNEL_NAME[pp.secret.to]}에 신고하면 상금 약 ${pp.secret.bounty}, ${FACTIONS[pp.secret.to].name} 공훈 ${pp.secret.merit}${channelOpen(pp.secret.to) ? '' : `(아직 연줄이 없다: ${channelHint(pp.secret.to)})`}
+        ${c.reportedSecret ? `<span class="intel-acts muted small">몰래 소식을 전했다. ${ta(pp)}이(가) 나가기를 기다린다</span>` : `<span class="intel-acts"><button class="btn tiny danger" data-act="secret-report" title="${esc(sinHint(['betray', 2]))}" ${channelOpen(pp.secret.to) ? '' : 'disabled'}>신고</button>
         <button class="btn tiny" data-act="secret-blackmail" title="${esc(sinHint(['betray', 2]))}">협박한다 ${Math.round(Math.min(0.95, overpowerOdds(pp) + 0.1) * 100)}%</button>
-        ${pp.owes ? `<span class="muted small">${ta(pp)}너에게 빚짐人情</span>` : '<button class="btn tiny" data-act="secret-keep">입을 다문다</button>'}</span>`}</div>`
-      : !c.probed && !pp.cleared ? `<div class="intel muted small">${icon('ic_secret')}<button class="btn tiny" data-act="probe" title="${costText('probe')}，看透约 ${Math.round(probeOdds(pp) * 100)}%">神识探查 ${Math.round(probeOdds(pp) * 100)}%</button></div>` : '';
+        ${pp.owes ? `<span class="muted small">${ta(pp)}너에게 인정을 빚졌다</span>` : '<button class="btn tiny" data-act="secret-keep">입을 다문다</button>'}</span>`}</div>`
+      : !c.probed && !pp.cleared ? `<div class="intel muted small">${icon('ic_secret')}<button class="btn tiny" data-act="probe" title="${costText('probe')}, 간파 약 ${Math.round(probeOdds(pp) * 100)}%">신식 탐지 ${Math.round(probeOdds(pp) * 100)}%</button></div>` : '';
   const dark = pp && !pp.story && ['sell', 'buy', 'plea'].includes(c.kind) && !c.refuse && killable(pp) ? `<div class="intel small">
-      ${icon('ic_dao')}<span class="muted">${esc(c.name)}是${realmName(npcLevel(pp))}，你是${realmName()}。</span>
+      ${icon('ic_dao')}<span class="muted">${esc(c.name)}은(는) ${realmName(npcLevel(pp))}, 너는 ${realmName()}이다.</span>
       <button class="btn tiny danger" data-act="kill" ${canKill(pp) ? `disabled title="${esc(canKill(pp))}"` : `title="성공 확률 ${pct(killOdds(pp, false))}，${costText('kill')}${deathWarn('injured')}"`}>문 닫고 개 패기${canKill(pp) ? '' : ` ${pct(killOdds(pp, false))}`}</button>
-      ${canSoulMark(pp) ? '' : `<button class="btn tiny danger" data-act="soulmark">种魂印 ${pct(soulMarkOdds(pp))}</button>`}</div>` : '';
+      ${canSoulMark(pp) ? '' : `<button class="btn tiny danger" data-act="soulmark">혼인 심기 ${pct(soulMarkOdds(pp))}</button>`}</div>` : '';
   if (c.kind === 'story') {
     const node = storyNode(S.story[c.key]);
     mid = `${customerItem() ? `<div class="cp-item">${gridHTML('counter', '카운터')}<div>` : '<div>'}
-      <p><b>${esc(c.name)}</b>有话要说。</p><p class="muted">${esc(S.story[c.key].summary || '')}</p></div>${customerItem() ? '</div>' : ''}`;
-    acts = `<button class="btn primary" data-act="story-talk">交谈</button>`;
+      <p><b>${esc(c.name)}</b> 할 말이 있다.</p><p class="muted">${esc(S.story[c.key].summary || '')}</p></div>${customerItem() ? '</div>' : ''}`;
+    acts = `<button class="btn primary" data-act="story-talk">대화</button>`;
   } else if (c.refuse) {
     const p = personOf(c);
-    mid = `<p>${esc(c.name)}还记着你：</p><p class="muted">“${esc((salientMemory(p) || p.mem[p.mem.length - 1] || { t: '……' }).t)}”</p>
+    mid = `<p>${esc(c.name)}이(가) 너를 기억한다:</p><p class="muted">“${esc((salientMemory(p) || p.mem[p.mem.length - 1] || { t: '……' }).t)}”</p>
       <p class="muted small">호감이 이 지경까지 떨어지면，상대가 더 이상 너와 거래하지 않으려 한다。</p>`;
     acts = `<button class="btn primary" data-act="dismiss">손님을 보낸다</button>`;
   } else if (c.kind === 'inspect') {
     const e = official('enforcer'), stake = inspectionStake(), price = bribePrice(e, stake);
     const tiers = [...new Set([0.6, 1, 1.6].map(k => Math.max(10, Math.round(price * k / 10) * 10)))];
-    mid = `<p>${esc(e.name)}진열장, 창고, 바닥, 노점을 뒤진다。<b>금물</b>、<b>금약</b>与<b>来路不明</b>의 물건은 발견되면 몰수에 벌금이다. 암격 속 물건은 찾지 못한다。</p>
+    mid = `<p>${esc(e.name)}진열장, 창고, 바닥, 노점을 뒤진다。<b>금물</b>、<b>금약</b>과 <b>출처 불명</b>의 물건은 발견되면 몰수에 벌금이다. 암격 속 물건은 찾지 못한다。</p>
       <p class="muted small">그는 너에게서 약  ${stake} 영석의 기름. 규정에도 값이 있다: 충분히 주면，아무것도 못 본 걸로 한다. 적게 주면，그는 모욕을 받았다고 느낀다。
         ${S.flags.enforcerOwned ? '<b class="good">그는 네 사람이다。</b>' : ''}</p>`;
-    acts = `<button class="btn primary" data-act="inspect">配合搜查</button>
+    acts = `<button class="btn primary" data-act="inspect">수사에 협조</button>
       ${tiers.map(n => `<button class="btn small" data-act="bribe" data-n="${n}" ${S.stones < n ? 'disabled' : ''}>손을 씀 ${n}<small>&nbsp;성공 확률 ${Math.round((S.flags.enforcerOwned ? 1 : bribeOdds(e, stake, n)) * 100)}%</small></button>`).join('')}`;
   } else if (c.offended) {
     mid = `<p>${f.name}손님이 진열장의 요족 유물을 본다，소매를 뿌리며 떠난다。<span class="bad">요족 평판 -3</span></p>`;
@@ -427,10 +427,10 @@ function renderCounter() {
     ({ mid, acts } = tradePanel(c));
   } else {
     mid = `<div class="cp-item">${gridHTML('counter', '카운터')}
-      <div><p>감정委托，수고비 ${stoneTxt(c.fee)}</p><p class="muted">진위를 확인한 뒤，告诉${ta(personOf(c))}무엇을 할지는 네가 정한다. 사실대로 말하면 평판을 얻는다；
+      <div><p>감정 의뢰, 수고비 ${stoneTxt(c.fee)}</p><p class="muted">진위를 확인한 뒤 ${ta(personOf(c))}에게 무엇을 말할지는 네가 정한다. 사실대로 말하면 평판을 얻는다;
         진품을 위작이라 한다，상대는 대개 헐값에 넘긴다 - 하지만 영리한 사람은 속이지 못할 수 있다，그 자리에서 들통나면 평판이 깎인다，뒤에 옛 일을 들춰낼 수도 있다。</p></div></div>`;
     acts = `<button class="btn primary" data-act="appraise-commission">${icon('ic_appraise')}조요경으로 감정한다</button>
-      <button class="btn ghost" data-act="dismiss">婉拒</button>`;
+      <button class="btn ghost" data-act="dismiss">정중히 거절</button>`;
   }
   el.innerHTML = `<div class="cp-col wide">${mid}${intel}${dark}</div><div class="cp-actions">${acts}</div>`;
 }
@@ -439,10 +439,10 @@ function renderCounter() {
 function pleaPanel(c) {
   const amt = c.need * 3, TA = ta(personOf(c));
   const mid = gx(personOf(c), `<p>${esc(c.name)}부탁해：${esc(c.plea)}。</p>
-    <p class="small muted">구제한다他，그가 너를 기억한다，앞으로 길가에서 소문을 들어주마 - 이 세상，호의는 대개 돌아오지 않는다，가끔은 목숨 하나를 건진다。
+    <p class="small muted">그를 구제하면, 그가 너를 기억한다. 앞으로 길가에서 소문을 들어주마 - 이 세상, 호의는 대개 돌아오지 않지만, 가끔은 목숨 하나를 건진다.
       돈놀이 이자가 후하다，못 갚으면 네가 처분한다. 고역으로 부린다，그가 너를 위해 화로를 때고 물건을 나른다，죽을 때까지 일한다。</p>`);
   const acts = `<button class="btn small" data-act="plea-help" ${S.stones < c.need ? 'disabled' : ''}>구제한다 ${c.need}</button>
-    <button class="btn small" data-act="plea-lend" ${S.stones < amt ? 'disabled' : ''} title="七日还 ${Math.round(amt * 1.5)}">借${TA} ${amt}</button>
+    <button class="btn small" data-act="plea-lend" ${S.stones < amt ? 'disabled' : ''} title="이레 뒤 ${Math.round(amt * 1.5)} 상환">${TA}에게 ${amt} 빌려준다</button>
     <button class="btn small danger" data-act="plea-labor">고역으로 부린다</button>
     <button class="btn ghost small" data-act="plea-away">쫓아낸다</button>`;
   return { mid, acts };
@@ -455,14 +455,14 @@ const seemOf = it => knownFlaw(it) || !(it.fake || isDressed(it)) ? it : Object.
 function openDao() {
   const r = realm(), why = canBreak();
   const goods = Object.values(S.items).filter(it => HELD(it) && cultXp(seemOf(it))).sort((a, b) => cultXp(seemOf(b)) - cultXp(seemOf(a)));
-  openModal(() => { const pg = pager(goods.filter(it => S.items[it.uid]), 6, 'dao'); modalHTML(`<h3>${icon('ic_dao')}修为 · ${realmName()}</h3>
-    <p>${r.need ? `修为 <b>${S.cult.xp}</b> / ${r.need}，돌파${realmName(S.cult.lv + 1)}还要一件<b>${ITEMS[r.key].name}</b>열쇠로 쓴다. 성공 확률 약 ${pct(breakOdds())}${S.retreat ? '（오늘 밤 폐관한다，15% 추가)' : '（밤에 폐관할 때 돌파가 더 안정된다)'}。` : '너는 이 세계의 끝에 이르렀다。'}</p>
+  openModal(() => { const pg = pager(goods.filter(it => S.items[it.uid]), 6, 'dao'); modalHTML(`<h3>${icon('ic_dao')}수위 · ${realmName()}</h3>
+    <p>${r.need ? `수위 <b>${S.cult.xp}</b> / ${r.need}, ${realmName(S.cult.lv + 1)}(으)로 돌파하려면 <b>${ITEMS[r.key].name}</b> 하나가 더 필요하다열쇠로 쓴다. 성공 확률 약 ${pct(breakOdds())}${S.retreat ? '(오늘 밤 폐관, 15% 추가)' : '(밤에 폐관하면 돌파가 더 안정된다)'}。` : '너는 이 세계의 끝에 이르렀다。'}</p>
     <p class="small muted">경지가 높을수록，세력이 클수록 밤에 더 회복하고 거짓말이 덜 들통난다. 수련이 상대보다 높으면，카운터에서 “문 닫고 개 패기”를 하거나 밤에 길을 가로막아 죽일 수 있다，그의 물건, 영석, 시신, 혼백을 빼앗는다. 수련 위압이나 혼인을 심어 사람을 복종시킬 수도 있다。
       혼을 삼키고 피를 마셔도 수련이 오른다，다만 제련할수록 사람 같지 않아진다。</p>
     <div class="gift-list">${pg.items.map(it => `<div class="gift-row" data-act="cultivate" data-uid="${it.uid}">${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}
-      <span>${esc(itemName(it))}${it.id === r.key ? '<em class="laced-txt">（경지 돌파의 물건)</em>' : ''}</span><span class="good">修为 +${cultXp(seemOf(it))}</span>${(CULT_XP[it.id] || [])[1] ? '<span class="bad small">损阴德</span>' : ''}</div>`).join('') || '<p class="muted">손에 복용할 만한 것이 없다: 단약, 혼백, 요단, 정혈, 경장옥로……</p>'}</div>${pg.nav}
+      <span>${esc(itemName(it))}${it.id === r.key ? '<em class="laced-txt">(경지 돌파의 물건)</em>' : ''}</span><span class="good">수위 +${cultXp(seemOf(it))}</span>${(CULT_XP[it.id] || [])[1] ? '<span class="bad small">음덕 손상</span>' : ''}</div>`).join('') || '<p class="muted">손에 복용할 만한 것이 없다: 단약, 혼백, 요단, 정혈, 경장옥로……</p>'}</div>${pg.nav}
     <div class="h-btns"><button class="btn danger" data-act="breakthrough" ${why ? `disabled title="${esc(why)}"` : ''}>돌파（${costText('breakthrough')}）</button>
-      <button class="btn primary" data-act="modal-close">合上</button></div>`, 'm-gift'); });
+      <button class="btn primary" data-act="modal-close">닫기</button></div>`, 'm-gift'); });
 }
 
 // ───────────── 파벌 ─────────────
@@ -1311,7 +1311,7 @@ function openPerson(pid) {
       ${p.status === 'alive' && p.visits > 0 ? loreHTML(p) : ''}
       <ul class="timeline">${rows.length ? pg.items.map(r => `<li class="${r.type}"><span class="muted">第${r.d}日</span>${esc(r.t)}
         ${r.a ? `<span class="${r.a > 0 ? 'good' : 'bad'}">${r.a > 0 ? '+' : ''}${r.a}</span>` : ''}</li>`).join('') : '<li class="muted">아직 왕래가 없다</li>'}</ul>${pg.nav}
-      <div class="h-btns"><button class="btn primary" data-act="modal-close">合上</button></div></div></div>`, 'm-story'); });
+      <div class="h-btns"><button class="btn primary" data-act="modal-close">닫기</button></div></div></div>`, 'm-story'); });
 }
 
 // 요령을 캐낸다：他像是懂哪些行当的门道、肯不肯说、要价多少
@@ -1334,7 +1334,7 @@ function openLoreBook() {
   modalHTML(`<h3>${icon('ic_ledger')}见闻录</h3>
     <p class="muted small">잡역 구역의 온갖 사람들에게서 캐낸 요령. 누가 어느 바닥을 아는지, 얼마나 친한지, 말해줄지 말지，모두 「인물」 페이지에서 본다。</p>
     <ul class="timeline">${got.length ? got.map(([id, x]) => { const t = loreTip(id); return t ? `<li><span class="muted">第${x.day}日 · ${esc(x.from)}</span><b>${t.topic}</b>${esc(t.text)}</li>` : ''; }).join('') : '<li class="muted">아직 알아낸 게 없다。</li>'}</ul>
-    <div class="h-btns"><button class="btn primary" data-act="modal-close">合上</button></div>`, 'm-gift');
+    <div class="h-btns"><button class="btn primary" data-act="modal-close">닫기</button></div>`, 'm-gift');
 }
 
 function personTraits(p) {
@@ -1347,7 +1347,7 @@ function personTraits(p) {
   if (p.noble) t.push('<span class="laced-txt">권귀 · 체면을 중시</span>');
   if (isWeak(p)) t.push('<span class="muted">弱者</span>');
   if (p.informant) t.push('<span class="good">네 눈과 귀</span>');
-  if (p.owed >= 2) t.push('<span class="good">너에게 빚짐人情</span>');
+  if (p.owed >= 2) t.push('<span class="good">너에게 인정을 빚졌다</span>');
   if (p.soulBound) t.push('<span class="laced-txt">통제됨: 식해에 네 혼인이 심어져 있다，难违你意</span>');
   if (p.wantsFakes) t.push('<span class="laced-txt">가짜를 받아 되파는 걸 좋아한다</span>');
   if (p.official || p.integrity > 0.5) t.push(`<span>守规矩${p.integrity > 0.7 ? '극도로 엄격' : p.integrity > 0.4 ? '尚严' : '松'}</span>`);
@@ -1419,7 +1419,7 @@ function openFate() {
     <h4>갚지 못한 빚</h4>
     <ul class="timeline">${F.debts.length ? F.debts.map(d => `<li><span class="muted">第${d.day}日</span>${esc(d.what || SINS[d.kind].name)}<span class="bad">若败露赔 ${d.stake}</span>
       <span class="muted">${d.due <= S.day + 1 ? '바로 이 이틀 안에' : `约 ${d.due - S.day} 이내`}</span></li>`).join('') : '<li class="muted">미수금이 없다</li>'}</ul>
-    <div class="h-btns"><button class="btn primary" data-act="modal-close">合上</button></div>`, 'm-gift');
+    <div class="h-btns"><button class="btn primary" data-act="modal-close">닫기</button></div>`, 'm-gift');
 }
 
 // 치료를 구함：点顶栏的伤毒打开。손에 든 약、아는 의원；一个医者也不认得，就只能靠药
@@ -1440,7 +1440,7 @@ function openHeal() {
       <img class="heal-face" src="${asset('chars', personFace(p))}" alt=""><span>${esc(p.name)}<em class="muted small"> ${esc(p.title)} · ${MOOD_NAME[mood(p.aff)]}</em>
       <br><small>고칠 수 있다你的${healable(p).map(k => CONDS[k].name).join('、')}</small></span>${healButton(p)}</div>`).join('')
       : `<p class="muted small">${healers().length ? '아는 의원도 네 병은 고치지 못한다。' : '아직 의술을 아는 사람을 알지 못한다，가진 약에만 의지할 수 있다. 가벼운 상처와 미약한 독은 며칠 요양하면 낫지만, 독이 퍼진 이상은 치료하지 않으면 악화된다。'}</p>`}</div>
-    <div class="h-btns"><button class="btn primary" data-act="modal-close">合上</button></div>`, 'm-gift m-heal');
+    <div class="h-btns"><button class="btn primary" data-act="modal-close">닫기</button></div>`, 'm-gift m-heal');
 }
 
 function openGift(pid) {
