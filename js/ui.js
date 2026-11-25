@@ -728,7 +728,7 @@ function tabBroker() {
   });
   const intel = intelShop().map((k, i) => {
     const p = Math.round(INTEL_PRICE[k] * (1 + diff().markup));
-    return `<div class="shop-row"><img src="${asset('items', 'intel')}" alt=""><b>${{ market: '시세密报', treasure: '藏宝图', clique: '파벌内幕' }[k]}</b>
+    return `<div class="shop-row"><img src="${asset('items', 'intel')}" alt=""><b>${{ market: '시세 밀보', treasure: '장보도', clique: '파벌 내막' }[k]}</b>
       <span class="muted small">사야 무슨 내용인지 안다</span>${stoneTxt(p)}<button class="btn small" data-act="buy-intel" data-i="${i}" ${S.stones >= p ? '' : 'disabled'}>산다</button></div>`;
   });
   const merit = Object.keys(MERIT_SHOP).map(f => `<div class="merit-row">
@@ -793,22 +793,22 @@ function repSection() {
 }
 
 function tabLedger() {
-  const days = S.stats.days.slice(-4).reverse().map(d => `<tr><td>第 ${d.day} 日</td><td class="good">+${d.income}</td><td class="bad">-${d.expense}</td><td>${d.stones}</td></tr>`).join('');
+  const days = S.stats.days.slice(-4).reverse().map(d => `<tr><td>제 ${d.day}일</td><td class="good">+${d.income}</td><td class="bad">-${d.expense}</td><td>${d.stones}</td></tr>`).join('');
   const lg = pager(S.log.slice().reverse(), rowsFit(22, 1) - 8, 'log');
-  const logs = lg.items.map(l => `<li class="${l.cls}"><span class="muted">第${l.day}日</span> ${esc(l.text)}</li>`).join('');
+  const logs = lg.items.map(l => `<li class="${l.cls}"><span class="muted">제${l.day}일</span> ${esc(l.text)}</li>`).join('');
   const canDeed = S.stones >= deedPrice() && S.phase !== 'day';
   return `<div class="ledger">
     <div class="ledger-top paper">
       <div><h4>${icon('ic_ledger')}임대 계약</h4>
-        <p>${S.grace > 0 ? `<span class="bad">임대료 체납 ${S.rentOwed} 영석，宽限 ${S.grace} 日</span>` : `下期 ${rentAmount()} 영석，第 ${S.rentDue} 日到期`}</p>
+        <p>${S.grace > 0 ? `<span class="bad">임대료 체납 ${S.rentOwed} 영석, 유예 ${S.grace}일</span>` : `다음 회차 ${rentAmount()} 영석, 제 ${S.rentDue}일 만기`}</p>
         <p class="muted small">이레마다 낸다，회차마다 3할 가까이 오른다。</p>
         <button class="btn small" data-act="pay-rent" ${S.stones >= (S.grace ? S.rentOwed : rentAmount()) ? '' : 'disabled'}>${S.grace ? '추가 납부' : '미리 낸다'}</button></div>
       <div><h4>${icon('ic_deed')}가게 문서</h4>
         <p>${deedPrice()} 영석 · 보유 ${Math.floor(clamp(S.stones / deedPrice() * 100, 0, 100))}%</p>
         <p class="muted small">재고로는 현금을 대신 못 한다，영석만 받는다。</p>
         <button class="btn small primary" data-act="buy-deed" ${canDeed ? '' : 'disabled'}>가게 문서를 산다</button></div>
-      <div><h4>家底</h4><p>현금 ${S.stones}</p><p class="muted">连货估 ${netWorth()}</p></div></div>
-    <table class="days"><tr><th>日</th><th>进</th><th>出</th><th>余</th></tr>${days || '<tr><td colspan="4" class="muted">아직 기록이 없다</td></tr>'}</table>
+      <div><h4>자산</h4><p>현금 ${S.stones}</p><p class="muted">물건 포함 추정 ${netWorth()}</p></div></div>
+    <table class="days"><tr><th>일</th><th>수입</th><th>지출</th><th>잔액</th></tr>${days || '<tr><td colspan="4" class="muted">아직 기록이 없다</td></tr>'}</table>
     <ul class="log">${logs}</ul>${lg.nav}</div>`;
 }
 
@@ -822,14 +822,14 @@ function selActions(s, inCard = false) {
   const mvAll = (gid, label) => {
     if (!stackCap(gid) || !S.grids[gid] || g === gid || rejectReason(gid, s) || !findSpot(gid, s)) return;
     const n = itemsIn(g).filter(o => o.id === s.id).length;
-    if (n > 1) out.push(`<button class="btn tiny" data-act="move-all" data-g="${gid}" title="${label}：같은 곳의 ${n} 개를 함께 넣었다，한 칸에 겹친다">全部 ×${n}</button>`);
+    if (n > 1) out.push(`<button class="btn tiny" data-act="move-all" data-g="${gid}" title="${label}: 같은 곳의 ${n}개, 한 칸에 겹친다">전부 ×${n}</button>`);
   };
-  if (tradeOpen()) mv('tray', '上货盘');
+  if (tradeOpen()) mv('tray', '진열판에 올린다');
   mv('display', '진열에 올린다');
   if (!['store', 'floor'].includes(g)) mv('store', '창고로 거둔다');
   if (stackOf(s).length > 1) out.push(`<button class="btn tiny" data-act="unpile" title="이 칸에 겹친 것 ${stackOf(s).length} 개를 모두 창고로 거뒀다，각각 한 칸씩，품질은 그대로">통째로 거둔다 ×${stackOf(s).length}</button>`);
   if (g === 'hand') mv('floor', '바닥에 놓는다');
-  mv('hidden', '藏进暗格');
+  mv('hidden', '암격에 숨긴다');
   // 灵晶：嵌进취령진의 진안；진안满了，就和里面最空的一块对调（手机上진안在工坊页，拖不过去）
   if (s.id === 'spirit_crystal' && g !== 'power') {
     const low = weakestCrystal();
@@ -838,28 +838,28 @@ function selActions(s, inCard = false) {
   }
   S.machines.filter(m => MACHINES[m.type].in).slice(0, 12).forEach(m => { if (out.length < 7) { mv(gridOf(m, 'in'), `넣는다${MACHINES[m.type].name}`); mvAll(gridOf(m, 'in'), `넣는다${MACHINES[m.type].name}`); } });
   // 蛊、蛊卵넣는다蛊盅的蛊虫格
-  S.machines.filter(m => MACHINES[m.type].pot).forEach(m => mv(gridOf(m, 'pot'), `넣는다${MACHINES[m.type].name}养`));
+  S.machines.filter(m => MACHINES[m.type].pot).forEach(m => mv(gridOf(m, 'pot'), `${MACHINES[m.type].name}에 넣어 기른다`));
   // 灵兽圈：영령넣는다同种或空的栏；사료只喂吃它的那几栏
   S.machines.filter(m => MACHINES[m.type].stalls).forEach(m => [...Array(stallCount(m)).keys()].forEach(i => {
     if (out.length >= 7) return;
     const sp = stallSpecies(m, i), g = stallGrids(m, i);
     if (isPet(s)) mv(g.pen, `수란에 넣는다${cn(i + 1)}`);
-    else if (sp && petMenu(sp).includes(s.id)) { mv(g.feed, `喂兽栏${cn(i + 1)}（${ITEMS[sp].name}）`); mvAll(g.feed, `喂兽栏${cn(i + 1)}`); }
+    else if (sp && petMenu(sp).includes(s.id)) { mv(g.feed, `수란 ${cn(i + 1)}에 먹인다(${ITEMS[sp].name})`); mvAll(g.feed, `수란 ${cn(i + 1)}에 먹인다`); }
   }));
   S.machines.filter(m => MACHINES[m.type].mod && modAccepts(s, m.type)).forEach(m => mv(gridOf(m, 'mod'), `담는다${MACHINES[m.type].name}`));
   if (ITEMS[s.id].appraise) out.push(`<button class="btn tiny" data-act="appraise-own">${icon('ic_appraise')}감정</button>`);
-  if (canLace(s) && additives().length) out.push(`<button class="btn tiny" data-act="lace">${icon('ic_lace')}加料</button>`);
+  if (canLace(s) && additives().length) out.push(`<button class="btn tiny" data-act="lace">${icon('ic_lace')}재료 섞기</button>`);
   if (ITEMS[s.id].book) out.push('<button class="btn tiny" data-act="read-book">탐독</button>');
   const seem = seemOf(s);
-  if (restoreOf(seem) || cureBy(seem)) out.push(`<button class="btn tiny" data-act="consume">복용${cureBy(seem) ? `（治${CONDS[cureBy(seem)].name}）` : ''}</button>`);
+  if (restoreOf(seem) || cureBy(seem)) out.push(`<button class="btn tiny" data-act="consume">복용${cureBy(seem) ? `(치료: ${CONDS[cureBy(seem)].name})` : ''}</button>`);
   if (cultXp(seem)) out.push(`<button class="btn tiny" data-act="cultivate" data-uid="${s.uid}">복용 제련 +${cultXp(seem)}</button>`);
   if (canBottle(s)) out.push('<button class="btn tiny" data-act="bottle">병에 담는다</button>');
-  if (s.mark && markVisible(s)) out.push(`<button class="btn tiny" data-act="erase" ${canErase(s) ? '' : `disabled title="须낙인 지우기术${cn(s.mark.str)}重"`}>낙인 지우기（${costText('erase', s.mark.str)}）</button>`);
+  if (s.mark && markVisible(s)) out.push(`<button class="btn tiny" data-act="erase" ${canErase(s) ? '' : `disabled title="낙인 지우기술 ${cn(s.mark.str)}중 필요"`}>낙인 지우기(${costText('erase', s.mark.str)})</button>`);
   if (canSeal(s)) out.push('<button class="btn tiny" data-act="seal">贴封印</button>');
   if ((dressable(s) || isLaceable(s.id)) && !s.forged && s.lacedBy !== 'me' && !s.lacedSeen) out.push('<button class="btn tiny" data-act="inspect-own">검품</button>');
   if (knownFlaw(s) && !s.forged && (s.fake ? COUNTERFEITS[s.id] : isDressed(s))) out.push('<button class="btn tiny" data-act="study">뜯어서 연구한다</button>');
   // 验出了别人掺的料：吃下这个亏、贱행상에게 판다、当好货转手骗人（값을 흥정时照常卖）、或者拆开学他的手法
-  if (s.laced && s.lacedSeen && s.lacedBy !== 'me' && !laceSkill(s.laced)) out.push(`<button class="btn tiny" data-act="study">수법을 알아냈다(배움${LACE[s.laced].name}的掺法）</button>`);
+  if (s.laced && s.lacedSeen && s.lacedBy !== 'me' && !laceSkill(s.laced)) out.push(`<button class="btn tiny" data-act="study">수법 배우기(${LACE[s.laced].name} 섞는 법)</button>`);
   out.push(`<button class="btn tiny" data-act="sell-broker">행상에게 판다 ${brokerPrice(s)}</button>`);
   if (inCard) out.push('<button class="btn tiny ghost" data-act="trash-sel">丢弃</button>');
   return out.join('');
@@ -872,12 +872,12 @@ function renderStorage() {
   const s = sel && S.items[sel];
   const canSell = selectable(s) && LAYOUT === 'wide';
   $('#storage').innerHTML = `
-    <div class="st-head"><b>库房</b>
+    <div class="st-head"><b>창고</b>
       ${canSell ? `<span class="st-sel">선택됨 <b>${esc(itemName(s))}</b>${selActions(s)}</span>`
         : `<span class="muted small">${LAYOUT === 'tall' ? '물건을 눌러 상세와 조작을 본다，누른 채 끌어 옮긴다' : '끌어서 정리. 눌러서 보기와 판매'}</span>`}
       <button class="btn tiny" data-act="tidy" title="큰 것부터 놓는다，바닥의 물건은 되도록 창고에 넣는다">정리</button>
       <span class="st-tool" title="감보대: 조요경을 올린다，네 감정술을 결정한다">${gridHTML('tool', '', 'mod')}<small>${LENS_NAMES[appraiseLevel()]}</small></span>
-      <span class="trash" data-drop="trash" title="여기로 끌어다 버린다">弃</span></div>
+      <span class="trash" data-drop="trash" title="여기로 끌어다 버린다">버림</span></div>
     ${handItems().length ? `<div class="st-hand">${gridHTML('hand', '손에 든 것: 가게에 넣을 곳이 없다. 빈 곳으로 끌어다 놓는다，눌러서 복용, 진열, 설비에 넣기, 판매, 버려서 자리를 마련한다. 정리해야 다음 일을 할 수 있다')}</div>` : ''}
     <div class="st-body ${storeFit.cls || 'beside-row'}">${gridHTML('store', '')}
       <div class="st-side">${gridHTML('floor', '바닥(밤에 도둑 든다)')}${S.grids.hidden ? gridHTML('hidden', '속층 암격', 'stash') : ''}</div></div>`;
@@ -909,7 +909,7 @@ function renderCard() {
   const it = peek && S.items[peek], el = $('#itemcard');
   if (!it || (selectable(it) && sel !== it.uid)) { peek = null; el.innerHTML = ''; return; }
   const take = it.pos && it.pos.g === 'counter' && tradeCustomer() && S.customer.item === it.uid
-    ? `<button class="btn tiny" data-act="take-toggle">${(S.customer.take || []).includes(it.uid) ? '不收' : '받는다'}</button>` : '';
+    ? `<button class="btn tiny" data-act="take-toggle">${(S.customer.take || []).includes(it.uid) ? '안 받는다' : '받는다'}</button>` : '';
   el.innerHTML = `${itemTip(it)}<div class="ic-acts">${selectable(it) ? selActions(it, true) : take}</div>`;
 }
 
@@ -985,7 +985,7 @@ function oddsBar(o) {
 }
 
 // 货盘上每件货在这笔买卖里算什么
-const ROLE_TXT = { cure: '急需', want: '正中下怀', side: '덧붙여', extra: '多余' };
+const ROLE_TXT = { cure: '급함', want: '딱 맞음', side: '덧붙여', extra: '넘침' };
 const ROLE_CLS = { cure: 'good', want: 'good', side: 'muted', extra: 'bad' };
 
 // 값을 흥정：货盘上的货卖给他、카운터上点中的货받는다来，谈一个总价
@@ -1541,7 +1541,7 @@ function renderScavenge() {
         <div class="h-btns">
           <button class="btn primary" data-act="scav-search" ${sc.tries > 0 && !sc.ended && !(pend && !pend.pos) ? '' : 'disabled'}>뒤진다</button>
           <button class="btn" data-act="scav-home">回铺</button>
-          <span class="trash" data-drop="trash">弃</span></div></div></div>`, 'm-scav');
+          <span class="trash" data-drop="trash">버림</span></div></div></div>`, 'm-scav');
 }
 
 function showEnding() {
@@ -1588,8 +1588,8 @@ function profileHTML() {
       </div></div>
     <div class="pf">
       ${pts.length > 1 ? `<div class="pf-wealth"><h4>자산 추이</h4>${wealthSVG(pts)}<div class="pf-read" id="wl-read">${wealthRead(pts)}</div>
-        <details class="wl-table"><summary>逐日明细</summary><table><tr><th>日</th><th>进</th><th>出</th><th>余</th></tr>
-          ${S.stats.days.map(d => `<tr><td>第 ${d.day} 日</td><td>+${d.income}</td><td>-${d.expense}</td><td>${d.stones}</td></tr>`).join('')}</table></details></div>` : ''}
+        <details class="wl-table"><summary>逐日明细</summary><table><tr><th>일</th><th>수입</th><th>지출</th><th>잔액</th></tr>
+          ${S.stats.days.map(d => `<tr><td>제 ${d.day}일</td><td>+${d.income}</td><td>-${d.expense}</td><td>${d.stones}</td></tr>`).join('')}</table></details></div>` : ''}
       <div class="pf-text"><h4>下一局</h4>
         <ul class="pf-tips">${nextTips(sc).map(t => `<li><b>${t.head}</b>${esc(t.text)}</li>`).join('')}</ul></div></div></div>`;
 }
