@@ -1263,7 +1263,7 @@ function nightResolve() {
     addHeat(10);
     rep.push({ icon: 'ic_heat', title: '영맥', text: '종문 영맥 순수가 이상 유출을 감지했다...', cls: 'bad' });
   }
-  rep.push({ icon: 'ic_heat', title: '집법당 주목', text: `${before} → ${S.heat}${contraShown ? `（陈列禁物 ${contraShown} 件）` : ''}`, cls: S.heat > before ? 'bad' : '' });
+  rep.push({ icon: 'ic_heat', title: '집법당 주목', text: `${before} → ${S.heat}${contraShown ? `(진열 금물 ${contraShown}건)` : ''}`, cls: S.heat > before ? 'bad' : '' });
 
   // 傀儡卖出的赝品会招来投诉
   S.machines.filter(m => m.complaints).forEach(m => {
