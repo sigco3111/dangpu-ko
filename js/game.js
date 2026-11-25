@@ -74,7 +74,7 @@ function newGame(diffId, startId) {
   Object.assign(S.tech, start.tech || {});
   rollMarket();
   initStories();
-  log(`你接手了血煞宗杂役区的一间当铺。第一笔租金 ${rentAmount()} 灵石，七日后到期。`, 'gold');
+  log(`네가 혈살종 잡역 구역의 전당포 하나를 맡았다. 첫 임대료 ${rentAmount()} 영석, 7일 후 만기.`, 'gold');
   return S;
 }
 
@@ -132,16 +132,16 @@ function destroyItem(it) { delete S.items[it.uid]; }
 
 // 蛊的道行：幼蛊长满化为金蚕蛊；封盅相食，吞满三只成万毒蛊、吞满八只成蛊王（吞的若也吞过，连它的一并算上）
 const GU_STAGES = [
-  { name: '噬心蛊', icon: 'gu_young', eat: 0 },
-  { name: '金蚕蛊', icon: 'gu_gold', eat: 0 },
-  { name: '万毒蛊', icon: 'gu_wandu', eat: 3 },
-  { name: '蛊王', icon: 'gu_king', eat: 8 },
+  { name: '서심고', icon: 'gu_young', eat: 0 },
+  { name: '금잠고', icon: 'gu_gold', eat: 0 },
+  { name: '만독고', icon: 'gu_wandu', eat: 3 },
+  { name: '고왕', icon: 'gu_king', eat: 8 },
 ];
 const guStage = it => it.growth < 100 ? 0 : (it.eat || 0) >= GU_STAGES[3].eat ? 3 : (it.eat || 0) >= GU_STAGES[2].eat ? 2 : 1;
 
 function itemName(it) {
-  if (it.id === 'intel') return it.info ? (intelExpired(it) ? `过时的${it.info.title}` : it.info.title) : '密报';
-  if (it.id === 'water') return (it.bottled ? '瓶装' : '') + waterTier(it.purity);
+  if (it.id === 'intel') return it.info ? (intelExpired(it) ? `시대에 뒤떨어진 ${it.info.title}` : it.info.title) : '밀보';
+  if (it.id === 'water') return (it.bottled ? '병입' : '') + waterTier(it.purity);
   if (it.id === 'gu') return GU_STAGES[guStage(it)].name;
   return ITEMS[it.id].name;
 }
@@ -183,7 +183,7 @@ function knownFlaw(it) {
 const bodyOf = it => it.fake && COUNTERFEITS[it.id] ? { id: COUNTERFEITS[it.id].use[0][0], q: it.q != null ? it.q : 50 } : it;
 // 吃出来是假的：药力只有里头那味的份
 function tasteFake(it) {
-  if (it.fake && !knownFlaw(it) && bodyOf(it) !== it) log(`药力只有${ITEMS[bodyOf(it).id].name}那点——这${ITEMS[it.id].name}是假的。`, 'loss');
+  if (it.fake && !knownFlaw(it) && bodyOf(it) !== it) log(`약효는 ${ITEMS[bodyOf(it).id].name} 수준뿐 - 이 ${ITEMS[it.id].name}은(는) 가짜다.`, 'loss');
 }
 
 // 按某个品质估值
@@ -230,22 +230,22 @@ function machineOfGrid(gid) {
 
 // 返回 null 表示可放，否则返回原因
 function rejectReason(gid, it) {
-  if (gid === 'counter') return '柜台上是顾客的东西';
-  if (gid === 'hand') return '手上只拿铺里放不下的货';
-  if (gid === 'tray' && !tradeOpen()) return '有客人上门谈买卖时，才把货摆上货盘';
-  if (gid === 'power') return it.id === 'spirit_crystal' ? null : '阵眼只能嵌入灵晶';
-  if (gid === 'tool') return ITEMS[it.id].tool ? null : '鉴宝台只放鉴定的器物';
+  if (gid === 'counter') return '카운터 위는 손님의 물건이다';
+  if (gid === 'hand') return '가게에 못 놓는 물건만 손에 든다';
+  if (gid === 'tray' && !tradeOpen()) return '손님이 거래하러 오면 그때 물건을 진열판에 올린다';
+  if (gid === 'power') return it.id === 'spirit_crystal' ? null : '진안에는 영정만 끼울 수 있다';
+  if (gid === 'tool') return ITEMS[it.id].tool ? null : '감보대에는 감정할 기물만 올린다';
   const mg = machineOfGrid(gid);
   if (!mg) return null;
   const def = MACHINES[mg.m.type];
   if (mg.slot === 'mod') {
-    if (mg.m.type === 'forgery') return COUNTERFEITS[it.id] ? null : '只有能仿造的东西才能当样品';
-    return modAccepts(it, mg.m.type) ? null : '不是这台设备的模组';
+    if (mg.m.type === 'forgery') return COUNTERFEITS[it.id] ? null : '모조할 수 있는 것만 견본이 될 수 있다';
+    return modAccepts(it, mg.m.type) ? null : '이 설비의 모듈이 아니다';
   }
   if (/^[fb]\d+$/.test(mg.slot)) return stallReject(mg.m, mg.slot, it);
-  if (mg.slot === 'in') return !def.inputs || def.inputs.includes(it.id) ? null : `${def.name}用不上这个`;
-  if (mg.slot === 'pot') return def.habitat.includes(it.id) ? null : `${def.potLabel}格只养${def.habitat.map(id => ITEMS[id].name).join('、')}`;
-  if (mg.slot === 'out') return '产出格只能取出';
+  if (mg.slot === 'in') return !def.inputs || def.inputs.includes(it.id) ? null : `${def.name}에는 이걸 쓸 수 없다`;
+  if (mg.slot === 'pot') return def.habitat.includes(it.id) ? null : `${def.potLabel} 칸에는 ${def.habitat.map(id => ITEMS[id].name).join('·')}만 기를 수 있다`;
+  if (mg.slot === 'out') return '산출 칸은 꺼내기만 가능';
   return null;
 }
 
@@ -311,7 +311,7 @@ function stow(it) {
   if (autoPlace(it) || tidy([it])) return it.pos.g;
   it.pos = { g: 'hand', x: 0, y: 0 };
   layoutHand();
-  log(`铺里堆满了，${itemName(it)}只好先拿在手上。`, 'loss');
+  log(`가게가 가득 차서 ${itemName(it)}은(는) 일단 손에 들었다.`, 'loss');
   return 'hand';
 }
 
@@ -395,7 +395,7 @@ function output(m, it) {
   if (autoPlace(it, [gridOf(m, 'out')])) return 'out';
   if (def.overflow && autoPlace(it, ['floor'])) return 'floor';
   // 产出格、地面都放不下（长条的飞剑、魔剑溢不到地上）：搬进库房，不能白白没了
-  log(`${def.name}的产出格放不下${itemName(it)}，搬进了库房。`, 'warn');
+  log(`${def.name}의 산출 칸에 ${itemName(it)}이(가) 안 들어가 창고로 옮겼다.`, 'warn');
   return stow(it);
 }
 
@@ -422,79 +422,79 @@ const bladeReady = inputs => techLv('refine') >= 2 && countIn(inputs, 'god_blank
 
 function machineCheck(m) {
   const def = MACHINES[m.type];
-  if (!m.on) return { ok: false, msg: '已停用' };
+  if (!m.on) return { ok: false, msg: '사용 중지됨' };
   const inputs = def.in ? itemsIn(gridOf(m, 'in')) : [];
   const custom = customCheck(m, inputs);
   if (custom) return custom;
   switch (m.type) {
     case 'furnace':
-      if (!inputs.some(it => it.id === 'scrap_sword' || it.id === 'broken_relic') && countIn(inputs, 'iron_ore') < 2) return { ok: false, msg: '缺原料：两块玄铁矿、一柄残剑或一件残破法器' };
-      if (!outputHasRoom(m, 'iron_ingot')) return { ok: false, msg: '产出格与地面皆满' };
-      return { ok: true, msg: `可炼 ${(hasMod(m, 'fire_disk') ? 4 : 2) * (hasBoostFu(m) ? 2 : 1)} 炉` };
+      if (!inputs.some(it => it.id === 'scrap_sword' || it.id === 'broken_relic') && countIn(inputs, 'iron_ore') < 2) return { ok: false, msg: '재료 부족: 현철광 두 개, 잔검 한 자루 또는 파손 법기 하나' };
+      if (!outputHasRoom(m, 'iron_ingot')) return { ok: false, msg: '산출 칸과 바닥이 모두 가득 찼다' };
+      return { ok: true, msg: `${(hasMod(m, 'fire_disk') ? 4 : 2) * (hasBoostFu(m) ? 2 : 1)}로 제련 가능` };
     case 'forge':
       if (salvageReady(inputs))
-        return outputHasRoom(m, 'sword_std') ? { ok: true, msg: '重新祭炼残破法器' } : { ok: false, msg: '产出格与地面皆满' };
-      if (!hasMod(m, 'jade_slip')) return { ok: false, msg: '模组槽缺器谱玉简（或放残破法器，配一锭玄铁、一柄残剑或两块玄铁矿重新祭炼）' };
-      if (bladeReady(inputs)) return outputHasRoom(m, 'demon_blade') ? { ok: true, msg: '以魂晶为神兵胚料开锋，铸噬魂魔剑' } : { ok: false, msg: '产出格与地面皆满' };
-      if (countIn(inputs, 'iron_ingot') < 3) return { ok: false, msg: '缺原料：三锭玄铁' };
-      if (!outputHasRoom(m, 'sword_std')) return { ok: false, msg: '产出格与地面皆满' };
-      return { ok: true, msg: '可打一柄飞剑' };
+        return outputHasRoom(m, 'sword_std') ? { ok: true, msg: '파손 법기를 다시 제련한다' } : { ok: false, msg: '산출 칸과 바닥이 모두 가득 찼다' };
+      if (!hasMod(m, 'jade_slip')) return { ok: false, msg: '모듈 슬롯에 기보 옥간이 없다(또는 파손 법기를 넣고 현철 주괴 하나, 잔검 한 자루나 현철광 두 개를 곁들여 다시 제련)' };
+      if (bladeReady(inputs)) return outputHasRoom(m, 'demon_blade') ? { ok: true, msg: '혼정을 신병 배료로 날을 세워 섭혼마검을 주조한다' } : { ok: false, msg: '산출 칸과 바닥이 모두 가득 찼다' };
+      if (countIn(inputs, 'iron_ingot') < 3) return { ok: false, msg: '재료 부족: 현철 주괴 세 개' };
+      if (!outputHasRoom(m, 'sword_std')) return { ok: false, msg: '산출 칸과 바닥이 모두 가득 찼다' };
+      return { ok: true, msg: '비검 한 자루를 만들 수 있다' };
     case 'danlu': {
       const r = danluRecipe(m, inputs);
-      if (!r && countIn(inputs, 'waste_pill') >= 2) return { ok: true, msg: `重炼废丹${hasMod(m, 'dan_guide') ? '（有丹引，必成）' : ''}` };
-      if (!r) return { ok: false, msg: '丹材不足以成任一丹方' };
-      if (!findSpot(gridOf(m, 'out'), { id: r.out })) return { ok: false, msg: '产出格已满' };
-      return { ok: true, msg: `将炼${ITEMS[r.out].name}` };
+      if (!r && countIn(inputs, 'waste_pill') >= 2) return { ok: true, msg: `폐단 재제련${hasMod(m, 'dan_guide') ? '(단인 있음, 반드시 성공)' : ''}` };
+      if (!r) return { ok: false, msg: '어떤 단방도 이룰 만큼 단재가 부족하다' };
+      if (!findSpot(gridOf(m, 'out'), { id: r.out })) return { ok: false, msg: '산출 칸이 가득 찼다' };
+      return { ok: true, msg: `${ITEMS[r.out].name}을(를) 제련할 것이다` };
     }
     case 'pool': {
       const waters = countIn(inputs, 'water'), sand = countIn(inputs, 'filter_sand') + countIn(inputs, 'spirit_sand');
-      if (!waters) return { ok: false, msg: '池中无水' };
-      if (!sand) return { ok: false, msg: '缺滤灵砂或高纯灵砂' };
-      if (!findSpot(gridOf(m, 'out'), { id: 'water' })) return { ok: false, msg: '产出格已满' };
-      return { ok: true, msg: `可洗 ${Math.min(4, waters, sand)} 瓶` };
+      if (!waters) return { ok: false, msg: '못에 물이 없다' };
+      if (!sand) return { ok: false, msg: '여려사 또는 고순 영사가 부족하다' };
+      if (!findSpot(gridOf(m, 'out'), { id: 'water' })) return { ok: false, msg: '산출 칸이 가득 찼다' };
+      return { ok: true, msg: `${Math.min(4, waters, sand)}병 씻을 수 있다` };
     }
     case 'spring':
-      if (!outputHasRoom(m, 'water')) return { ok: false, msg: '产出格与地面皆满' };
-      return { ok: true, msg: `将涌出${S.upgrades.vein ? '四' : '三'}瓶浊灵水` };
+      if (!outputHasRoom(m, 'water')) return { ok: false, msg: '산출 칸과 바닥이 모두 가득 찼다' };
+      return { ok: true, msg: `${S.upgrades.vein ? '네' : '세'} 병의 탁령수가 솟아날 것이다` };
     case 'herbbed':
-      if (!countIn(inputs, 'herb_seed')) return { ok: false, msg: '未下种' };
-      return { ok: true, msg: `${countIn(inputs, 'herb_seed')} 株生长中` };
+      if (!countIn(inputs, 'herb_seed')) return { ok: false, msg: '씨를 안 뿌림' };
+      return { ok: true, msg: `${countIn(inputs, 'herb_seed')}그루 자라는 중` };
     case 'gupot': return gupotCheck(m, inputs);
     case 'winejar':
-      if (m.brew > 0) return { ok: true, msg: `封坛中，还需 ${m.brew} 夜` };
-      if (m.brew === 0 && m.ready) return outputHasRoom(m, 'spirit_wine') ? { ok: true, msg: '待出坛' } : { ok: false, msg: '产出格已满' };
-      if (countIn(inputs, 'spirit_fruit') < 2 || countIn(inputs, 'yeast') < 1) return { ok: false, msg: '缺原料：两枚灵果+一块酒曲' };
-      return { ok: true, msg: '今夜封坛' };
+      if (m.brew > 0) return { ok: true, msg: `봉단 중, ${m.brew}박 더 필요` };
+      if (m.brew === 0 && m.ready) return outputHasRoom(m, 'spirit_wine') ? { ok: true, msg: '단에서 나오기 대기 중' } : { ok: false, msg: '산출 칸이 가득 찼다' };
+      if (countIn(inputs, 'spirit_fruit') < 2 || countIn(inputs, 'yeast') < 1) return { ok: false, msg: '재료 부족: 영과 두 개 + 누룩 한 덩이' };
+      return { ok: true, msg: '오늘 밤 단을 봉한다' };
     case 'soulfurnace':
       if (countIn(inputs, 'live_soul') && countIn(inputs, 'soul_pearl'))
-        return findSpot(gridOf(m, 'out'), { id: 'soul_crystal' }) ? { ok: true, msg: '以生魂淬魂珠，炼魂晶' } : { ok: false, msg: '产出格已满' };
-      if (countIn(inputs, 'soul_wisp') < wispsPerPearl() && !countIn(inputs, 'soul_grudge')) return { ok: false, msg: `缺魂：${wispsPerPearl() === 2 ? '两' : '三'}缕游魂或一缕怨魂（或一缕生魂＋一颗魂珠炼魂晶）` };
-      if (!findSpot(gridOf(m, 'out'), { id: 'soul_pearl' })) return { ok: false, msg: '产出格已满' };
-      return { ok: true, msg: `可炼 ${hasMod(m, 'soul_bell') ? 2 : 1} 炉` };
+        return findSpot(gridOf(m, 'out'), { id: 'soul_crystal' }) ? { ok: true, msg: '생혼으로 혼주를 달궈 혼정을 제련한다' } : { ok: false, msg: '산출 칸이 가득 찼다' };
+      if (countIn(inputs, 'soul_wisp') < wispsPerPearl() && !countIn(inputs, 'soul_grudge')) return { ok: false, msg: `혼 부족: 유혼 ${wispsPerPearl() === 2 ? '두' : '세'} 가닥 또는 원혼 한 가닥(또는 생혼 한 가닥 + 혼주 한 알로 혼정 제련)` };
+      if (!findSpot(gridOf(m, 'out'), { id: 'soul_pearl' })) return { ok: false, msg: '산출 칸이 가득 찼다' };
+      return { ok: true, msg: `${hasMod(m, 'soul_bell') ? 2 : 1}로 제련 가능` };
     case 'coffin':
-      if (m.brew > 0) return { ok: true, msg: `封棺中，还需 ${m.brew} 夜` };
-      if (m.ready) return findSpot(gridOf(m, 'out'), { id: m.brewOut || 'iron_corpse' }) ? { ok: true, msg: '待开棺' } : { ok: false, msg: '产出格已满' };
-      if (countIn(inputs, 'cult_corpse') && countIn(inputs, 'soul_crystal')) return { ok: true, msg: '今夜封棺，炼尸王' };
-      if (!countIn(inputs, 'corpse') || !countIn(inputs, 'soul_pearl')) return { ok: false, msg: '缺料：一具尸身、一颗魂珠（或修士遗蜕、一块魂晶）' };
-      return { ok: true, msg: '今夜封棺' };
+      if (m.brew > 0) return { ok: true, msg: `봉관 중, ${m.brew}박 더 필요` };
+      if (m.ready) return findSpot(gridOf(m, 'out'), { id: m.brewOut || 'iron_corpse' }) ? { ok: true, msg: '관 열기 대기 중' } : { ok: false, msg: '산출 칸이 가득 찼다' };
+      if (countIn(inputs, 'cult_corpse') && countIn(inputs, 'soul_crystal')) return { ok: true, msg: '오늘 밤 관을 봉하고 시왕을 제련한다' };
+      if (!countIn(inputs, 'corpse') || !countIn(inputs, 'soul_pearl')) return { ok: false, msg: '재료 부족: 시신 한 구, 혼주 한 알(또는 수사 유태, 혼정 한 개)' };
+      return { ok: true, msg: '오늘 밤 관을 봉한다' };
     case 'puppetbench':
-      if (!hasMod(m, 'puppet_scroll')) return { ok: false, msg: '模组槽缺傀儡图谱' };
-      if (countIn(inputs, 'iron_ingot') < 2 || !countIn(inputs, 'soul_pearl')) return { ok: false, msg: '缺料：两锭玄铁、一颗魂珠' };
-      if (!outputHasRoom(m, 'puppet_doll')) return { ok: false, msg: '产出格与地面皆满' };
-      return { ok: true, msg: '可造一具傀儡' };
+      if (!hasMod(m, 'puppet_scroll')) return { ok: false, msg: '모듈 슬롯에 꼭두각시 도보가 없다' };
+      if (countIn(inputs, 'iron_ingot') < 2 || !countIn(inputs, 'soul_pearl')) return { ok: false, msg: '재료 부족: 현철 주괴 두 개, 혼주 한 알' };
+      if (!outputHasRoom(m, 'puppet_doll')) return { ok: false, msg: '산출 칸과 바닥이 모두 가득 찼다' };
+      return { ok: true, msg: '꼭두각시 한 구를 만들 수 있다' };
     case 'yaopot': {
       const seeds = inputs.filter(it => YAO_SEEDS[it.id]).length;
-      if (!seeds) return { ok: false, msg: '未下种' };
+      if (!seeds) return { ok: false, msg: '씨를 안 뿌림' };
       const vines = countIn(inputs, 'vine_seed'), food = countIn(inputs, 'bones') + countIn(inputs, 'corpse') * 3;
-      return { ok: true, msg: vines && food < vines ? `噬血藤缺血食（${food}/${vines}）` : `${seeds} 株生长中` };
+      return { ok: true, msg: vines && food < vines ? `서혈등에 피 먹이가 부족하다(${food}/${vines})` : `${seeds}그루 자라는 중` };
     }
     case 'forgery': return forgeryCheck(m, inputs);
     case 'dihuo': return dihuoCheck(m, inputs);
     case 'pen': return penCheck(m, inputs);
     case 'fudesk': return fudeskCheck(m, inputs);
     case 'puppet':
-      if (!inputs.length) return { ok: false, msg: '货架空空' };
-      return { ok: true, msg: `货架 ${inputs.length} 件` };
+      if (!inputs.length) return { ok: false, msg: '진열대가 텅 비었다' };
+      return { ok: true, msg: `진열대 ${inputs.length}건` };
   }
   return { ok: false, msg: '' };
 }
@@ -512,7 +512,7 @@ function machineRun(m) {
     if (where === 'floor') floorCount++;
     if (where) { made.push(itemName(it)); tally('made'); }
   };
-  if (customRun(m, inputs, emit)) return `产出：${made.join('、')}${floorCount ? `（${floorCount} 件溢到地上）` : ''}`;
+  if (customRun(m, inputs, emit)) return `산출: ${made.join('·')}${floorCount ? `(${floorCount}건이 바닥에 넘쳤다)` : ''}`;
   switch (m.type) {
     case 'furnace': {
       const disk = hasMod(m, 'fire_disk');
@@ -557,7 +557,7 @@ function machineRun(m) {
         emit(makeItem(r.out, { q: clamp(avgQ(used) + (fire ? 20 : 0) + guide + retreatQ(), 5, 100) }));
       }
       burnMod(m, 'dan_guide'); burnMod(m, 'zhen_fu');
-      if (blown) made.push(`炸了 ${blown} 炉废丹`);
+      if (blown) made.push(`${blown}로의 폐단이 터졌다`);
       break;
     }
     case 'pool': {
@@ -609,14 +609,14 @@ function machineRun(m) {
           : [...takeItems(inputs, 'corpse', 1), ...takeItems(inputs, 'soul_pearl', 1)];
         m.brewQ = avgQ(used);
         m.brewOut = king ? 'corpse_king' : 'iron_corpse';
-        if (techLv('corpse') < 2) { m.brew = 1; return `封棺，尸气翻涌，明夜开棺${king ? '——棺中有王' : ''}`; }
+        if (techLv('corpse') < 2) { m.brew = 1; return `봉관, 시기가 소용돌이친다. 명야에 관을 연다${king ? ' - 관 속에 왕이 있다' : ''}`; }
         m.ready = true;
       }
       if (m.ready && findSpot(gridOf(m, 'out'), { id: m.brewOut || 'iron_corpse' })) {
         m.ready = false;
         emit(makeItem(m.brewOut || 'iron_corpse', { q: m.brewQ || 50 }));
         const poison = makeItem('corpse_poison', { q: 60 });
-        if (autoPlace(poison, [gridOf(m, 'out')])) made.push('尸毒'); else destroyItem(poison);
+        if (autoPlace(poison, [gridOf(m, 'out')])) made.push('시독'); else destroyItem(poison);
       }
       break;
     case 'puppetbench': {
@@ -634,15 +634,15 @@ function machineRun(m) {
       else if (!m.ready && m.brew === 0) {
         const used = [...takeItems(inputs, 'spirit_fruit', 2), ...takeItems(inputs, 'yeast', 1)];
         m.brewQ = avgQ(used);
-        if (techLv('brew') < 2) { m.brew = 1; return '封坛，明夜出酒'; }
+        if (techLv('brew') < 2) { m.brew = 1; return '봉단, 명야에 술이 나온다'; }
         m.ready = true;
       }
       if (m.ready && outputHasRoom(m, 'spirit_wine')) { m.ready = false; emit(makeItem('spirit_wine', { q: m.brewQ || 50 })); }
       break;
     case 'puppet': return puppetRun(m, inputs);
   }
-  if (!made.length) return '没有产出';
-  return `产出：${made.join('、')}${floorCount ? `（${floorCount} 件溢到地上）` : ''}`;
+  if (!made.length) return '산출물이 없다';
+  return `산출: ${made.join('·')}${floorCount ? `(${floorCount}건이 바닥에 넘쳤다)` : ''}`;
 }
 
 // 妖植盆里能种的：种子 → [结出什么, 每夜长几成]；货品册可往里添
@@ -658,20 +658,20 @@ function yaopotRun(m, inputs) {
       if (!seed.fed) {
         if (takeItems(inputs, 'bones', 1).length) seed.fed = 1;
         else if (takeItems(inputs, 'corpse', 1).length) seed.fed = 3;
-        else { notes.push('噬血藤饿得枯黄'); return; }
+        else { notes.push('서혈등이 굶어 시들었다'); return; }
       }
       seed.fed--;
     }
     const [id, rate] = YAO_SEEDS[seed.id];
     seed.growth = (seed.growth || 0) + Math.round(rate * grow * (1 + 0.25 * techLv('plant')));
     if (seed.growth < 100) return;
-    if (!findSpot(gridOf(m, 'out'), { id })) { notes.push('产出格已满'); return; }
+    if (!findSpot(gridOf(m, 'out'), { id })) { notes.push('산출 칸이 가득 찼다'); return; }
     destroyItem(seed);
     const it = makeItem(id, { q: clamp(rint(45, 85) + techBonus('yaopot'), 5, 100) });
     autoPlace(it, [gridOf(m, 'out')]);
-    notes.push(`结出${itemName(it)}`);
+    notes.push(`${itemName(it)}이(가) 열렸다`);
   });
-  return notes.length ? notes.join('；') : '妖植在黑暗里缓缓舒展';
+  return notes.length ? notes.join('; ') : '요식이 어둠 속에서 천천히 펼쳐진다';
 }
 
 function puppetRun(m, shelf) {
@@ -686,7 +686,7 @@ function puppetRun(m, shelf) {
   }
   m.cash += cash;
   S.stats.income += cash;
-  return sold ? `夜里卖出 ${sold} 件，钱匣进账 ${cash} 灵石` : '一夜无人问津';
+  return sold ? `밤에 ${sold}건을 팔아 돈궤에 ${cash} 영석이 들어왔다` : '하룻밤 아무도 찾지 않았다';
 }
 
 function powerSupply() { return ARRAY_BASE_POWER + (S.upgrades.hijack ? 6 : 0) + (S.upgrades.vein ? 10 : 0); }
@@ -806,7 +806,7 @@ function openShop() {
   castTick();
   teachTick();
   queueStoryVisitors();
-  log(`开门迎客。今日预计 ${S.queue.length} 位来客。`);
+  log(`문을 열고 손님을 맞는다. 오늘 예상 손님 ${S.queue.length}명.`);
 }
 
 function genCustomer() {
@@ -944,7 +944,7 @@ const affOf = c => (personOf(c) || { aff: 0 }).aff;
 
 function dismissCustomer(angry) {
   const c = S.customer;
-  if (c && angry && c.faction) { adjustRep(c.faction, -1); remember(personOf(c), '在你这儿谈崩了买卖。', -3); }
+  if (c && angry && c.faction) { adjustRep(c.faction, -1); remember(personOf(c), '네 곳에서 거래가 깨졌다.', -3); }
   if (c) settleReports(c);
   clearCounter();
   returnTray();
@@ -989,16 +989,16 @@ function completeSale(c, it, price, v = buyerValuation(c, it)) {
   if (it.stolen > 0 && Math.random() < 0.2) {
     destroyItem(it);
     adjustRep('mo', -4); addHeat(8);
-    log(`${c.name}认出了这件${name}是同门失窃之物，当场收走，还扬言要告到执法堂！`, 'loss');
+    log(`${c.name}이(가) 이 ${name}이(가) 같은 문파의 도난품임을 알아보고 그 자리에서 압수하며, 집법당에 고하겠다고 으름장을 놓았다!`, 'loss');
     return { stolenCaught: true };
   }
   const p = personOf(c);
   if (applyLace(p, it, 'sale', !!c.forGift).caught) {
-    log(`${c.name}察觉${name}被动了手脚，当场摔了回来！`, 'loss');
+    log(`${c.name}이(가) ${name}에 손을 댄 걸 알아채고 그 자리에서 내던졌다!`, 'loss');
     return { lacedCaught: true };
   }
   if (c.wishId === it.id && p) {
-    remember(p, `从你这儿买到了心心念念的${name}。`, 15, 'helped');
+    remember(p, `너에게서 마음에 품던 ${name}을(를) 샀다.`, 15, 'helped');
     p.wish = null;
   }
   if (ITEMS[it.id].illicit) addHeat(2);
@@ -1008,7 +1008,7 @@ function completeSale(c, it, price, v = buyerValuation(c, it)) {
   if (it.mark) { S.markedSold = S.markedSold || []; S.markedSold.push({ owner: it.mark.owner, name: itemName(it), day: S.day, str: it.mark.str }); }
   noteSale(c, it, price, x);
   castEvent(p, 'sold', it, price);
-  earn(price, `${c.name}以 ${price} 灵石买下${name}。`);
+  earn(price, `${c.name}이(가) ${price} 영석에 ${name}을(를) 샀다.`);
   S.stats.sales++;
   if (it.stolen > 0 || ITEMS[it.id].contra) tally('hot');
   if (!S.stats.bestSale || price > S.stats.bestSale.price) S.stats.bestSale = { name, price, day: S.day };
@@ -1031,9 +1031,9 @@ function buyerDetectsFake(c, it) {
   const knew = knownFlaw(it);
   if (it.fake) it.revealed = true; else it.seen = Math.max(it.seen || 0, it.grade);
   adjustRep(c.faction, knew ? -4 : -2);
-  remember(p, knew ? `你拿${it.fake ? '赝品' : '以次充好的'}${itemName(it)}当真货卖他，被他看穿。` : `你卖他的${itemName(it)}有问题，被他看了出来。`,
+  remember(p, knew ? `네가 ${it.fake ? '위작' : '하급을 상급으로 속인'} ${itemName(it)}을(를) 진품이라며 팔다가 그에게 들켰다.` : `네가 판 ${itemName(it)}에 문제가 있음을 그가 알아봤다.`,
     knew ? -18 : -8, 'fakeSold');
-  log(`${c.name}看出${itemName(it)}${it.fake ? '是赝品' : '是以次充好'}，冷笑着走了。`, 'loss');
+  log(`${c.name}이(가) ${itemName(it)}이(가) ${it.fake ? '위작' : '하급을 상급으로 속인 것'}임을 알아보고 냉소하며 떠났다.`, 'loss');
   return true;
 }
 
@@ -1045,7 +1045,7 @@ function completePurchase(c, it, offer) {
   if (ITEMS[it.id].contra) addHeat(3);
   notePurchase(c, it, offer);
   castEvent(personOf(c), 'bought', it, offer);
-  spend(offer, `以 ${offer} 灵石收下${c.name}的${itemName(it)}。`);
+  spend(offer, `${offer} 영석에 ${c.name}의 ${itemName(it)}을(를) 받았다.`);
   it.cost = offer;
   it.boughtDay = S.day;
   if (it.stolen > 0 || ITEMS[it.id].contra) tally('hot');
@@ -1057,12 +1057,12 @@ function completePurchase(c, it, offer) {
 function reportWanted(c) { c.reportedWanted = true; }
 
 function payWanted(c, p) {
-  earn(c.wanted, `执法堂在巷口按住了通缉犯${c.name}，你领得赏金 ${c.wanted} 灵石。`);
+  earn(c.wanted, `집법당이 골목 어귀에서 수배범 ${c.name}을(를) 붙잡았고, 너는 현상금 ${c.wanted} 영석을 받았다.`);
   adjustRep('mo', 4); adjustRep(c.faction, -6); addHeat(-8);
   S.merit.mo += 2;
-  if (p) { remember(p, '你向执法堂举报了他。', -80, 'betrayed'); p.status = 'jailed'; lifeNote(p, '被你举报，押入血狱。'); }
-  commitSin('betray', { p: p || { pid: null, name: c.name, faction: c.faction }, w: 1, what: `举报通缉犯${c.name}`, virtue: 2 });
-  return { text: `${c.name}前脚出门，执法堂的人后脚就在巷口按住了${ta(p)}。赏金 ${c.wanted} 灵石送到。`, cls: 'good' };
+  if (p) { remember(p, '네가 집법당에 그를 신고했다.', -80, 'betrayed'); p.status = 'jailed'; lifeNote(p, '네 신고로 혈옥에 압송됐다.'); }
+  commitSin('betray', { p: p || { pid: null, name: c.name, faction: c.faction }, w: 1, what: `수배범 ${c.name}을(를) 신고한다`, virtue: 2 });
+  return { text: `${c.name}이(가) 나가자마자 집법당 사람들이 골목 어귀에서 ${ta(p)}을(를) 붙잡았다. 현상금 ${c.wanted} 영석이 도착했다.`, cls: 'good' };
 }
 
 // 客人走了（成交、谈崩、送客、打烊都算）：先前暗中递的状子这才兑现；人要是已经没了，状子作废
@@ -1083,7 +1083,7 @@ function lieDetectChance(c) {
 }
 
 function demeanor(c) {
-  return c.savvy >= 0.65 ? '老辣' : c.savvy >= 0.45 ? '精明' : c.savvy >= 0.25 ? '寻常' : '憨直';
+  return c.savvy >= 0.65 ? '노련함' : c.savvy >= 0.45 ? '영리함' : c.savvy >= 0.25 ? '평범함' : '우직함';
 }
 
 // 对赝品的贱卖价
@@ -1097,7 +1097,7 @@ function tellCustomer(c, claimFake) {
   const caught = !honest && Math.random() < lieDetectChance(c);
   // 把真品说成赝品是存心坑人；把赝品说成真品，照妖镜里明明照出了破绽才算
   const knowing = !honest && (claimFake || (ITEMS[it.id].appraise && visibleFeats(it, appraiseLevel()).length > 0));
-  if (knowing) commitSin('fraud', { p: personOf(c), w: 1, what: `对${c.name}谎称${itemName(it)}是${claimFake ? '赝品' : '真品'}`, virtue: 2 });
+  if (knowing) commitSin('fraud', { p: personOf(c), w: 1, what: `${c.name}에게 ${itemName(it)}이(가) ${claimFake ? '위작' : '진품'}이라고 거짓말한다`, virtue: 2 });
   c.told = it.told = claimFake ? 'fake' : 'real';
   noteClaim(c, honest, caught, claimFake);
   if (honest) tally('honest'); else if (knowing) tally('lies');
@@ -1114,10 +1114,10 @@ function finishAppraisal(c, claimFake) {
   const { honest, caught } = tellCustomer(c, claimFake);
   S.stats.appraisals++;
   if (caught) {
-    log(`${c.name}识破了你的说辞，甩袖而去，酬金分文未给。`, 'loss');
+    log(`${c.name}이(가) 네 말솜씨를 간파하고 소매를 뿌리며 떠났다. 수고비는 한 푼도 받지 못했다.`, 'loss');
     return { caught };
   }
-  earn(c.fee, `${c.name}付了 ${c.fee} 灵石鉴定酬金。`);
+  earn(c.fee, `${c.name}이(가) 감정 수고비 ${c.fee} 영석을 냈다.`);
   if (honest) adjustRep(c.faction, 3);
   let ask = null;
   if (claimFake && Math.random() < 0.7) ask = fakeAsk(it);
@@ -1134,7 +1134,7 @@ function disputeAsFake(c) {
     it.disputed = 'caught';
     c.patience -= 2;
     it.ask = Math.round(it.ask * 1.1);
-    log(`${c.name}识破了你的压价伎俩。`, 'loss');
+    log(`${c.name}이(가) 네 가격 깎기 술수를 간파했다.`, 'loss');
   } else {
     it.disputed = 'ok';
     it.ask = Math.min(it.ask, fakeAsk(it));
@@ -1151,17 +1151,17 @@ function runInspection(offer = 0) {
   S.stats.inspections++;
   const e = official('enforcer');
   if (!offer && tolerance(e) === 'ignore') {
-    log(`${e.name}扫了一眼你的铺子，什么也没说就走了。`, 'gain');
+    log(`${e.name}이(가) 네 가게를 한번 훑어보고 아무 말 없이 떠났다.`, 'gain');
     return { bribed: true, ignored: true, found: [] };
   }
   if (S.flags.enforcerOwned || (offer && S.flags.chenShelter)) {
-    if (offer) spend(offer, `塞给${e.name} ${offer} 灵石。`);
-    log(`${e.name}草草走了个过场。`, 'gain');
+    if (offer) spend(offer, `${e.name}에게 ${offer} 영석을 쥐여줬다.`);
+    log(`${e.name}이(가) 대충 형식만 갖추고 갔다.`, 'gain');
     return { bribed: true, found: [] };
   }
   if (offer) {
-    if (tryBribe(e, inspectionStake(), offer, '免了一场搜查')) return { bribed: true, found: [] };
-    log(`${e.name}冷笑一声，把你的灵石拍在柜上：“想收买执法堂？搜！”`, 'loss');
+    if (tryBribe(e, inspectionStake(), offer, '수색 한 번을 면했다')) return { bribed: true, found: [] };
+    log(`${e.name}이(가) 냉소하며 네 영석을 카운터에 내려쳤다: \"집법당을 매수하려고? 수색해!\"`, 'loss');
   }
   const found = [];
   Object.values(S.items).forEach(it => {
@@ -1175,12 +1175,12 @@ function runInspection(offer = 0) {
   found.forEach(destroyItem);
   if (!found.length) {
     addHeat(-25); adjustRep('mo', 3);
-    log('巡查翻了一圈一无所获，执法堂对你的疑心淡了。', 'gain');
+    log('순찰이 한 바퀴 뒤져도 소득이 없자, 집법당의 의심이 옅어졌다.', 'gain');
   } else {
     const paid = Math.min(fine, Math.max(0, S.stones));
-    spend(paid, `执法堂收走了${names.join('、')}，罚没 ${paid} 灵石。`);
+    spend(paid, `집법당이 ${names.join('·')}을(를) 압수하고 ${paid} 영석을 몰수했다.`);
     addHeat(found.some(it => ITEMS[it.id].contra || ITEMS[it.id].illicit) ? 15 : 6);
-    if (paid < fine) { adjustRep('mo', -15); addHeat(15); log('你交不齐罚金，被记了一笔大过。', 'loss'); }
+    if (paid < fine) { adjustRep('mo', -15); addHeat(15); log('벌금을 다 못 내서 큰 과실 하나가 기록됐다.', 'loss'); }
   }
   checkHeat();
   return { found: names, fine };
@@ -1192,12 +1192,12 @@ function checkHeat() {
   const law = S.loveGu && S.people[S.loveGu];
   if (S.heat >= 100 && !S.over && law && isLawman(law) && law.status === 'alive') {
     S.heat = 80;
-    log(`${law.name}把你的卷宗压进了案底，还顺手替你把关注抹掉了一截。`, 'gold');
+    log(`${law.name}이(가) 네 문서를 사건 기록 밑에 눌러두고, 김에 주목도 한 뭉치 지워줬다.`, 'gold');
     return;
   }
   if (S.heat >= 100 && !S.over && savedByBenefactor('heat')) return;
   if (S.heat >= 100 && !S.over) {
-    S.over = { win: false, cause: 'heat', title: '锁拿入狱', text: '执法堂认定你私通仙门，铁链加身，押入血狱。当铺被查封，所有货物充公。' };
+    S.over = { win: false, cause: 'heat', title: '체포되어 옥에 갇힘', text: '집법당이 네가 선문과 내통했다고 단정했다. 쇠사슬에 묶여 혈옥에 압송됐다. 전당포는 압류되고 모든 물건은 몰수됐다.' };
   }
 }
 
@@ -1209,7 +1209,7 @@ function closeShop() {
   S.queue = [];
   S.phase = 'night';
   S.scavenged = false;
-  log('闭铺打烊。夜色渐浓。');
+  log('가게 문을 닫고 마감한다. 밤이 깊어간다.');
 }
 
 // 尸身按季节腐烂，烂透变成腐骨（炼尸棺里的不算）
@@ -1233,12 +1233,12 @@ function nightResolve() {
   let labor = laborPool();
   for (const m of S.machines) {
     const def = MACHINES[m.type], chk = machineCheck(m);
-    if (!chk.ok) { rep.push({ icon: def.icon, title: def.name, text: `停工：${chk.msg}`, cls: 'warn' }); continue; }
+    if (!chk.ok) { rep.push({ icon: def.icon, title: def.name, text: `작업 중단: ${chk.msg}`, cls: 'warn' }); continue; }
     const [cst0, csp] = MACHINE_COST[m.type] || [0, 0];
     const cover = Math.min(labor, cst0), cst = cst0 - cover;
     const tired = vitShort(cst, csp);
-    if (tired) { rep.push({ icon: def.icon, title: def.name, text: `停工：${tired}（需体力 ${cst}、精神 ${csp}）`, cls: 'bad' }); continue; }
-    if (!drawPower(def.power, state)) { rep.push({ icon: def.icon, title: def.name, text: '停工：灵力不足', cls: 'bad' }); continue; }
+    if (tired) { rep.push({ icon: def.icon, title: def.name, text: `작업 중단: ${tired}(체력 ${cst}, 정신 ${csp} 필요)`, cls: 'bad' }); continue; }
+    if (!drawPower(def.power, state)) { rep.push({ icon: def.icon, title: def.name, text: '작업 중단: 영력 부족', cls: 'bad' }); continue; }
     drain(cst, csp);
     labor -= cover;
     rep.push({ icon: def.icon, title: def.name, text: machineRun(m), cls: 'ok' });
@@ -1249,26 +1249,26 @@ function nightResolve() {
     const add = Math.min(CRYSTAL_CAP - (c.charge || 0), spare);
     c.charge = (c.charge || 0) + add; spare -= add;
   }
-  rep.push({ icon: 'ic_power', title: '聚灵阵', text: `基础灵力 ${powerSupply()}，余 ${state.avail} 点存入灵晶（共 ${crystalCharge()}）` });
+  rep.push({ icon: 'ic_power', title: '취령진', text: `기본 영력 ${powerSupply()}, 남은 ${state.avail} 포인트를 영정에 저장(합계 ${crystalCharge()})` });
 
   // 赃物风头、违禁陈列、执法堂关注
   let cooled = 0;
   Object.values(S.items).forEach(it => { if (it.stolen > 0 && --it.stolen === 0) cooled++; });
-  if (cooled) rep.push({ icon: 'ic_stolen', title: '风头过去', text: `${cooled} 件来路不明的货已无人追查` });
+  if (cooled) rep.push({ icon: 'ic_stolen', title: '소동이 지나갔다', text: `${cooled}건의 출처 불명 물품은 더 이상 추적하는 이가 없다` });
   // 违禁品摆在明处：管事不肯视而不见时，执法堂的关注一天天涨
   const contraShown = tolerance(landlordPerson()) === 'ignore' ? 0 : bannedShown().length;
   const before = S.heat;
   addHeat(contraShown * 3 - 4 - Math.max(0, S.rep.mo) / 25);
   if (S.upgrades.hijack && Math.random() < 0.1) {
     addHeat(10);
-    rep.push({ icon: 'ic_heat', title: '灵脉', text: '宗门灵脉巡守察觉到异常流失……', cls: 'bad' });
+    rep.push({ icon: 'ic_heat', title: '영맥', text: '종문 영맥 순수가 이상 유출을 감지했다...', cls: 'bad' });
   }
-  rep.push({ icon: 'ic_heat', title: '执法堂关注', text: `${before} → ${S.heat}${contraShown ? `（陈列禁物 ${contraShown} 件）` : ''}`, cls: S.heat > before ? 'bad' : '' });
+  rep.push({ icon: 'ic_heat', title: '집법당 주목', text: `${before} → ${S.heat}${contraShown ? `（陈列禁物 ${contraShown} 件）` : ''}`, cls: S.heat > before ? 'bad' : '' });
 
   // 傀儡卖出的赝品会招来投诉
   S.machines.filter(m => m.complaints).forEach(m => {
     adjustRep('mo', -2 * m.complaints);
-    rep.push({ icon: 'm_puppet', title: '投诉', text: `有人发现从傀儡货摊买到了赝品（魔宗声望 -${2 * m.complaints}）`, cls: 'bad' });
+    rep.push({ icon: 'm_puppet', title: '항의', text: `꼭두각시 노점에서 위작을 샀다는 게 알려졌다(마종 평판 -${2 * m.complaints})`, cls: 'bad' });
     m.complaints = 0;
   });
 
@@ -1276,7 +1276,7 @@ function nightResolve() {
   const floor = itemsIn('floor');
   if (floor.length && !S.flags.guard && Math.random() < 0.18) {
     const lost = pick(floor);
-    rep.push({ icon: 'ic_stolen', title: '夜贼', text: `有小贼溜进铺子，顺走了地上的${itemName(lost)}`, cls: 'bad' });
+    rep.push({ icon: 'ic_stolen', title: '밤도둑', text: `좀도둑이 가게에 들어와 바닥의 ${itemName(lost)}을(를) 훔쳐갔다`, cls: 'bad' });
     destroyItem(lost);
   }
 
@@ -1285,19 +1285,19 @@ function nightResolve() {
     if (g.day > S.day) return true;
     adjustRep(g.faction, -5);
     noteGrudge(g);
-    rep.push({ icon: FACTIONS[g.faction].icon, title: '旧账', cls: 'bad',
-      text: `${g.name}另请高明鉴定了那件${g.item}，发现你当初所言不实（${FACTIONS[g.faction].name}声望 -5）` });
+    rep.push({ icon: FACTIONS[g.faction].icon, title: '옛 빚', cls: 'bad',
+      text: `${g.name}이(가) 다른 고수에게 그 ${g.item}을(를) 감정 맡겼다가 네 말이 사실과 다름을 알아냈다(${FACTIONS[g.faction].name} 평판 -5)` });
     return false;
   });
 
-  lifeTick().forEach(n => rep.push({ icon: 'ic_ledger', title: '坊间传闻', text: n.text, cls: n.cls }));
-  intrigueTick().forEach(n => rep.push({ icon: 'ic_lace', title: '暗处', text: n.text, cls: n.cls }));
-  soldTick().forEach(n => rep.push({ icon: 'ic_appraise', title: '卖出的货', text: n.text, cls: n.cls }));
+  lifeTick().forEach(n => rep.push({ icon: 'ic_ledger', title: '방간 소문', text: n.text, cls: n.cls }));
+  intrigueTick().forEach(n => rep.push({ icon: 'ic_lace', title: '어둠 속', text: n.text, cls: n.cls }));
+  soldTick().forEach(n => rep.push({ icon: 'ic_appraise', title: '팔아넘긴 물건', text: n.text, cls: n.cls }));
   resolveReports().forEach(r => rep.push(r));
   gossipTick().forEach(r => rep.push(r));
   markTick();
   const rotted = rotCorpses();
-  if (rotted) rep.push({ icon: 'ic_ledger', title: '尸身', text: `${rotted} 具尸身烂透了，只剩一堆腐骨`, cls: 'warn' });
+  if (rotted) rep.push({ icon: 'ic_ledger', title: '시신', text: `${rotted}구의 시신이 다 썩어 썩은 뼈만 남았다`, cls: 'warn' });
   pendingTick().forEach(r => rep.push(r));
   worldTick().forEach(r => rep.push(r));
   cliqueTick().forEach(r => rep.push(r));
@@ -1317,7 +1317,7 @@ function nightResolve() {
   planInspection();
   const tip = tipOff();
   if (tip) rep.push(tip);
-  rep.push({ icon: 'ic_day', title: '时令', text: `${calendar().text}。${todayText()}${S.market.text}` });
+  rep.push({ icon: 'ic_day', title: '절기', text: `${calendar().text}. ${todayText()}${S.market.text}` });
   const rent = rentCheck();
   if (rent) rep.push(rent);
   rep.push(restNight());
@@ -1333,12 +1333,12 @@ function rentCheck() {
   if (S.grace > 0) {
     S.grace--;
     if (S.stones >= S.rentOwed) return payRent();
-    if (S.grace === 0 && savedByBenefactor('rent')) return { icon: 'ic_deed', title: '租金', text: '宽限期满——你帮过的人替你把租子交了', cls: 'ok' };
+    if (S.grace === 0 && savedByBenefactor('rent')) return { icon: 'ic_deed', title: '임대료', text: '유예 만료 - 네가 도와준 사람이 대신 임대료를 냈다', cls: 'ok' };
     if (S.grace === 0) {
-      S.over = { win: false, cause: 'rent', title: '扫地出门', text: `宽限期已过，你仍欠着 ${S.rentOwed} 灵石的租子。${landlordName()}带着人收回了铺子。` };
-      return { icon: 'ic_deed', title: '租金', text: '宽限期满，你被逐出了铺子', cls: 'bad' };
+      S.over = { win: false, cause: 'rent', title: '내쫓김', text: `유예 기한이 지났는데도 아직 ${S.rentOwed} 영석의 임대료가 밀렸다. ${landlordName()}이(가) 사람을 데리고 가게를 되찾아갔다.` };
+      return { icon: 'ic_deed', title: '임대료', text: '유예 만료, 가게에서 쫓겨났다', cls: 'bad' };
     }
-    return { icon: 'ic_deed', title: '租金', text: `仍欠 ${S.rentOwed} 灵石，宽限还剩 ${S.grace} 日`, cls: 'bad' };
+    return { icon: 'ic_deed', title: '임대료', text: `아직 ${S.rentOwed} 영석이 밀렸고, 유예는 ${S.grace}일 남았다`, cls: 'bad' };
   }
   if (S.day < S.rentDue) return null;
   S.rentOwed = rentAmount();
@@ -1347,19 +1347,19 @@ function rentCheck() {
   S.grace = 2;
   tally('late');
   S.landlordVisit = true;
-  return { icon: 'ic_deed', title: '租金', text: `交不起租！${landlordName()}宽限两日，连罚金共需 ${S.rentOwed} 灵石`, cls: 'bad' };
+  return { icon: 'ic_deed', title: '임대료', text: `임대료를 못 낸다! ${landlordName()}이(가) 이틀 유예했고, 벌금 포함 총 ${S.rentOwed} 영석이 필요하다`, cls: 'bad' };
 }
 
 function payRent() {
-  if (S.flags.rentWaive) { S.flags.rentWaive = false; S.rentOwed = 0; log(`${landlordName()}免了你这一期的租金。`, 'gain'); }
+  if (S.flags.rentWaive) { S.flags.rentWaive = false; S.rentOwed = 0; log(`${landlordName()}이(가) 이번 기 임대료를 면해줬다.`, 'gain'); }
   const amt = S.rentOwed;
-  spend(amt, `向${landlordName()}缴纳租金 ${amt} 灵石。`);
+  spend(amt, `${landlordName()}에게 임대료 ${amt} 영석을 냈다.`);
   S.rentOwed = 0; S.grace = 0;
   if (S.rentIndex >= (S.flags.rentExtraAt || 0)) S.flags.rentExtra = 0;
   S.rentIndex++;
   S.rentDue = S.day + 7;
   S.landlordVisit = true;
-  return { icon: 'ic_deed', title: '租金', text: `缴纳 ${amt} 灵石。下期 ${rentAmount()} 灵石，第 ${S.rentDue} 日到期`, cls: 'warn' };
+  return { icon: 'ic_deed', title: '임대료', text: `${amt} 영석을 냈다. 다음 회차 ${rentAmount()} 영석, ${S.rentDue}일 만기`, cls: 'warn' };
 }
 
 function payRentEarly() {
@@ -1369,27 +1369,27 @@ function payRentEarly() {
 }
 
 function deedPrice() { return Math.round(diff().deed * S.flags.deedMul / 10) * 10; }
-function landlordName() { return { sun: '孙管事', tu: '屠管事' }[S.flags.landlord] || '钱执事'; }
+function landlordName() { return { sun: '손 관리', tu: '도 관리' }[S.flags.landlord] || '전 집사'; }
 
 function buyDeed() {
   if (S.stones < deedPrice()) return false;
-  spend(deedPrice(), '你买下了这间铺子的铺契。');
+  spend(deedPrice(), '이 가게의 문서를 샀다.');
   // 铺契到手才知道过户另有规矩：剩下的灵石和铺里的货，一样一样都抵了进去
   const left = S.stones, goods = Object.values(S.items).filter(it => it.pos && it.pos.g !== 'counter');
   peak('lens', appraiseLevel());
   const n = goods.length;
-  if (left > 0) spend(left, '缴清过户的契税、印钱与各路打点。');
+  if (left > 0) spend(left, '명의 이전의 계약세, 인지대와 각종 뇌물을 다 냈다.');
   goods.forEach(destroyItem);
-  S.over = { win: true, cause: 'deed', title: '铺契到手', scene: 'end_deed', text: `${landlordName()}在铺契上按了手印，又从袖里抽出一张单子：契税、宗门印钱、执法堂的平安钱、过户的茶水……`
-    + (left > 0 || n ? `你剩下的 ${left} 灵石${n ? `和铺里 ${n} 件货` : ''}，一样一样抵了进去。` : '你兜里早已一个子儿不剩，他把单子折好，说下回再收。')
-    + '从今往后，这间铺子姓你的了。你站在空荡荡的柜台后面，和刚来杂役区那天一样一贫如洗——好在这回，不用交租了。' };
+  S.over = { win: true, cause: 'deed', title: '가게 문서를 손에 넣었다', scene: 'end_deed', text: `${landlordName()}이(가) 가게 문서에 지장을 찍고, 소매에서 전표를 꺼냈다: 계약세, 종문 인지대, 집법당 평안금, 명의 이전 다과비...`
+    + (left > 0 || n ? `네게 남은 ${left} 영석${n ? `과 가게 안 ${n}건의 물건` : ''}까지 하나하나 저당 잡혔다.` : '네 주머니엔 이미 한 푼도 없었고, 그는 전표를 접으며 다음에 받겠다고 했다.')
+    + '이제부터 이 가게는 네 것이다. 너는 텅 빈 카운터 뒤에 서서, 잡역 구역에 처음 온 날처럼 가난하다 - 다행히 이번엔 임대료를 안 내도 된다.' };
   return true;
 }
 
 // ───────────── 货郎与升级 ─────────────
 
 function buySupply(entry) {
-  if (entry.stock <= 0 || S.stones < entry.price) return '灵石不够';
+  if (entry.stock <= 0 || S.stones < entry.price) return '영석이 부족하다';
   const it = makeItem(entry.id, marketLace(entry.id, { q: rint(40, 70) }, 0.04));
   if (dressable(it) && Math.random() < 0.18) dressUp(it, rint(1, 2));
   stow(it);
@@ -1403,16 +1403,16 @@ function machinePrice(type) { return supplierPrice(MACHINES[type].price); }
 
 function buyMachine(type) {
   const price = machinePrice(type);
-  if (S.stones < price) return '灵石不够';
-  spend(price, `从鬼市牙人处购得${MACHINES[type].name}。`);
+  if (S.stones < price) return '영석이 부족하다';
+  spend(price, `귀시 견인에게서 ${MACHINES[type].name}을(를) 샀다.`);
   addMachine(type);
   return null;
 }
 
 function buyUpgrade(id) {
   const up = UPGRADES.find(u => u.id === id);
-  if (S.stones < up.price || S.upgrades[id] || (up.need && !S.upgrades[up.need])) return '无法购买';
-  spend(up.price, `购置了「${up.name}」。`);
+  if (S.stones < up.price || S.upgrades[id] || (up.need && !S.upgrades[up.need])) return '구매 불가';
+  spend(up.price, `「${up.name}」을(를) 구입했다.`);
   S.upgrades[id] = true;
   if (id === 'store1') resizeGrid('store', 10, 6);
   if (id === 'store2') resizeGrid('store', 12, 7);
@@ -1427,14 +1427,14 @@ function brokerPrice(it) { return Math.max(1, Math.round(trueValue(it) * (it.lac
 function sellToBroker(it) {
   const price = brokerPrice(it);
   if (ITEMS[it.id].contra) addHeat(2);
-  earn(price, `把${itemName(it)}折价 ${price} 灵石卖给了鬼市牙人。`);
+  earn(price, `${itemName(it)}을(를) 감가 ${price} 영석에 귀시 견인에게 팔았다.`);
   destroyItem(it);
   return price;
 }
 
 function collectPuppetCash(m) {
   if (!m.cash) return;
-  earn(m.cash, `从傀儡钱匣取出 ${m.cash} 灵石。`);
+  earn(m.cash, `꼭두각시 돈궤에서 ${m.cash} 영석을 꺼냈다.`);
   m.cash = 0;
 }
 
@@ -1452,7 +1452,7 @@ function removeMachine(m) {
   });
   S.machines.splice(S.machines.indexOf(m), 1);
   const refund = Math.round(MACHINES[m.type].price * 0.3);
-  earn(refund, `拆了${MACHINES[m.type].name}，旧料卖得 ${refund} 灵石。`);
+  earn(refund, `${MACHINES[m.type].name}을(를) 해체해 헌 자재를 ${refund} 영석에 팔았다.`);
 }
 
 // ───────────── 拾荒 ─────────────
@@ -1485,11 +1485,11 @@ function scavSearch() {
     if (dundi) {
       destroyItem(dundi);
       sc.ended = true;
-      sc.lines.push({ text: `眼看要出事，你捏碎一张遁地符，身子一沉钻进土里，再冒头已在三里之外。背篓里的东西一样不少，这一趟却只能到此为止。`, cls: 'warn' });
+      sc.lines.push({ text: `일이 터지려는 찰나, 둔지부 한 장을 부숴 몸이 가라앉으며 흙 속으로 들어갔다. 다시 고개를 드니 이미 삼 리 밖. 바구니 속 물건은 하나도 안 잃었지만, 이번 행차는 여기까지다.`, cls: 'warn' });
       return { escaped: true };
     }
     // 拾荒遇险多半只是皮肉伤；倒霉时才伤得重
-    if (hz.cond && Math.random() < 0.6) addCond('me', hz.cond[0], Math.random() < 0.25 ? hz.cond[1] : 1, `在${loc.name}`);
+    if (hz.cond && Math.random() < 0.6) addCond('me', hz.cond[0], Math.random() < 0.25 ? hz.cond[1] : 1, `${loc.name}에서`);
     if (hz.heat) addHeat(hz.heat);
     if (hz.cost) spend(Math.min(hz.cost, Math.max(0, S.stones)));
     sc.ended = true;
@@ -1498,21 +1498,21 @@ function scavSearch() {
   }
   sc.danger += S.flags.thugBoss ? 0.02 : 0.04;
   const mapped = treasureFind(loc.id);
-  if (!mapped && Math.random() > loc.find) { sc.lines.push({ text: '翻了半天，一无所获。' }); return { none: true }; }
+  if (!mapped && Math.random() > loc.find) { sc.lines.push({ text: '한참을 뒤졌지만 소득이 없었다.' }); return { none: true }; }
   // 机遇：偶尔翻出一卷你正缺的高重秘籍（只翻得到这处地方有的那几门）
   const scrolls = mapped ? [] : nextBooks().filter(b => (loc.scrolls || []).includes(b[1]) && !owns(b[0]));
   const scroll = scrolls.length && Math.random() < SCROLL_FIND ? pick(scrolls)[0] : null;
   const id = mapped || scroll || weighted(loc.loot.concat(S.world.stage >= 2 && loc.warLoot ? loc.warLoot : []));
-  if (mapped) sc.lines.push({ text: '照着藏宝图，你一锄挖了下去——', cls: 'ok' });
-  if (scroll) sc.lines.push({ text: '一只朽烂的经匣里，压着一卷没被虫蛀透的手抄——', cls: 'ok' });
+  if (mapped) sc.lines.push({ text: '보물 지도대로 곡괭이를 내리찍었다 -', cls: 'ok' });
+  if (scroll) sc.lines.push({ text: '썩은 경전 상자 속에, 좀이 다 갉아먹지 않은 필사본 한 권이 눌려 있었다 -', cls: 'ok' });
   const extra = {};
   if (ITEMS[id].appraise) extra.fake = !mapped && Math.random() < 0.6;
   const it = makeItem(id, Object.assign(extra, { q: mapped ? rint(55, 85) : rint(15, 70) }));
   if (id === 'yao_core' && loc.id === 'beastcave') adjustRep('yao', -2);
   if (!autoPlace(it, ['basket'])) {
     sc.pending = it.uid;
-    sc.lines.push({ text: `找到${itemName(it)}，可背篓放不下了。`, cls: 'warn' });
-  } else sc.lines.push({ text: `找到${itemName(it)}。`, cls: 'ok' });
+    sc.lines.push({ text: `${itemName(it)}을(를) 찾았지만 바구니에 안 들어간다.`, cls: 'warn' });
+  } else sc.lines.push({ text: `${itemName(it)}을(를) 찾았다.`, cls: 'ok' });
   return { item: it };
 }
 
