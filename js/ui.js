@@ -73,7 +73,7 @@ function itemTags(it) {
   if (it.fake && knownFlaw(it) && it.grade && !it.forged) tags.push(['', `만듦새 ${GRADE_NAMES[it.grade]}`]);
   if (ITEMS[it.id].additive) tags.push(['laced', `재료로 사용: ${LACE[ITEMS[it.id].additive].name}`]);
   if ((ITEMS[it.id].war || 0) >= 0.5) tags.push(['', '전비']);
-  if (it.stolen > 0) tags.push(['stolen', `출처 불명 · 남은 ${it.stolen} 日`]);
+  if (it.stolen > 0) tags.push(['stolen', `출처 불명 · 남은 ${it.stolen}일`]);
   if (it.revealed) tags.push(['fake', '위작(간파됨)']);
   else if (it.verdict === 'fake') tags.push(['fake', '네가 위작으로 판정했다']);
   else if (it.verdict === 'real') tags.push(['real', '네가 진품으로 판정했다']);
@@ -87,7 +87,7 @@ function itemStats(it) {
     if (isDressed(it) && knownFlaw(it)) rows.push(['겉면 품질', `${qualityName(it.sq)} · ${it.sq}`], ['실제 품질', `${qualityName(it.q)} · ${it.q}`]);
     else rows.push(['품질', `${qualityName(shownQ(it))} · ${shownQ(it)}`]);
   }
-  if (ITEMS[it.id].tool) rows.push(['감정술', `第${cn(ITEMS[it.id].tool)}重`]);
+  if (ITEMS[it.id].tool) rows.push(['감정술', `제${cn(ITEMS[it.id].tool)}중`]);
   if (ITEMS[it.id].book) { const b = ITEMS[it.id].book; rows.push(['현재 경지', `${TECHS[b.tech].name} 제${cn(techLv(b.tech) || 0) || '0'}중`]); }
   if (it.id === 'water') rows.push(['순도', `${it.purity}%`]);
   if (it.id === 'gu') rows.push(['성장', `${it.growth}/100`], ['독성', it.tox], ...(it.eat ? [['삼킴', `${it.eat}마리`]] : []), ['진화', guNext(it)]);
@@ -183,7 +183,7 @@ function renderTopbar() {
     <div class="tb-day" title="${calendar().yearText}">${icon(S.phase === 'night' ? 'ic_night' : 'ic_day')}<b>제 ${S.day}일</b>
       <span class="tb-cal">${calendar().text}${annualOf() ? ` · <em>${annualOf().name}</em>` : ''}<br>${PHASE_NAME[S.phase]}</span></div>
     ${S.plan && S.plan.inspect && S.plan.tipped && S.plan.day === S.day ? `<div class="tb-cell tipchip" title="${esc(S.plan.tipped)}전해 들은 소문">${icon('ic_heat')}오늘 순찰</div>` : ''}
-    <div class="tb-cell dao" data-act="dao" title="수련: 단약과 혼백을 복용한다，경지 돌파에는 열쇠가 필요하다. 눌러서 본다">${icon('ic_dao')}<span>${realmName()}<br><small>${realm().need ? `${S.cult.xp}/${realm().need}` : '圆满'}</small></span></div>
+    <div class="tb-cell dao" data-act="dao" title="수련: 단약과 혼백을 복용한다. 경지 돌파에는 열쇠가 필요하다. 눌러서 본다">${icon('ic_dao')}<span>${realmName()}<br><small>${realm().need ? `${S.cult.xp}/${realm().need}` : '원만'}</small></span></div>
     ${S.fate && (S.fate.n || S.fate.debts.length || S.fate.infamy) ? `<div class="tb-cell fate" data-act="fate-open" title="인과: 눌러서 빚을 본다">업<b>${S.fate.debts.length}</b>${S.fate.infamy ? `<small>악명${S.fate.infamy}</small>` : ''}</div>` : ''}
     <div class="tb-cell" title="선명 ${S.virtue}: 좋은 사람 노릇에 돈이 든다，선명이 지나치면 호구로 여겨진다. 하지만 네가 도운 사람은，가끔 돌아와 보답한다">선<b>${VIRTUE_NAME(S.virtue)}</b></div>
     ${condList('me').map(c => CONDS[c.kind] ? `<div class="tb-cell cond" data-act="heal-open" title="${esc(CONDS[c.kind].desc)}눌러 치료를 구함">${c.label}</div>`
@@ -707,7 +707,7 @@ function tabBroker() {
       <button class="btn small" data-act="buy-supply" data-i="${i}" ${e.stock && S.stones >= e.price ? '' : 'disabled'}>산다</button></div>`);
   const locked = SUPPLY.filter(s => S.rep.mo < s[2]).map(s => `${ITEMS[s[0]].name}(마종 평판 ${s[2]})`);
   const machines = Object.entries(MACHINES).map(([type, d]) => `<div class="shop-row">
-      <img src="${asset('machines', d.icon)}" alt=""><b>${d.name}</b><span class="muted">${icon('ic_power')}${d.power}/夜</span>${stoneTxt(machinePrice(type))}
+      <img src="${asset('machines', d.icon)}" alt=""><b>${d.name}</b><span class="muted">${icon('ic_power')}${d.power}/밤</span>${stoneTxt(machinePrice(type))}
       <button class="btn small" data-act="buy-machine" data-type="${type}" ${S.stones >= machinePrice(type) ? '' : 'disabled'}>구입</button></div>`);
   const ups = UPGRADES.filter(u => !u.need || S.upgrades[u.need]).map(u => `<div class="shop-row">
       <b>${u.name}</b><span class="muted grow">${u.desc}</span>
@@ -732,7 +732,7 @@ function tabBroker() {
       <span class="muted small">사야 무슨 내용인지 안다</span>${stoneTxt(p)}<button class="btn small" data-act="buy-intel" data-i="${i}" ${S.stones >= p ? '' : 'disabled'}>산다</button></div>`;
   });
   const merit = Object.keys(MERIT_SHOP).map(f => `<div class="merit-row">
-      <b style="color:${FACTIONS[f].color}">${CHANNEL_NAME[f]}</b><span class="muted small">${FACTIONS[f].name}功勋 ${S.merit[f]}${channelOpen(f) ? '' : ` · 연줄 없음(${channelHint(f)})`}</span>
+      <b style="color:${FACTIONS[f].color}">${CHANNEL_NAME[f]}</b><span class="muted small">${FACTIONS[f].name} 공훈 ${S.merit[f]}${channelOpen(f) ? '' : ` · 연줄 없음(${channelHint(f)})`}</span>
       <div class="merit-goods">${MERIT_SHOP[f].map(([id, cost], i) => meritShown(id) ? `<button class="btn tiny" data-act="redeem" data-f="${f}" data-i="${i}"
         ${channelOpen(f) && S.merit[f] >= cost ? '' : 'disabled'} title="${esc(ITEMS[id].desc)}"><img src="${asset('items', ITEMS[id].icon || id)}" alt="">${ITEMS[id].name} ${cost}</button>` : '').join('')}</div></div>`);
   const rows = { goods, machines, books, intel, ups, merit }[sub.cur];
