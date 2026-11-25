@@ -1513,9 +1513,9 @@ function openMarket(key) {
 function showInspectResult(res) {
   const e = official('enforcer');
   openModal(() => modalHTML(`<div class="npc-talk"><img src="${asset('chars', e.portrait)}" alt="">
-    <div><h3>${esc(e.name)} · 집법당 순찰</h3>${res.ignored ? '<p>그가 진열장 앞에 잠시 섰다，눈이 네 물건을 훑고 지나갔다，아무것도 못 본 척한다。“……行，깨끗하다。”</p>'
+    <div><h3>${esc(e.name)} · 집법당 순찰</h3>${res.ignored ? '<p>그가 진열장 앞에 잠시 섰다. 눈이 네 물건을 훑고 지나갔고, 아무것도 못 본 척한다。“……좋아, 깨끗하군。”</p>'
       : res.bribed ? '<p>“……오늘 이 가게는，깨끗하다。”</p>'
-      : res.found.length ? `<p>“찾아냈다${res.found.map(esc).join('、')}！充公，罚 ${res.fine} 영석. 다음에 또 저지르면，목을 들고 온다。”</p>`
+      : res.found.length ? `<p>“${res.found.map(esc).join(' · ')} 찾아냈다! 몰수하고 벌금 ${res.fine} 영석. 다음에 또 저지르면 목을 들고 오라고。”</p>`
         : '<p>“흥, 사정을 아는군.” 순찰이 한 바퀴 뒤지고 빈손으로 떠났다.</p>'}
     <div class="h-btns"><button class="btn primary" data-act="inspect-done">순찰을 보낸다</button></div></div></div>`, 'm-npc'));
 }
@@ -1697,7 +1697,7 @@ function showTitle() {
   $('#title-screen').innerHTML = `<img class="title-bg" src="${asset('scene', 'title_bg')}" alt="">
     <div class="title-box"><h1>마문 전당포</h1><h2>· 출처 불명 ·</h2>
       <p>인, 선, 마, 요 네 세력이 다툰다. 너는 혈살종 잡역 구역에 전당포를 열었다。<br>임대료가 계속 오른다 - 가게 문서를 사기 전까지，집법당에 끌려가지 마。</p>
-      <div class="title-btns">${hasSave() ? '<button class="btn primary big" data-act="continue">续上前缘</button>' : ''}
+      <div class="title-btns">${hasSave() ? '<button class="btn primary big" data-act="continue">이어하기</button>' : ''}
         <button class="btn big ${hasSave() ? '' : 'primary'}" data-act="new">새 판을 시작한다</button></div></div>`;
 }
 
@@ -1718,7 +1718,7 @@ function showSetup() {
 
 function showIntro() {
   openModal(() => modalHTML(`<div class="npc-talk"><img src="${asset('chars', 'landlord')}" alt="">
-    <div><h3>钱执事</h3>
+    <div><h3>전 집사</h3>
     <p>“새로 온 주인장? 규칙은 그대로다: 가게는 종문의 것，임대료는 이레마다 거둔다，회차마다 오른다. 모으면 <b>${deedPrice()}</b> 영석，가게 문서가 네 것이다。”</p>
     <p>“그리고 - 선문 물건은 건드리지 마，집법당의 눈은 혈월보다 밝다. 요족 놈들은 짐승이야……네가 알아서 판단해。”</p>
     <p class="muted small">안내: 아이템을 끌어 칸을 정리하세요. 진열장이 손님 흐름을 결정합니다. 밤에는 설비가 「작업장」 순서로 영력을 소모하며 작동합니다. 아무 물건 위에 마우스를 올리면 상세 정보를 봅니다。<br>
@@ -1756,8 +1756,8 @@ const HANDLERS = {
   continue: () => { load(); enterGame(); },
   'to-title': () => showTitle(),
   'modal-close': () => { closeModal(); renderAll(); },
-  menu: () => openModal(() => modalHTML(`<h3>卷宗</h3><p>진행 상황은 매일 아침 자동 저장된다。</p>
-    <div class="h-btns"><button class="btn" data-act="lore-book">见闻录（${Object.keys(S.lore || {}).length}）</button><button class="btn" data-act="save-quit">저장하고 산문으로</button><button class="btn ghost" data-act="modal-close">경영을 계속한다</button></div>`)),
+  menu: () => openModal(() => modalHTML(`<h3>문서</h3><p>진행 상황은 매일 아침 자동 저장된다.</p>
+    <div class="h-btns"><button class="btn" data-act="lore-book">견문록(${Object.keys(S.lore || {}).length})</button><button class="btn" data-act="save-quit">저장하고 산문으로</button><button class="btn ghost" data-act="modal-close">경영을 계속한다</button></div>`)),
   'save-quit': () => { save(); showTitle(); },
   open: () => { if (handBusy()) return; openShop(); closeModal(); HANDLERS.next(); },
   next: () => {
@@ -1774,7 +1774,7 @@ const HANDLERS = {
   close: () => {
     if (handBusy()) return;
     if (S.customer) { toast('카운터 앞에 손님이 있다，먼저 사람을 보낸다'); return; }
-    if (S.queue.length && !confirm(`门外아직 있다 ${S.queue.length} 位客人，这就마감？`)) return;
+    if (S.queue.length && !confirm(`문 밖에 손님이 ${S.queue.length}명 있는데, 지금 마감할까?`)) return;
     closeShop(); tab = 'workshop'; front = 'counter'; renderAll();
   },
   dismiss: () => { dismissCustomer(false); renderAll(); },
@@ -1788,21 +1788,21 @@ const HANDLERS = {
   },
   flatter: () => tiredOr('flatter', () => { const r = flatter(S.customer); feel(S.customer, r.ok ? 'pleased' : 'angry'); toast(r.text, r.ok ? 'good' : 'bad'); renderAll(); }),
   'haggle-close': () => { closeModal(); renderAll(); checkOver(); },
-  report: () => { reportWanted(S.customer); renderAll(); toast(`너는 아는 척하지 않고 사람을 시켜 집법당에 알렸다. 장사는 계속한다，等${ta(personOf(S.customer))}出了门，상금은 알아서 온다`, 'warn'); },
+  report: () => { reportWanted(S.customer); renderAll(); toast(`너는 아는 척하지 않고 사람을 시켜 집법당에 알렸다. 장사는 계속한다. ${ta(personOf(S.customer))}이(가) 나가면 상금은 알아서 온다`, 'warn'); },
   'appraise-counter': () => tiredOr('appraise', () => openAppraise('counter', S.customer.item)),
   'appraise-commission': () => tiredOr('appraise', () => openAppraise('commission', S.customer.item)),
   'appraise-own': () => tiredOr('appraise', () => openAppraise('own', sel)),
   'inspect-own': () => tiredOr('inspect', () => HANDLERS['inspect-own-go']()),
   'inspect-own-go': () => {
     const it = S.items[sel], r = quickInspect(it);
-    toast(r.laced ? `验出来了：${itemName(it)}남에게${LACE[r.laced].verb}！이 손해를 삼키고, 헐값에 팔거나, 좋은 물건인 척 되판다，아니면 뜯어서 그의 수법을 배운다，네가 정한다。`
-      : r.found ? `验出来了：${itemName(it)}하급을 상급으로，겉면${it.sq}，실제로는 ~뿐${it.q}！` : `네 안목으로는（${LENS_NAMES[r.lv]}），看不出${itemName(it)}有毛病。`, r.found || r.laced ? 'bad' : '');
+    toast(r.laced ? `걸러냈다: ${itemName(it)}에 남이 ${LACE[r.laced].verb}를 해뒀다! 이 손해를 삼키고, 헐값에 팔거나, 좋은 물건인 척 되팔거나, 아니면 뜯어서 그의 수법을 배운다. 네가 정한다.`
+      : r.found ? `걸러냈다: ${itemName(it)}은(는) 하급을 상급으로 둔갑시켰다. 겉은 ${it.sq}, 실제로는 ${it.q}뿐!` : `네 안목으로는(${LENS_NAMES[r.lv]}) ${itemName(it)}의 흠을 찾지 못했다.`, r.found || r.laced ? 'bad' : '');
     renderAll();
   },
   'inspect-item': () => tiredOr('inspect', () => HANDLERS['inspect-item-go']()),
   'inspect-item-go': () => {
     const it = customerItem(), r = quickInspect(it);
-    toast(r.laced ? `这货남에게${LACE[r.laced].verb}！` : r.found ? `하급을 상급으로! 겉은${it.sq}，실제로는 ~뿐${it.q}。` : `네 안목으로는（${LENS_NAMES[r.lv]}），흠을 찾지 못한다。`, r.found || r.laced ? 'bad' : '');
+    toast(r.laced ? `이 물건에 남이 ${LACE[r.laced].verb}를 해뒀다!` : r.found ? `하급을 상급으로! 겉은 ${it.sq}, 실제로는 ${it.q}뿐.` : `네 안목으로는(${LENS_NAMES[r.lv]}), 흠을 찾지 못했다.`, r.found || r.laced ? 'bad' : '');
     renderAll();
   },
   'dispute-flaw': () => tiredOr('dispute', () => HANDLERS['dispute-go']()),
@@ -1823,7 +1823,7 @@ const HANDLERS = {
   market: () => { if (handBusy()) return; const err = visitMarket(); if (err) { toast(err, 'bad'); return; } openMarket('ghost'); renderTopbar(); },
   'mk-tab': el => openMarket(el.dataset.k),
   'mk-buy': el => { const err = buyLot(el.dataset.k, +el.dataset.i); if (err) toast(err, 'bad'); openMarket(el.dataset.k); renderAll(); },
-  'mk-sell': el => { const r = sellToDealer(el.dataset.k, S.items[el.dataset.uid]); if (r.err) toast(r.err, 'bad'); else toast(`出手，得 ${r.price} 영석`, 'good'); openMarket(el.dataset.k); renderAll(); },
+  'mk-sell': el => { const r = sellToDealer(el.dataset.k, S.items[el.dataset.uid]); if (r.err) toast(r.err, 'bad'); else toast(`처분했다. ${r.price} 영석 획득`, 'good'); openMarket(el.dataset.k); renderAll(); },
   'mk-talk': el => { const r = talkDealer(el.dataset.k); toast(r.err || r.text, r.err || !r.ok ? 'bad' : 'good'); openMarket(el.dataset.k); renderTopbar(); },
   'mk-leave': () => { closeModal(); renderAll(); },
   redeem: el => { const err = redeemMerit(el.dataset.f, +el.dataset.i); toast(err || '교환 성공，창고에 넣었다', err ? 'bad' : 'good'); renderAll(); },
@@ -1831,13 +1831,13 @@ const HANDLERS = {
   'secret-report': () => { const r = reportSecret(S.customer); if (r.err) toast(r.err, 'bad'); else showIntel(r); renderAll(); },
   'secret-blackmail': () => { const c = S.customer, r = blackmail(c); feel(c, r.cls === 'good' ? 'afraid' : 'angry'); showIntel(r); renderAll(); checkOver(); },
   'secret-keep': () => { showIntel(keepSecret(S.customer)); renderAll(); },
-  'read-book': () => { const it = S.items[sel], err = readBook(it); if (err) toast(err, 'bad'); else { sel = null; toast('读通了。', 'good'); } renderAll(); },
+  'read-book': () => { const it = S.items[sel], err = readBook(it); if (err) toast(err, 'bad'); else { sel = null; toast('다 읽었다.', 'good'); } renderAll(); },
   study: () => { const it = S.items[sel], err = studyFake(it); if (err) toast(err, 'bad'); else { if (!S.items[sel]) sel = null; toast('네가 요령을 알아냈다。', 'good'); } renderAll(); },
   'buy-book': el => {
     const p = +el.dataset.p;
     if (S.stones < p || ITEMS[el.dataset.id].book.lv > BOOK_SHOP_MAX) return;
     const it = giveItem(el.dataset.id);
-    if (it) { spend(p, `买下${itemName(it)}。`); toast(`${itemName(it)}창고에 넣었다，고르면 탐독할 수 있다`, 'good'); }
+    if (it) { spend(p, `${itemName(it)}을(를) 샀다.`); toast(`${itemName(it)}을(를) 창고에 넣었다. 고르면 탐독할 수 있다`, 'good'); }
     renderAll();
   },
   'ap-done': () => { dismissCustomer(false); closeModal(); renderAll(); },
@@ -1882,7 +1882,7 @@ const HANDLERS = {
   breakthrough: () => { const r = breakthrough(); if (r.err) { toast(r.err, 'bad'); return; } closeModal(); showIntel({ text: r.text, cls: r.ok ? 'good' : 'bad' }); renderAll(); },
   kill: () => {
     const c = S.customer, p = personOf(c);
-    if (!confirm(`对${p.name}손을 쓸까? 죽이고 빼앗는다，损阴德，들키면 큰 화다。`)) return;
+    if (!confirm(`${p.name}에게 손을 쓸까? 죽이고 빼앗는다. 음덕을 해치고, 들키면 큰 화다.`)) return;
     feel(c, 'afraid');
     const r = killPerson(p, 'counter');
     if (r.err) { toast(r.err, 'bad'); return; }
@@ -1902,14 +1902,14 @@ const HANDLERS = {
   'file-secret': el => { const it = makeIntel('secret', { p: S.people[el.dataset.pid] }); toast(`한 부로 적어냈다${itemName(it)}，창고에 넣는다`, 'good'); openPerson(el.dataset.pid); renderAll(); },
   release: el => { release(S.people[el.dataset.pid]); openPerson(el.dataset.pid); renderAll(); },
   debt: el => { const p = S.people[el.dataset.pid]; toast(collectDebt(p, el.dataset.how)); openPerson(p.pid); renderAll(); },
-  'plea-help': () => { const p = personOf(S.customer), err = helpWeak(S.customer); if (err) toast(err, 'bad'); else toast(`${ta(p)}磕了个头，거듭 감사하며 떠났다`, 'good'); renderAll(); },
+  'plea-help': () => { const p = personOf(S.customer), err = helpWeak(S.customer); if (err) toast(err, 'bad'); else toast(`${ta(p)}이(가) 절을 하고 거듭 감사하며 떠났다`, 'good'); renderAll(); },
   'plea-lend': () => { const err = lendTo(S.customer); if (err) toast(err, 'bad'); renderAll(); },
   'plea-labor': () => { const p = personOf(S.customer); indenture(p); toast(`${p.name}네 뒤뜰에 들어왔다，앞으로 너를 위해 화로를 때고 물건을 나른다`); renderAll(); },
   'plea-away': () => { turnAway(S.customer); renderAll(); },
   'cq-tribute': el => { const err = cliqueTribute(el.dataset.k, +el.dataset.n); if (err) toast(err, 'bad'); renderAll(); },
   'cq-offer': el => { const r = cliqueOffer(el.dataset.k, S.items[sel]); sel = null; toast(r.text, r.bad ? 'bad' : 'good'); renderAll(); },
   'cq-join': el => { const err = joinClique(el.dataset.k); toast(err || `너는 ~에 투자했다${CLIQUES[el.dataset.k].head}문하`, err ? 'bad' : 'good'); renderAll(); },
-  'cq-leak': el => { const err = leakDirt(S.items[sel], el.dataset.k); if (err) toast(err, 'bad'); else { sel = null; toast(`${CLIQUES[el.dataset.k].head}내막을 받아들였다，眼里有光`, 'good'); } renderAll(); },
+  'cq-leak': el => { const err = leakDirt(S.items[sel], el.dataset.k); if (err) toast(err, 'bad'); else { sel = null; toast(`${CLIQUES[el.dataset.k].head}이(가) 내막을 받아들였다. 눈에 광이 난다`, 'good'); } renderAll(); },
   'opp-deliver': el => { const r = deliverOpp(findOpp(el.dataset.key), S.items[el.dataset.uid]); if (sel && !S.items[sel]) sel = null; toast(r.text, r.bad ? 'bad' : 'good'); renderAll(); },
   'opp-take': el => { const r = takeOpp(findOpp(el.dataset.key)); toast(r.err || r.text, r.err ? 'bad' : 'good'); renderAll(); },
   'power-swap': () => {
@@ -1928,7 +1928,7 @@ const HANDLERS = {
     const it = S.items[sel], gid = el.dataset.g, list = itemsIn(it.pos.g).filter(o => o.id === it.id);
     let n = 0;
     for (const o of [it, ...list.filter(o => o !== it)]) { const sp = findSpot(gid, o); if (!sp) break; placeMoved(o, gid, sp.x, sp.y); n++; }
-    toast(n < list.length ? `넣는다去 ${n} 份，아직 있다 ${list.length - n} 개가 안 들어간다` : `${n} 份${itemName(it)}모두 넣었다`, n < list.length ? 'bad' : 'good');
+    toast(n < list.length ? `${n}개를 넣었다. 아직 ${list.length - n}개가 안 들어간다` : `${itemName(it)} ${n}개를 모두 넣었다`, n < list.length ? 'bad' : 'good');
     sel = peek = null; renderAll();
   },
   // 整摞取出：每份各占库房一格，품질은 그대로；库房满了放地上，再满就留在原处
@@ -1936,18 +1936,18 @@ const HANDLERS = {
     const pile = stackOf(S.items[sel]);
     let n = 0;
     for (const o of pile) { const gid = ['store', 'floor'].find(x => findSpot(x, o)); if (!gid) break; const sp = findSpot(gid, o); placeMoved(o, gid, sp.x, sp.y); n++; }
-    toast(n < pile.length ? `取出 ${n} 份，창고와 바닥이 모두 가득 찼다，남은 ${pile.length - n} 份` : `${n} 개를 모두 거둬들였다`, n < pile.length ? 'bad' : 'good');
+    toast(n < pile.length ? `${n}개를 꺼냈다. 창고와 바닥이 모두 가득 찼다. 남은 ${pile.length - n}개` : `${n} 개를 모두 거둬들였다`, n < pile.length ? 'bad' : 'good');
     sel = peek = null; renderAll();
   },
   tidy: () => { if (!tidy()) toast('이미 빽빽하게 놓았다，더 자리가 필요하면 팔거나 버려야 한다', 'bad'); renderAll(); },
-  'trash-sel': () => { const it = S.items[sel]; if (knownValue(it) > 30 && !confirm(`丢弃${itemName(it)}？`)) return; destroyItem(it); sel = null; renderAll(); },
+  'trash-sel': () => { const it = S.items[sel]; if (knownValue(it) > 30 && !confirm(`${itemName(it)}을(를) 버릴까?`)) return; destroyItem(it); sel = null; renderAll(); },
   'buy-intel': el => { const err = buyIntel(+el.dataset.i); toast(err || '밀보가 창고에 들어갔다，마우스를 올리면 내용을 본다', err ? 'bad' : 'good'); renderAll(); },
   'gift-open': el => openGift(el.dataset.pid),
   'heal-open': () => openModal(openHeal),
   'lore-book': () => openModal(openLoreBook),
   'ask-lore': el => {
     const p = S.people[el.dataset.pid], o = loreOffer(p, loreTip(el.dataset.id));
-    if (o.kind === 'sell' && o.price > 150 && !confirm(`出 ${o.price} 영석向${p.name}가르침을 청한다？`)) return;
+    if (o.kind === 'sell' && o.price > 150 && !confirm(`${o.price} 영석을 내고 ${p.name}에게 가르침을 청할까?`)) return;
     const r = askLore(p, el.dataset.id, o.kind === 'sell');
     if (r.err) toast(r.err, 'bad'); else if (r.text) { showIntel({ text: r.text, cls: 'good' }); }
     renderAll();
@@ -1967,20 +1967,20 @@ const HANDLERS = {
     if (sel === it.uid) sel = null;
     const sev0 = condSev(p, k), r = giveGift(p, it), left = condSev(p, k);
     toast(r.caught ? `${p.name}약에 손을 댄 걸 알아챘다！` : left >= sev0 ? `${p.name}복용한다${name}，나아지지 않는다`
-      : left ? `${p.name}복용한다${name}，${CONDS[k].name}减轻到${CONDS[k].grade[left - 1]}（好感 +${r.gain}）` : `${p.name}복용한다${name}，${CONDS[k].name}됐다(호감 +${r.gain}）`, r.caught || left >= sev0 ? 'bad' : left ? 'warn' : 'good');
+      : left ? `${p.name}이(가) ${name}을(를) 복용했다. ${CONDS[k].name}이(가) ${CONDS[k].grade[left - 1]}(으)로 줄었다(호감 +${r.gain})` : `${p.name}이(가) ${name}을(를) 복용했다. ${CONDS[k].name}이(가) 나았다(호감 +${r.gain})`, r.caught || left >= sev0 ? 'bad' : left ? 'warn' : 'good');
     openPerson(p.pid); renderAll();
   },
   'gift-give': el => {
     const p = S.people[el.dataset.pid], it = S.items[el.dataset.uid];
-    if (knownValue(it) > 300 && !confirm(`把${itemName(it)}준다${p.name}？`)) return;
+    if (knownValue(it) > 300 && !confirm(`${itemName(it)}을(를) ${p.name}에게 줄까?`)) return;
     const r = giveGift(p, it);
     if (sel === it.uid) sel = null;
-    toast(r.caught ? `${p.name}선물에 손을 댄 걸 알아챘다！` : `${p.name}받는다了，好感 +${r.gain}`, r.caught ? 'bad' : 'good');
+    toast(r.caught ? `${p.name}이(가) 선물에 손을 댄 걸 알아챘다!` : `${p.name}이(가) 받았다. 호감 +${r.gain}`, r.caught ? 'bad' : 'good');
     openPerson(p.pid); renderAll();
   },
   'gift-stones': el => {
     const p = S.people[el.dataset.pid], gain = giveStones(p, +el.dataset.n);
-    toast(`${p.name}영석을 받았다，好感 +${gain}`, 'good'); openPerson(p.pid); renderAll();
+    toast(`${p.name}이(가) 영석을 받았다. 호감 +${gain}`, 'good'); openPerson(p.pid); renderAll();
   },
   command: el => {
     const p = S.people[el.dataset.pid], r = runCommand(p, el.dataset.id, el.dataset.lever);
@@ -2103,7 +2103,7 @@ document.addEventListener('pointerup', () => {
   d.ghost.remove();
   d.el.classList.remove('dragging');
   if (target.trash) {
-    if (knownValue(it) > 30 && !confirm(`丢弃${itemName(it)}？`)) { renderAll(); return; }
+    if (knownValue(it) > 30 && !confirm(`${itemName(it)}을(를) 버릴까?`)) { renderAll(); return; }
     if (S.scav && S.scav.pending === it.uid) S.scav.pending = null;
     destroyItem(it);
     if (sel === it.uid) sel = null;
@@ -2156,7 +2156,7 @@ function placeMoved(it, gid, x, y) {
   if (from === 'tool' || gid === 'tool') {
     peak('lens', appraiseLevel());
     const found = recheckStock();
-    toast(found.length ? `갈아 끼운다${LENS_NAMES[appraiseLevel()]}，창고를 다시 살핀다：${found.join('、')}有问题！` : `감보대에 올려놓았다${LENS_NAMES[appraiseLevel()]}`, found.length ? 'bad' : '');
+    toast(found.length ? `${LENS_NAMES[appraiseLevel()]}(으)로 갈아 끼우고 창고를 다시 살폈다: ${found.join(' · ')} 문제 있음!` : `감보대에 ${LENS_NAMES[appraiseLevel()]}을(를) 올려놓았다`, found.length ? 'bad' : '');
   }
 }
 
