@@ -376,7 +376,7 @@ function renderCounter() {
  el.innerHTML = `<div class="cp-col wide">
  <h3>밤</h3>
  <p>설비는 네가 입정하는 동안 작동한다, 「작업장」 페이지 순서로 영력을 쓴다, 네 체력과 정신도 소모된다 - 기력이 모자라면 설비가 멈춘다. 쉬면 회복된다. </p>
- <p class="muted small">${S.scavenged ? '오늘 밤은 이미 나갔다.' : `오늘 밤 한 번 외출할 수 있다: 폐품 줍기(뒤질 때마다 ${costText('dig')}), 아니면 귀시로 간다(${costText('market')}${isGhostNight() ? ', 오늘 밤 귀시가 열린다. 물건이 많고 집법당을 건드리지 않는다' : ', 귀시가 아닌 밤, 집법당 주목 +2'}) . `}
+ <p class="muted small">${S.scavenged ? '오늘 밤은 이미 나갔다.' : `오늘 밤 한 번 외출할 수 있다: 폐품 줍기(뒤질 때마다 ${costText('dig')}), 아니면 귀시로 간다(${costText('market')}${isGhostNight() ? ', 오늘 밤 귀시가 열린다. 물건이 많고 집법당을 건드리지 않는다' : ', 귀시가 아닌 밤, 집법당 주목 +2'}). `}
  ${S.retreat ? '<b class="good">오늘 밤 폐관한다: </b>모든 화로의 산출이 더 좋아진다, 지화로로는 신병 배료를 제련할 수 있다. 쉬면 조금 회복된다. ' : `폐관 (${costText('retreat')}) : 오늘 밤 직접 화로를 지킨다. `}</p>
  </div>
  <div class="cp-actions">
@@ -632,7 +632,7 @@ function tabWorkshop() {
  <div class="m-head"><img class="m-icon" src="${asset('machines', 'm_array')}" alt="">
  <div class="m-title"><b>취령진</b><span class="muted">기본 영력 ${plan.supply}${S.upgrades.hijack ? ' (영맥 사설 연결 6 포함)' : ''} · 영정 비축 ${plan.bank}</span></div></div>
  <div class="m-grids">${gridHTML('power', '진안')}</div>
- <div class="m-desc muted small">설비는 카드 순서대로 영력을 쓴다. 기본 영력을 먼저 쓴다, 부족하면 영정에서 끌어쓴다. 남은 기본 영력은 영정에 저장된다(개당 상한 ${CRYSTAL_CAP}) . </div></div>`;
+ <div class="m-desc muted small">설비는 카드 순서대로 영력을 쓴다. 기본 영력을 먼저 쓴다, 부족하면 영정에서 끌어쓴다. 남은 기본 영력은 영정에 저장된다(개당 상한 ${CRYSTAL_CAP}). </div></div>`;
  else {
  const r = plan.rows.find(x => x.m.mid === openMid), m = r.m, def = MACHINES[m.type];
  const grids = def.stalls ? stallsHTML(m, r.chk.ok && r.powered) : def.pot ? potHTML(m, r.chk.ok && r.powered) : [
@@ -772,7 +772,7 @@ function tabRep() {
  <p class="small muted">너에게 손해 본 사람, 대부분 상황을 본다: 네 세력이 크면, 그들은 분을 삼킨다. 네 세력이 약하면, 그들이 항의하고 보복한다. 친분이 깊은 이는, 너를 더 봐준다. </p>
  <h4>${icon('ic_merit')}공훈</h4><div class="power-parts">${Object.keys(S.merit).map(f => `<span>${FACTIONS[f].name} ${S.merit[f]}</span>`).join('')}</div>
  <h4>선명 · ${VIRTUE_NAME(S.virtue)}(${S.virtue})</h4>
- <p class="small muted">사실대로 말하고, 공정하게 거래하고, 약자를 도우면 선명이 오른다, 하지만 이 세상은 이치를 따지지 않는다: 정직한 사람이 연 가게가, 파는 사람이 더 많이 부를 수 있다, 선명만 높고 수련이 받쳐주지 않으면, 모두 너를 만만하게 본다(세력 -${softPenalty()}) . 
+ <p class="small muted">사실대로 말하고, 공정하게 거래하고, 약자를 도우면 선명이 오른다, 하지만 이 세상은 이치를 따지지 않는다: 정직한 사람이 연 가게가, 파는 사람이 더 많이 부를 수 있다, 선명만 높고 수련이 받쳐주지 않으면, 모두 너를 만만하게 본다(세력 -${softPenalty()}). 
  다만 네가 도운 사람은 너를 기억한다 - 아주 드물게, 그 보답은 네 목숨을 살릴 만큼 크다.${S.flags.savior ? `<b class="good">네 손에 호신부 ${S.flags.savior}장이 있다.</b>` : ''}</p>`,
  rep: () => repSection(),
  }[sub.cur]();
@@ -1434,7 +1434,7 @@ function openHeal() {
  <div class="gift-list">${meds.length ? meds.map(it => `<div class="gift-row">
  ${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}<span>${esc(itemName(it))}</span>
  <span class="good">치료: ${CONDS[cureBy(it)].name}</span><button class="btn small" data-act="heal-use" data-uid="${it.uid}">복용한다</button></div>`).join('')
- : `<p class="muted small">손에 맞는 약이 없다 (${cureNames}) . </p>`}</div>
+ : `<p class="muted small">손에 맞는 약이 없다 (${cureNames}). </p>`}</div>
  <h4>아는 의원</h4>
  <div class="gift-list">${docs.length ? docs.map(p => `<div class="gift-row">
  <img class="heal-face" src="${asset('chars', personFace(p))}" alt=""><span>${esc(p.name)}<em class="muted small"> ${esc(p.title)} · ${MOOD_NAME[mood(p.aff)]}</em>
