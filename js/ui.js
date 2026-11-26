@@ -1709,7 +1709,7 @@ function showSetup() {
  <h4>출신</h4><div class="cards starts">${STARTS.map(s => `<div class="card ${pickd.start === s.id ? 'on' : ''}" data-act="set-start" data-id="${s.id}">
  <b>${s.name}${s.tag ? `<span class="tag real">${s.tag}</span>` : ''}</b><p class="small">${s.desc}</p>
  <p class="muted small">시작 수 ${s.stones} 영석${(s.machines || []).length ? ' · ' + s.machines.map(m => MACHINES[m].name).join(' · ') : ''}</p></div>`).join('')}</div>
- <div class="h-btns"><button class="btn ghost" data-act="modal-close">돌아가기</button><button class="btn primary" data-act="start">입국</button></div>`, 'm-setup');
+ <div class="h-btns"><button class="btn ghost" data-act="modal-close">돌아가기</button><button class="btn primary" data-act="start">가게를 연다</button></div>`, 'm-setup');
  openModal(render);
  HANDLERS['set-diff'] = el => { pickd.diff = el.dataset.id; render(); };
  HANDLERS['set-start'] = el => { pickd.start = el.dataset.id; render(); };
