@@ -2,37 +2,37 @@
 // 丹房要她的花球炼驻颜丹——护她要得罪丹房，卖她丹房给个好价
 'use strict';
 
-const LINGBO_DAN = { name: '丹房执事', portrait: 'mo_senior', title: '丹房执事', faction: 'mo' };
+const LINGBO_DAN = { name: '단방 집사', portrait: 'mo_senior', title: '단방 집사', faction: 'mo' };
 // 铺里有没有九十九成以上的灵泉水（够她续一回命的）
 const lingboWater = () => ownItem(it => it.id === 'water' && it.purity >= 99 && !it.laced);
 
 defineCharacter({
-  id: 'ling_bo', name: '凌波', faction: 'yao', sex: 'f', title: '水仙花妖',
+  id: 'ling_bo', name: '능파', faction: 'yao', sex: 'f', title: '수선화 요정',
   portrait: 'ling_bo',
   // 成年女子；花妖驻颜，看上去二十出头。清冷、自赏，衣着雅致
   art: 'a narcissus flower spirit, an adult woman who looks about 22: a cool, delicate, strikingly beautiful face with porcelain skin, pale jade-green eyes, '
     + 'long straight silver-white hair adorned with small white narcissus blossoms with golden cups, a layered white and pale-gold silk dress with long flowing water-like sleeves, '
     + 'a pale green sash, holding a small bronze hand mirror and glancing at it, a slight proud self-admiring air, elegant and graceful',
-  bio: '在石盆里养了三百年的水仙花妖，化了形还离不开水。自赏得很，镜子不离手；灵泉水不够纯，她的花就要谢。',
-  intro: '一个抱着铜镜来典当、只想换几瓶好水的水仙花妖。',
+  bio: '돌 화분에서 삼백 년을 자란 수선화 요정. 화형하고도 물을 떠나지 못한다. 자기 모습을 몹시 아껴 거울을 손에서 놓지 않는다. 영천수가 맑지 않으면 그녀의 꽃이 시든다.',
+  intro: '동경을 맡기러 와서 맑은 물 몇 병만 바라는 수선화 요정.',
   savvy: 0.6, power: 22, eye: 2,
   traits: { greed: 0.3, integrity: 0.6, caution: 0.5, wish: 'zhuyan_dan', budgetMul: 1.1 },
   start: { day: 8, node: 'mirror', chance: 0.4, cond: () => ART_SET.has('chars/ling_bo') },   // 立绘装好才登场
   regular: true,
   lines: {
-    first: '（她先照了照柜上的铜镜，才抬眼看你）这间铺子，倒还映得出吾的样子。',
-    neutral: ['小掌柜，有好水么？', '（她对着柜面理了理鬓边的花）今日又来叨扰。'],
-    warm: ['你这儿的水，吾喝着最清。', '小掌柜，你比镜子还懂吾。'],
-    close: ['吾的花，有一半是你浇活的。', '往后你铺里摆着的水仙，吾替你开得最好。'],
-    cold: '买水，别的不谈。',
-    hostile: '（她连镜子都不照了）你卖过吾的花球。',
-    buy: ['有{cat}么？要最清的。', '吾要{cat}——不清的不要。'],
-    sell: '这件{item}，{ask} 灵石。吾照过它三百年了。',
+    first: '(카운터의 동경에 먼저 자신을 비춰본 뒤에야 너를 본다) 이 가게는 이 몸의 모습을 비출 만하군요.',
+    neutral: ['주인장, 좋은 물 있어요?', '(카운터 면에 비춰 구레나룻의 꽃을 다듬는다) 오늘도 폐를 끼치러 왔어요.'],
+    warm: ['여기 물이 이 몸이 마셔본 것 중 제일 맑아요.', '주인장은 거울보다 이 몸을 잘 알아요.'],
+    close: ['이 몸의 꽃은 절반은 당신이 물을 줘 살린 거예요.', '앞으로 이 가게에 두는 수선화는 이 몸이 제일 곱게 피워줄게요.'],
+    cold: '물 사러 왔어요. 다른 얘기는 말고요.',
+    hostile: '(거울조차 보지 않는다) 당신이 이 몸의 꽃구근을 팔았어요.',
+    buy: ['{cat} 있어요? 제일 맑은 걸로요.', '{cat} 주세요 — 맑지 않으면 싫어요.'],
+    sell: '이 {item}, {ask} 영석이에요. 삼백 년을 비춰본 거예요.',
   },
   on: {
     // 卖给她纯水，算帮她续命
     sold: (st, p, it) => { if (it.id === 'water' && it.purity >= 99) st.flags.watered = (st.flags.watered || 0) + 1; },
-    death: () => { log('石盆里那株水仙谢了，再没开过。', 'loss'); },
+    death: () => { log('돌 화분의 수선화가 시들어 다시는 피지 않았다.', 'loss'); },
   },
 
   nodes: {
@@ -40,25 +40,25 @@ defineCharacter({
     mirror: {
       when: 'day',
       item: { id: 'bronze_mirror', extra: { q: 78, fake: false } },
-      text: () => '一个白衣女子进门，鬓边别着几朵金盏白瓣的水仙，先对着柜上的铜镜照了照，才把怀里一面古镜放到柜上：'
-        + '“吾照了它三百年，舍不得——可吾的花要谢了。小掌柜，换些九十九成以上的灵泉水给吾，镜子你拿去。”'
-        + (lingboWater() ? '' : '\n（你铺里眼下没有这样纯的水。）'),
+      text: () => '흰옷의 여자가 들어왔다. 구레나룻에 금잔 흰 꽃잎의 수선화를 꽂고, 먼저 카운터의 동경에 자신을 비춰본 뒤에야 품에서 옛 거울 하나를 꺼내 올렸다:'
+        + '"삼백 년을 비춰온 거라 아까워요 — 하지만 이 몸의 꽃이 시들어가요. 주인장, 아흔아홉 할 이상의 영천수와 바꿔줘요. 거울은 가져요."'
+        + (lingboWater() ? '' : '\n(지금 네 가게에는 그만큼 맑은 물이 없다.)'),
       choices: () => {
         const w = lingboWater();
         return [
-          ...(w ? [{ label: `拿${itemName(w)}换她的铜镜`, hint: `失去一份好水，得一面古镜；她记你的好`, run: (st, p) => {
+          ...(w ? [{ label: `${itemName(w)}(으)로 그녀의 동경과 바꾼다`, hint: `좋은 물 하나를 잃고 옛 거울을 얻는다; 그녀가 고마움을 기억한다`, run: (st, p) => {
             takeItem(w); keepCounterItem({ cost: 0, boughtDay: S.day }); goodDeed(p, 1);
-            remember(p, '你用一份纯水换了她的铜镜，她的花缓过来了。', 18, 'fair'); st.flags.watered = 1;
-            return { text: '她捧着水瓶，指尖在瓶身上转了一圈，鬓边的花一点点舒展开：“镜子归你了。替吾照好它。”', go: ['dan', [3, 5]], summary: '你用纯水换下了凌波的铜镜。', mood: 'pleased' };
+            remember(p, '맑은 물 하나로 그녀의 동경과 바꿨고 그녀의 꽃이 되살아났다.', 18, 'fair'); st.flags.watered = 1;
+            return { text: '그녀는 물병을 받쳐 들고 손끝으로 병을 한 바퀴 쓸자 구레나룻의 꽃이 조금씩 펼쳐졌다: "거울은 당신 거예요. 잘 비춰줘요."', go: ['dan', [3, 5]], summary: '맑은 물로 능파의 동경과 바꿨다.', mood: 'pleased' };
           } }] : []),
-          { label: '收下铜镜，给她三百灵石去别处买水', hint: costHint(300), req: needStones(300), run: (st, p) => {
-            spend(300, '收下凌波的青铜古镜。'); keepCounterItem({ cost: 300, boughtDay: S.day });
-            remember(p, '你收了她的铜镜，给了她三百灵石。', 6, 'fair');
-            return { text: '“灵石……”她把灵石拢进袖里，又回头看了铜镜一眼，“也行。”', go: ['dan', [3, 5]], summary: '你收下了凌波的铜镜。' };
+          { label: '동경을 받고 딴 데서 물 사라고 삼백 영석을 준다', hint: costHint(300), req: needStones(300), run: (st, p) => {
+            spend(300, '능파의 청동 옛 거울을 받았다.'); keepCounterItem({ cost: 300, boughtDay: S.day });
+            remember(p, '그녀의 동경을 받고 삼백 영석을 주었다.', 6, 'fair');
+            return { text: '"영석이라..." 그녀는 영석을 소매에 쓸어 담고 동경을 한 번 더 돌아보았다. "그것도 좋아요."', go: ['dan', [3, 5]], summary: '능파의 동경을 받았다.' };
           } },
-          { label: '镜子你留着，水赊给你', hint: '不收货；往后她还你', run: (st, p) => {
-            goodDeed(p, 2); remember(p, '你没收她的镜子，让她先去买水。', 12, 'helped'); st.flags.owes = true;
-            return { text: '她愣了一下，把镜子抱回怀里：“吾记着。三百年来，头一回有人不图吾这面镜子。”', go: ['dan', [3, 5]] };
+          { label: '거울은 간직하고 물은 외상으로 준다', hint: '물건은 받지 않는다; 나중에 그녀가 갚는다', run: (st, p) => {
+            goodDeed(p, 2); remember(p, '거울은 받지 않고 먼저 물을 사게 했다.', 12, 'helped'); st.flags.owes = true;
+            return { text: '그녀는 잠시 멈칫하더니 거울을 다시 품에 안았다: "기억해둘게요. 삼백 년 만에 처음으로 이 거울을 탐내지 않는 사람이네요."', go: ['dan', [3, 5]] };
           } },
         ];
       },
@@ -68,22 +68,22 @@ defineCharacter({
     dan: {
       when: 'day',
       who: () => LINGBO_DAN,
-      text: () => '一位丹房执事掀帘进门，衣袖上沾着药渣：“丹房缺一味三百年的水仙花球，炼驻颜丹的君药。听说杂役区有株成了精的——你可知她在哪儿？”'
-        + '\n“报个信，丹房赏两百；替她瞒着，丹房的生意你往后就别想做了。”',
+      text: () => '단방 집사 하나가 휘장을 걷고 들어왔다. 소매에 약찌꺼기가 묻어 있다: "단방에 삼백 년 묵은 수선화 꽃구근이 필요하다. 주안단의 주재료다. 잡역 구역에 정령이 된 것이 있다던데 — 어디 있는지 아는가?"'
+        + '\n"알려주면 단방이 이백을 내리겠다. 감춰주면 단방과의 장사는 앞으로 꿈도 꾸지 마라."',
       choices: () => [
-        { label: '说不知道', hint: `撒谎；被看穿则丹房交情 -10${condText('me') ? `（${condText('me').replace(/。$/, '')}，更容易露馅）` : ''}`, run: st => {
-          if (lieCaught(0.4)) { shiftSt('dan', -10); st.flags.suspect = true; return { text: '执事看了你半晌：“行。丹房记着。”', go: ['night', [1, 2]], mood: 'angry' }; }
-          return { text: '执事“嗯”了一声，走了。', go: ['night', [1, 2]] };
+        { label: '모른다고 한다', hint: `거짓말; 들통나면 단방 호감 -10${condText('me') ? `(${condText('me').replace(/[.]$/, '')}. 들통나기 쉽다)` : ''}`, run: st => {
+          if (lieCaught(0.4)) { shiftSt('dan', -10); st.flags.suspect = true; return { text: '집사가 너를 한참 보았다: "그래. 단방이 기억하지."', go: ['night', [1, 2]], mood: 'angry' }; }
+          return { text: '집사는 응, 하고 떠났다.', go: ['night', [1, 2]] };
         } },
-        { label: '说她早出城了', hint: '花 50 灵石打点，买个准话', req: needStones(50), run: () => {
-          spend(50, '打点丹房执事。');
-          return { text: '执事掂了掂灵石：“出城了？那就算了。”', go: ['night', [1, 2]] };
+        { label: '진작 성을 나갔다고 한다', hint: '50 영석을 써서 확답을 산다', req: needStones(50), run: () => {
+          spend(50, '단방 집사를 매수했다.');
+          return { text: '집사는 영석을 저울질했다: "성을 나갔다고? 그럼 됐다."', go: ['night', [1, 2]] };
         } },
-        { label: '告诉他她常在哪个水井边照影子', hint: '+200 灵石；丹房交情 +10；妖族声望 -8', sin: ['betray', 2], run: (st, p) => {
-          earn(200, '把凌波的去处卖给丹房。'); shiftSt('dan', 10); adjustRep('yao', -8);
-          remember(p, '你把她常去的水井告诉了丹房。', -100, 'betrayed');
-          lifeNote(p, '花球被丹房挖了去，炼了驻颜丹。'); p.status = 'gone';
-          return { text: '三天后，丹房出了一炉驻颜丹，香得半条街都闻得见。\n水井边，只剩一面没人照的水。', end: true, summary: '你把凌波卖给了丹房。', mood: 'pleased' };
+        { label: '그녀가 늘 그림자를 비추는 우물을 일러바친다', hint: '+200 영석; 단방 호감 +10; 요족 명성 -8', sin: ['betray', 2], run: (st, p) => {
+          earn(200, '능파의 거처를 단방에 팔았다.'); shiftSt('dan', 10); adjustRep('yao', -8);
+          remember(p, '그녀가 늘 가는 우물을 단방에 일렀다.', -100, 'betrayed');
+          lifeNote(p, '꽃구근을 단방에 파내어 주안단이 되었다.'); p.status = 'gone';
+          return { text: '사흘 뒤 단방에서 주안단 한 가마가 나왔는데 향기가 반 거리에 퍼졌다.\n우물가에는 비춰주는 이 없는 물만 남았다.', end: true, summary: '능파를 단방에 팔았다.', mood: 'pleased' };
         } },
       ],
     },
@@ -93,26 +93,26 @@ defineCharacter({
       when: 'night',
       cond: (st, p) => p.status === 'alive',
       mood: 'afraid',
-      text: st => '夜里，凌波抱着一只盛水的石盆来敲门，盆里卧着一颗白生生的花球：“丹房的人在井边转了两天了。吾把根寄在你这儿——人不在，根在，吾就死不了。”'
-        + (st.flags.suspect ? '\n你想起丹房执事那句“丹房记着”。' : ''),
+      text: st => '밤, 능파가 물을 담은 돌 화분을 안고 문을 두드렸다. 화분에는 새하얀 꽃구근이 놓여 있다: "단방 사람들이 이틀째 우물가를 맴돌아요. 뿌리를 여기 맡길게요 — 몸은 없어도 뿌리가 있으면 이 몸은 죽지 않아요."'
+        + (st.flags.suspect ? '\n단방 집사의 "단방이 기억하지"라는 말이 떠올랐다.' : ''),
       choices: st => [
-        { label: '把石盆藏好', hint: `执事若起了疑会来搜${S.grids.hidden ? '（有暗格，稳些）' : ''}`, run: (st, p) => {
-          goodDeed(p, 2); remember(p, '你替她藏了花球。', 20, 'helped');
+        { label: '돌 화분을 숨긴다', hint: `집사가 의심하면 뒤지러 온다${S.grids.hidden ? '(암격이 있어 더 안전)' : ''}`, run: (st, p) => {
+          goodDeed(p, 2); remember(p, '그녀의 꽃구근을 숨겨주었다.', 20, 'helped');
           if (st.flags.suspect && hideRoll(0.5)) {
-            shiftSt('dan', -8); addHeat(5); addCond(p, 'injured', 2, '花球被挖');
-            return { text: '天没亮，丹房的人踹开了后门，从柜台底下端走了石盆。\n凌波没再来过。后来听说，她在城外的河边扎了根，花开得很小。', end: true, summary: '丹房从你铺里搜走了凌波的花球。' };
+            shiftSt('dan', -8); addHeat(5); addCond(p, 'injured', 2, '꽃구근을 파냈다');
+            return { text: '날이 밝기 전 단방 사람들이 뒷문을 걷어차고 카운터 밑에서 돌 화분을 가져갔다.\n능파는 다시 오지 않았다. 나중에 들으니 성 밖 강가에 뿌리내렸는데 꽃이 아주 작게 핀다더군.', end: true, summary: '단방이 네 가게에서 능파의 꽃구근을 찾아갔다.' };
           }
-          return { text: '你把石盆塞进了库房最里头。半夜，盆里冒出一点嫩绿的芽。', go: ['bloom', [5, 8]], summary: '你替凌波藏了花球。', mood: 'pleased' };
+          return { text: '돌 화분을 창고 가장 안쪽에 밀어넣었다. 한밤중, 화분에서 여린 초록 싹이 돋았다.', go: ['bloom', [5, 8]], summary: '능파의 꽃구근을 숨겨주었다.', mood: 'pleased' };
         } },
-        { label: '劝她出城，送她一瓶好水上路', hint: `${lingboWater() ? '失去一份纯水' : costHint(60)}；妖族声望 +5`, req: () => !!lingboWater() || S.stones >= 60 || '没有纯水，也凑不出 60 灵石', run: (st, p) => {
-          const w = lingboWater(); if (w) takeItem(w); else spend(60, '给凌波买水上路。');
-          adjustRep('yao', 5); goodDeed(p, 2); remember(p, '你送她出了城，还给了她一瓶好水。', 18, 'helped');
-          lifeNote(p, '出城去了南边的湖。'); p.status = 'gone';
-          return { text: '她抱着石盆走进夜色里，回头说：“南边有片湖，吾去那儿开花。你来，吾照给你看。”', end: true, summary: '你送凌波出了城。' };
+        { label: '성을 나가라 하고 길에 마실 좋은 물 한 병을 준다', hint: `${lingboWater() ? '맑은 물 하나를 잃는다' : costHint(60)}; 요족 명성 +5`, req: () => !!lingboWater() || S.stones >= 60 || '맑은 물도 없고 60 영석도 마련할 수 없다', run: (st, p) => {
+          const w = lingboWater(); if (w) takeItem(w); else spend(60, '능파에게 길에 마실 물을 사주었다.');
+          adjustRep('yao', 5); goodDeed(p, 2); remember(p, '그녀를 성 밖으로 보내며 좋은 물 한 병을 주었다.', 18, 'helped');
+          lifeNote(p, '성을 나가 남쪽 호수로 갔다.'); p.status = 'gone';
+          return { text: '그녀는 돌 화분을 안고 어둠 속으로 들어가며 돌아보았다: "남쪽에 호수가 있어요. 거기서 꽃 피울게요. 오면 비춰줄게요."', end: true, summary: '능파를 성 밖으로 보냈다.' };
         } },
-        { label: '不想惹丹房', run: (st, p) => {
-          remember(p, '那晚你没收她的花球。', -12);
-          return { text: '她抱着石盆站了很久，走了。', end: true, summary: '那晚你没收下凌波的花球。' };
+        { label: '단방과 척지기 싫다', run: (st, p) => {
+          remember(p, '그날 밤 그녀의 꽃구근을 받지 않았다.', -12);
+          return { text: '그녀는 돌 화분을 안은 채 오래 서 있다가 떠났다.', end: true, summary: '그날 밤 능파의 꽃구근을 받지 않았다.' };
         } },
       ],
     },
@@ -122,21 +122,21 @@ defineCharacter({
       when: 'day',
       cond: (st, p) => p.status === 'alive',
       mood: 'pleased',
-      text: st => '凌波来了，鬓边的水仙开得比哪一回都盛。她把一面新磨的铜镜放在柜上，照了照自己，才转过来：'
-        + '“根养好了。这是吾谢你的——两瓶花露，添进丹炉，驻颜丹一炉出两颗；走火入魔了，喝一口也能镇住。”'
-        + (st.flags.owes ? '\n“上回赊的水钱，也一并算上。”' : ''),
+      text: st => '능파가 왔다. 구레나룻의 수선화가 어느 때보다 활짝 폈다. 그녀는 새로 간 동경을 카운터에 올리고 자신을 비춰본 뒤에야 돌아섰다:'
+        + '"뿌리가 다 자랐어요. 이건 이 몸의 사례예요 — 꽃이슬 두 병이에요. 단로에 넣으면 주안단이 한 가마에 두 알 나오고, 주화입마에 빠졌을 때 한 모금 마시면 가라앉아요."'
+        + (st.flags.owes ? '\n"지난번 외상 물값도 여기 함께 쳐줘요."' : ''),
       choices: () => [
-        { label: '收下', hint: '得两瓶水仙花露、一份琼浆玉露；她往后替你看着丹房的风声', run: (st, p) => {
+        { label: '받는다', hint: '수선화 이슬 두 병과 경장옥로 하나를 얻는다; 그녀가 단방의 동정을 봐준다', run: (st, p) => {
           giveItem('narcissus_dew', { q: 92 }); giveItem('narcissus_dew', { q: 92 }); giveItem('water', { purity: 99.95, q: 90 }); p.informant = true; adjustRep('yao', 5);
-          remember(p, '你收下了她的谢礼。', 10);
-          let tail = '她临走前在你的水缸里点了一滴花露。第二天，缸里的水清得照得见人影。';
+          remember(p, '그녀의 사례를 받았다.', 10);
+          let tail = '그녀는 떠나기 전 네 물독에 꽃이슬 한 방울을 떨어뜨렸다. 이튿날 독의 물이 사람 그림자가 비칠 만큼 맑아졌다.';
           // 够强才有：她带来丹房的独门方子
           if (strongEnough() && Math.random() < 0.35) {
             makeIntel('clique', { cid: 'dan' });
-            tail += '\n她还留下一张纸：“丹房那炉驻颜丹的底细——吾的同族，替吾记着呢。”';
+            tail += '\n그녀는 종이 한 장도 남겼다: "단방의 그 주안단 가마의 속사정 — 이 몸의 동족이 대신 기억해주고 있어요."';
           }
-          lifeNote(p, '花开了，常来铺子里照镜子。');
-          return { text: tail, end: true, summary: '凌波的花开了，她常来你铺子里。' };
+          lifeNote(p, '꽃이 피었고 가게에 들러 거울을 보곤 한다.');
+          return { text: tail, end: true, summary: '능파의 꽃이 피었고 그녀는 네 가게에 자주 온다.' };
         } },
       ],
     },
