@@ -171,7 +171,7 @@ defineCharacter({
       cond: (st, p) => p.status === 'alive',
       text: (st, p) => '잡역들이 네 문 앞에 모여 달걀과 무명천, 말린 약초 봉지를 받쳐 들고 있다. 유청라가 그들 뒤에 서 있다.\n"이들은 드릴 게 없소," 그녀가 말했다. "이 몸은 있소."',
       choices: (st, p) => [
-        { label: '收下', run: () => {
+        { label: '받는다', run: () => {
           adjustRep('ren', 10);
           // 好人好报：只有你够强，她才肯把真正的底牌押在你身上
           if (strongEnough() && Math.random() < 0.4) {
