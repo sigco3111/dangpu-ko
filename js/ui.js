@@ -533,8 +533,8 @@ function tradePanel(c) {
  const taking = it && (c.take || []).includes(it.uid);
  const flawSeen = it && isDressed(it) && (it.seen || 0) >= it.grade;
  const s = sel && S.items[sel], canTray = s && HELD(s) && s.pos.g !== 'tray';
- let info = c.wantCat ? `<p>${c.attracted ? '진열장 안의 것을 노리고' : '원한다'} <b class="cat">${esc(wantText(c))}</b> <b class="need">필요 ${needText(c)}</b>${c.noble ? '' : ', 다른 맞는 것도 덤으로 두어 가지 가져간다(65%만 쳐준다). 넘치는 것은 50%만 쳐준다'}, 예산 약 ${stoneTxt(`${lo}–${hi}`)} ${patienceHTML(c)}</p>`
- : `<p>팔기만 하고 싶다, 아무것도 사지 않는다. ${patienceHTML(c)}</p>`;
+ let info = c.wantCat ? `<p>${c.attracted ? '진열장 안의 물건을 노리고 있다:' : '찾는 물건:'} <b class="cat">${esc(wantText(c))}</b> <b class="need">${needText(c)}</b>.${c.noble ? '' : ' 맞는 다른 물건도 두어 개 덤으로 사 간다(값의 65%로 쳐준다). 넘치는 물건은 50%로 쳐준다.'} 예산 약 ${stoneTxt(`${lo}–${hi}`)}. ${patienceHTML(c)}</p>`
+ : `<p>팔기만 하러 왔다. 아무것도 사지 않는다. ${patienceHTML(c)}</p>`;
  if (c.noble) info += `<p class="small laced-txt">권귀는 눈이 높다: 싼 물건을 초라하다 여긴다. 안목은 별로다. 띄워줄수록 대충 본다.${c.flatter ? `(${c.flatter}번 띄웠다)` : ''}</p>`;
  if (it) {
  info += `<p class="small"><b>${esc(itemName(it))}</b> 제시가 ${stoneTxt(it.ask)} ${taking ? '<span class="tag real">받으려 한다</span>' : ''}
