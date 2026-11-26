@@ -170,7 +170,7 @@ function takeOpp(o) {
   const C = CLIQUES[o.cid];
   switch (o.type) {
     case 'auction': {
-      if (S.stones < o.price) return { err: '灵石不够' };
+      if (S.stones < o.price) return { err: '영석이 부족하다' };
       spend(o.price, `${C.name}의 몰수 경매에서 물건 한 조를 낙찰받았다.`);
       const got = o.items.map(id => giveItem(id, { q: rint(55, 85) })).filter(Boolean);
       o.done = true;
@@ -187,7 +187,7 @@ function takeOpp(o) {
       return { text: `${dirty.length}점의 물건에 집법당 증빙이 붙었다. 이제 출처가 깨끗하다.` };
     }
     case 'captive': {
-      if (S.stones < o.price) return { err: '灵石不够' };
+      if (S.stones < o.price) return { err: '영석이 부족하다' };
       spend(o.price, `${C.name}에게서 포로 한 명을 샀다.`);
       const got = [giveItem('cult_corpse', { q: rint(50, 75) }), giveItem('live_soul', { q: rint(50, 80) }), giveItem('blood_essence'), giveItem('blood_essence')].filter(Boolean);
       karmaShift(-3);
@@ -196,9 +196,9 @@ function takeOpp(o) {
       return { text: `포로는 선문의 축기 제자였고 끌려올 때 이미 숨이 반쯤 넘어가 있었다. 처분을 마치고 ${got.map(itemName).join(', ')}을(를) 얻었다.` };
     }
     case 'supply': {
-      if (S.stones < o.unit) return { err: '灵石不够' };
+      if (S.stones < o.unit) return { err: '영석이 부족하다' };
       const it = giveItem(o.id);
-      if (!it) return { err: '库房放不下' };
+      if (!it) return { err: '창고가 꽉 찼다' };
       spend(o.unit, `단방 배급가로 ${itemName(it)}을(를) 샀다.`);
       if (--o.left <= 0) o.done = true;
       return { text: `${itemName(it)}을(를) 배급가로 받았다.` };
@@ -211,7 +211,7 @@ function takeOpp(o) {
     case 'tip': {
       const it = makeIntel('market');
       o.done = true;
-      return it ? { text: `소종주 측근이 슬쩍 귀띔해주었고 너는 그것을 ${itemName(it)}(으)로 적어두었다.` } : { err: '库房放不下' };
+      return it ? { text: `소종주 측근이 슬쩍 귀띔해주었고 너는 그것을 ${itemName(it)}(으)로 적어두었다.` } : { err: '창고가 꽉 찼다' };
     }
   }
   return { err: '' };
