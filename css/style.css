@@ -6,8 +6,8 @@
   --jade: #3fae8f; --jade2: #7fd6b5;
   --paper: #efe2c4; --paper2: #d8c49a; --bone: #e9dfcc;
   --text: #e9dfcc; --muted: #a8949a;
-  --serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
-  --kai: "STKaiti", "KaiTi", "AR PL UKai CN", "Kaiti SC", var(--serif);
+  --serif: "Noto Serif KR", "Noto Serif CJK KR", "Source Han Serif KR", "Nanum Myeongjo", serif;
+  --kai: "Noto Serif KR", "Nanum Myeongjo", var(--serif);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: #0b080e; color: var(--text); font-family: var(--serif); }
