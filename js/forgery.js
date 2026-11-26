@@ -134,7 +134,7 @@ function studyFake(it) {
     S.laceKnown = S.laceKnown || {};
     S.laceKnown[it.laced] = 1;
     destroyItem(it);
-    log(`네가 이 ${ITEMS[it.id].name}을(를) 뜯어 자세히 살펴 남이 ${LACE[it.laced].verb}하는 수법을 간파했다 - 앞으로 네가 이 재료를 섞을 때 손놀림이 더 깔끔해진다.`, 'gold');
+    log(`네가 이 ${ITEMS[it.id].name}을(를) 뜯어 자세히 살펴 남이 ${LACE[it.laced].act.replace(/기$/, '는')} 수법을 간파했다 - 앞으로 네가 이 재료를 섞을 때 손놀림이 더 깔끔해진다.`, 'gold');
     return null;
   }
   if (!knownFlaw(it)) return '너는 아직 이것의 문제를 알아보지 못했다.';
