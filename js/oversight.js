@@ -149,7 +149,7 @@ Object.assign(STORIES, {
           const f = st.flags, p = S.people[f.pid];
           const lead = f.reported ? `${p.name}이(가) 품에서 고발장 한 장을 꺼내 네 눈앞에서 흔들었다: "${f.reported}. 네가 ${f.items}을(를) 버젓이 진열했다는군."`
             : `${p.name}이(가) 가게로 거들먹거리며 들어와 진열장 앞에 멈춰 서서 손가락 마디로 장문을 두드렸다: "${f.items}... 쯔쯔, 겁도 없군."`;
-          return `${lead}\n“这事嘛，可大可小。”${ta(landlordPerson())}压低了声音，“我可以当没看见——就看你懂不懂事了。”`;
+          return `${lead}\n"이 일은 크게도 작게도 될 수 있지." ${ta(landlordPerson())}은(는) 목소리를 낮췄다. "못 본 걸로 해줄 수도 있어. 네가 처신을 어떻게 하느냐에 달렸지."`;
         },
         choices: st => {
           const p = S.people[st.flags.pid], stake = bannedStake();
