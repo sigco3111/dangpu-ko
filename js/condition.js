@@ -25,7 +25,7 @@ const DERIVED = {
 function initConditions() { S.conds = S.conds || {}; }
 
 const condBox = who => who === 'me' ? S.conds : (who.conds = who.conds || {});
-const whoName = who => who === 'me' ? '你' : who.name;
+const whoName = who => who === 'me' ? '너' : who.name;
 
 // 添一重状态（同类叠加，最多三重）
 function addCond(who, kind, sev = 1, why = '') {
@@ -47,7 +47,7 @@ const DEATHS = {
 };
 // 选项提示用：第二重再添就到了鬼门关前；第三重再添就没命了
 function deathWarn(kind) {
-  const C = CONDS[kind], sev = condSev('me', kind), hurt = kind === 'injured' ? '受伤' : '中毒';
+  const C = CONDS[kind], sev = condSev('me', kind), hurt = kind === 'injured' ? '부상을' : '중독을';
   if (!C.lethal || sev < 2) return '';
   return sev === 3 ? `; 이미 ${C.grade[2]} 상태다. 다시 ${hurt} 입으면 반드시 죽는다` : `; 이미 ${C.grade[1]} 상태다. 다시 ${hurt} 입으면 ${C.grade[2]}이(가) 된다`;
 }
@@ -83,9 +83,9 @@ function condList(who) {
     if (who.poisonedDay && S.day - who.poisonedDay <= 5 && who.health < 60 && !condBox(who).poisoned)
       out.push({ kind: 'poisoned', name: '중독', sev: 2, label: '시독에 걸림', combat: 20 });
     if (who.health != null && who.health < 40) out.push({ kind: 'sickly', name: '병약', sev: 1, label: '병약', combat: DERIVED.sickly.combat });
-    if ((who.addict || 0) >= 2) out.push({ kind: 'addicted', name: '药瘾', sev: who.addict, label: `약물 중독 ${who.addict}단계`, combat: DERIVED.addicted.combat * who.addict });
-    if (guBound(who)) out.push({ kind: 'gu', name: '中蛊', sev: 1, label: `${GU_STAGES[who.controlled.stage || 0].name}에 걸림`, combat: DERIVED.gu.combat });
-    if (who.soulBound) out.push({ kind: 'dazed', name: '受控', sev: 1, label: '정신이 조종됨(혼인)', combat: DERIVED.dazed.combat });
+    if ((who.addict || 0) >= 2) out.push({ kind: 'addicted', name: '약물 중독', sev: who.addict, label: `약물 중독 ${who.addict}단계`, combat: DERIVED.addicted.combat * who.addict });
+    if (guBound(who)) out.push({ kind: 'gu', name: '고충에 걸림', sev: 1, label: `${GU_STAGES[who.controlled.stage || 0].name}에 걸림`, combat: DERIVED.gu.combat });
+    if (who.soulBound) out.push({ kind: 'dazed', name: '조종당함', sev: 1, label: '정신이 조종됨(혼인)', combat: DERIVED.dazed.combat });
   }
   return out;
 }
@@ -167,7 +167,7 @@ function condTick() {
     const r = step('me', k, c);
     if (r === 'gone') out.push({ icon: 'ic_stamina', title: CONDS[k].name, text: `네 ${CONDS[k].name}이(가) 나았다.`, cls: 'ok' });
     else if (r === 'worse') out.push({ icon: 'ic_stamina', title: CONDS[k].name, text: `네 ${CONDS[k].name}이(가) 심해졌다: ${CONDS[k].grade[c.sev - 1]}. ${CONDS[k].desc}`, cls: 'bad' });
-    else if (k === 'poisoned') out.push({ icon: 'ic_stamina', title: '中毒', text: `독이 경맥을 돌아다닌다. 체력·정신 각각 -${CONDS.poisoned.drain * c.sev}.`, cls: 'bad' });
+    else if (k === 'poisoned') out.push({ icon: 'ic_stamina', title: '중독', text: `독이 경맥을 돌아다닌다. 체력·정신 각각 -${CONDS.poisoned.drain * c.sev}.`, cls: 'bad' });
     // 第三重熬一夜是一夜（刚加重的那夜不算）
     if (CONDS[k].lethal && c.sev === 3 && r !== 'worse') {
       if (Math.random() < CONDS[k].lethal) dieMe(k);
