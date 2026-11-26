@@ -2,131 +2,131 @@
 'use strict';
 
 defineCharacter({
-  id: 'lu_banxian', name: '鲁半仙', faction: 'ren', sex: 'm', title: '算命先生',
+  id: 'lu_banxian', name: '노반선', faction: 'ren', sex: 'm', title: '점술가',
   portrait: 'lu_banxian',
   art: "an old blind fortune teller in his sixties with a strip of black cloth tied over his eyes, thin grey goatee, weathered face, shabby faded indigo Taoist robe, holding a bamboo pole with a blank white cloth fortune banner in one hand and an old bronze luopan compass in the other, a knowing faint smile",
-  bio: '蒙着眼的算命先生，在杂役区街口摆摊，算得准得吓人。有人说他从前在执法堂抄过案卷。',
-  intro: '一个算得太准的瞎眼算命先生。',
+  bio: '눈을 가린 점술가. 잡역 구역 어귀에 자리를 펴고 점을 치는데 소름 끼치게 잘 맞는다. 예전에 집법당에서 공문서를 베껴 썼다는 이야기가 있다.',
+  intro: '너무나 잘 맞히는 장님 점술가.',
   savvy: 0.85, power: 22, eye: 3,
   traits: { greed: 0.35, integrity: 0.55, caution: 0.8, wish: 'spirit_wine' },
   start: { day: 8, node: 'fortune', chance: 0.4 },
   regular: true,
   lines: {
-    first: '（他拄着竹竿，蒙着黑布的脸正对着你）小掌柜，你的命，有点意思。',
-    neutral: ['小掌柜，今日宜开张，忌多嘴。', '老朽又来讨口茶喝。'],
-    warm: ['小掌柜，你印堂比上回亮堂。', '老朽这双瞎眼，看人倒还准。'],
-    close: ['小掌柜，有些话，老朽只跟你说。', '你我之间，不必算了。'],
-    cold: '买卖归买卖。',
-    hostile: '……老朽算过你的命。不好。',
-    buy: ['有{cat}么？老朽眼瞎，鼻子不瞎。', '给老朽寻些{cat}，别拿次货糊弄瞎子。'],
+    first: '(대나무 지팡이를 짚고, 검은 천으로 가린 얼굴이 정면으로 너를 향한다) 작은 주인장, 그대의 명(命)이 좀 재미있군.',
+    neutral: ['주인장, 오늘은 개점하기 좋고 잔소리하기 나쁜 날이오.', '늙은이가 또 차 한 잔 얻으러 왔소.'],
+    warm: ['주인장, 미간이 지난번보다 밝아졌소.', '늙은이의 이 먼 눈도 사람 보는 눈만은 정확하오.'],
+    close: ['주인장, 어떤 말은 당신에게만 하오.', '우리 사이는 점칠 필요가 없소.'],
+    cold: '장사는 장사요.',
+    hostile: '... 늙은이가 그대의 명을 점쳐봤소. 좋지 않소.',
+    buy: ['{cat} 있소? 늙은이는 눈은 멀었지만 코는 멀지 않았소.', '늙은이를 위해 {cat}을(를) 구해주시오. 하품으로 장님을 속이려 들지 마시오.'],
   },
-  command: { label: '令他替你算一卦朝堂风向', run: () => { const it = makeIntel('clique'); return it ? `鲁半仙掐着指头念叨了半晌，你记下一份${itemName(it)}。` : '他说了一堆，可你库房里连张纸都放不下。'; } },
+  command: { label: '그에게 조정의 기류를 점치게 한다', run: () => { const it = makeIntel('clique'); return it ? `노반선이 손가락을 꼽으며 한참 중얼거렸고, 너는 ${itemName(it)}을(를) 한 장 적어두었다.` : '그는 한참을 떠들었지만 네 창고에는 종이 한 장 둘 곳이 없다.'; } },
   on: {
     // 送他灵酒，他“算”出一份行情
     gift: (st, p, it, res) => {
       if (res.caught || it.id !== 'spirit_wine') return;
       const m = makeIntel('market');
-      if (m) log(`鲁半仙喝了你的灵酒，摇头晃脑地“算”出一份${itemName(m)}。`, 'gain');
+      if (m) log(`노반선이 네 영주를 마시고 고개를 흔들흔들하며 ${itemName(m)} 한 장을 '점쳐냈다'.`, 'gain');
     },
     // 漆盒在你柜底的那几夜
-    night: (st, p) => st.flags.box && !st.done && ['hunt', 'opened'].includes(st.node) ? '漆盒压在柜底。夜里你总觉得它在发烫。' : null,
+    night: (st, p) => st.flags.box && !st.done && ['hunt', 'opened'].includes(st.node) ? '칠함이 카운터 밑에 눌려 있다. 밤이면 그것이 뜨거워지는 것만 같다.' : null,
   },
 
   nodes: {
     fortune: {
       when: 'day',
-      text: () => '一个蒙着黑布的老瞎子摸进铺子，竹竿在地上点了三下，正停在你面前。\n“小掌柜，老朽送你一卦，只收二十灵石。算得不准，分文不取。”',
+      text: () => '검은 천으로 눈을 가린 늙은 장님이 가게로 더듬어 들어와 대나무 지팡이로 바닥을 세 번 두드리더니 정확히 네 앞에 멈췄다.\n"작은 주인장, 늙은이가 점 한 번 쳐주리다. 스무 영석만 받겠소. 안 맞으면 한 푼도 받지 않겠소."',
       choices: (st, p) => [
-        { label: '算一卦', hint: costHint(20), req: needStones(20), run: () => {
-          spend(20, '请鲁半仙算了一卦。');
+        { label: '점을 친다', hint: costHint(20), req: needStones(20), run: () => {
+          spend(20, '노반선에게 점을 청했다.');
           const it = makeIntel('market');
-          remember(p, '你请他算了一卦。', 6);
-          return { text: `他掐着指头念了半天：“${it ? `东边的货要涨。${it.info.text}` : '东边的货要涨……可惜你这铺子，放不下更多东西了。'}”\n他收起灵石，压低声音，“还有一句不要钱的：你这铺子，过些日子要来一样东西。收不收，你自己掂量。”`,
+          remember(p, '그에게 점을 청했다.', 6);
+          return { text: `그는 손가락을 꼽으며 한참 중얼거렸다: "${it ? `동쪽 물건이 오르겠소. ${it.info.text}` : '동쪽 물건이 오르겠소만... 아쉽게도 이 가게에는 더 둘 자리가 없군.'}"\n그는 영석을 거두며 목소리를 낮췄다. "공짜로 한마디 더 하지. 며칠 안 가 이 가게에 물건 하나가 들어올 것이오. 받을지 말지는 스스로 저울질하시오."`,
             go: ['box', [2, 4]] };
         } },
-        { label: '不信这个', run: () => {
-          remember(p, '你不信他的卦。', -3);
-          return { text: '老瞎子也不恼：“不信也好。只是这几日，夜里关好门。”', go: ['box', [2, 4]] };
+        { label: '믿지 않는다', run: () => {
+          remember(p, '그의 점을 믿지 않았다.', -3);
+          return { text: '늙은 장님은 화내지 않았다: "믿지 않아도 좋소. 다만 며칠간은 밤에 문을 잘 걸어 잠그시오."', go: ['box', [2, 4]] };
         } },
       ],
     },
 
     box: {
       when: 'night',
-      text: () => '三更天，有人叩门。鲁半仙站在门外，怀里抱着一只黑漆木盒，盒上贴着封条。\n“寄放七日，一百灵石。”他把盒子往前一递，“无论谁来问，无论你多想知道——别打开。”',
+      text: () => '삼경, 누군가 문을 두드렸다. 노반선이 문 밖에 서서 검은 칠나무 함을 품에 안고 있었다. 함에는 봉인이 붙어 있다.\n"이레만 맡아주시오. 백 영석이오." 그는 함을 내밀었다. "누가 물어도, 아무리 알고 싶어도 — 열지 마시오."',
       choices: (st, p) => [
-        { label: '收下漆盒', hint: '+100 灵石', run: () => {
-          earn(100, '替鲁半仙保管漆盒的酬金。'); st.flags.box = true;
-          remember(p, '你替他收下了漆盒。', 12);
-          return { text: '他摸着门框走进夜色里，竹竿的笃笃声很快听不见了。', go: ['hunt', [2, 3]], summary: '你替他保管着一只来路不明的漆盒。' };
+        { label: '칠함을 받는다', hint: '+100 영석', run: () => {
+          earn(100, '노반선의 칠함 보관 사례금.'); st.flags.box = true;
+          remember(p, '그의 칠함을 맡았다.', 12);
+          return { text: '그는 문설주를 더듬어 어둠 속으로 들어갔고, 지팡이 소리는 곧 들리지 않았다.', go: ['hunt', [2, 3]], summary: '출처를 알 수 없는 칠함 하나를 맡았다.' };
         } },
-        { label: '不接', run: () => {
-          remember(p, '你没接他的漆盒。', -5);
-          return { text: '“也是，也是。”他叹了口气，抱着盒子走了。', go: ['news', [4, 6]] };
+        { label: '받지 않는다', run: () => {
+          remember(p, '그의 칠함을 받지 않았다.', -5);
+          return { text: '"그럴 만도 하오." 그는 한숨 쉬고 함을 안은 채 떠났다.', go: ['news', [4, 6]] };
         } },
       ],
     },
 
     hunt: {
       when: 'day',
-      who: () => ({ name: '执法堂暗探', portrait: 'mo_enforcer', title: '执法堂', faction: 'mo' }),
-      text: () => '一个戴铁面的人走进来，没看货架，径直盯着你：“前几夜，有个瞎子来过你这儿，寄了一只漆盒。”\n“冷长老要那只盒子。交出来，执法堂记你一功；藏着——”他用指节敲了敲柜台，“窝藏要犯，一并论处。”'
-        + (condSev('me', 'injured') ? '\n他的目光在你吊着的胳膊上停了停，嘴角动了一下。' : condSev('me', 'poisoned') ? '\n他看了看你发紫的嘴唇：“气色不好啊，掌柜的。”' : ''),
+      who: () => ({ name: '집법당 첩자', portrait: 'mo_enforcer', title: '집법당', faction: 'mo' }),
+      text: () => '철가면을 쓴 자가 들어와 물건 칸은 보지도 않고 곧장 너를 노려보았다: "며칠 전 밤, 장님 하나가 여기 와서 칠함 하나를 맡겼다."\n"냉 장로가 그 함을 원하신다. 내놓으면 집법당이 네 공을 기억할 것이고, 숨기면 —" 그는 손마디로 카운터를 두드렸다. "요주의 인물을 숨겨준 죄, 함께 묻겠다."'
+        + (condSev('me', 'injured') ? '\n그의 눈이 네가 걸고 있는 팔에서 잠시 멈췄고 입꼬리가 움찔했다.' : condSev('me', 'poisoned') ? '\n그는 네 새파란 입술을 보았다: "안색이 안 좋군, 주인장."' : ''),
       choices: (st, p) => [
-        { label: '交出漆盒', sin: ['betray', 3], hint: '+150 灵石；执法堂好感 +15、关注 -10；鲁半仙必死', run: () => {
-          earn(150, '把鲁半仙的漆盒交给执法堂。'); shiftSt('law', 15); addHeat(-10);
-          p.status = 'dead'; lifeNote(p, '被执法堂从街口拖走，再没回来。');
-          remember(p, '你把他的漆盒交给了执法堂。', -100, 'betrayed');
-          return { text: '暗探揣起盒子走了。第二天，街口的卦摊空了，只剩一根断掉的竹竿。', end: true, summary: '你把他的漆盒交给了执法堂。他死了。' };
+        { label: '칠함을 넘긴다', sin: ['betray', 3], hint: '+150 영석; 집법당 호감 +15, 주시 -10; 노반선은 반드시 죽는다', run: () => {
+          earn(150, '노반선의 칠함을 집법당에 넘겼다.'); shiftSt('law', 15); addHeat(-10);
+          p.status = 'dead'; lifeNote(p, '집법당에 끌려가 다시 돌아오지 못했다.');
+          remember(p, '그의 칠함을 집법당에 넘겼다.', -100, 'betrayed');
+          return { text: '첩자는 함을 챙겨 갔다. 이튿날 어귀의 점술 자리는 비었고 부러진 대나무 지팡이만 남았다.', end: true, summary: '그의 칠함을 집법당에 넘겼다. 그는 죽었다.' };
         } },
-        { label: '说没这回事', hint: '暗探未必信', run: () => {
+        { label: '그런 일 없다고 한다', hint: '첩자가 믿지 않을 수 있다', run: () => {
           if (lieCaught(0.55)) {
             addHeat(18); shiftSt('law', -10); st.flags.box = false;
-            p.status = 'jailed'; lifeNote(p, '执法堂从你铺子里搜出漆盒，循迹抓了他。');
-            return { text: '暗探冷笑一声，掀开柜底，把漆盒拎了出来。“窝藏，记下了。”', end: true, summary: '你没能护住那只漆盒，他被抓了。' };
+            p.status = 'jailed'; lifeNote(p, '집법당이 네 가게에서 칠함을 찾아내 자취를 쫓아 그를 잡았다.');
+            return { text: '첩자가 냉소하며 카운터 밑을 걷자 칠함이 나왔다. "은닉, 기록해두지."', end: true, summary: '칠함을 지키지 못했고 그는 잡혔다.' };
           }
           st.flags.lied = true;
-          return { text: '暗探盯着你看了很久，转身走了。你后背全湿了。', go: ['back', [3, 4]] };
+          return { text: '첩자가 너를 오래 노려보다가 돌아섰다. 네 등은 흠뻑 젖어 있었다.', go: ['back', [3, 4]] };
         } },
         // 动手：成败看你的修为、兵器与身上的伤毒
-        { label: '趁他不备打晕他，连夜把漆盒送走', hint: `成算约 ${Math.round(trialOdds(42) * 100)}%（${condText('me') || '你状态尚好'}）；败了重伤、漆盒被夺${deathWarn('injured')}`, run: () => {
+        { label: '틈을 타 기절시키고 밤사이 칠함을 빼돌린다', hint: `성공률 약 ${Math.round(trialOdds(42) * 100)}%(${condText('me') || '너의 상태는 아직 괜찮다'}); 지면 중상을 입고 칠함을 빼앗긴다${deathWarn('injured')}`, run: () => {
           const t = trial('me', 42);
           if (t.ok) {
             addHeat(12); st.flags.knocked = true;
-            remember(p, '你为了那只漆盒，把执法堂的暗探打晕在柜台后。', 30, 'helped');
-            return { text: `你抄起柜下的镇纸，一下砸在他后脑。铁面人软倒下去。\n天亮前，漆盒随一车腐骨出了杂役区。暗探醒来什么也没找到，只记住了你的脸。`, go: ['back', [3, 4]] };
+            remember(p, '칠함을 위해 집법당 첩자를 카운터 뒤에서 기절시켰다.', 30, 'helped');
+            return { text: `너는 카운터 밑의 문진을 들어 그의 뒤통수를 내리쳤다. 철가면이 힘없이 쓰러졌다.\n날이 밝기 전 칠함은 부골 수레에 실려 잡역 구역을 빠져나갔다. 첩자는 깨어나 아무것도 찾지 못했고 네 얼굴만 기억했다.`, go: ['back', [3, 4]] };
           }
-          addCond('me', 'injured', 2, '与执法堂暗探动手'); addHeat(20); shiftSt('law', -15);
-          p.status = 'jailed'; lifeNote(p, '执法堂夺走漆盒，循迹抓了他。');
-          return { text: `你刚抬手，铁面人一掌拍在你胸口——${condText('me') || ''}\n你撞翻了货架，眼睁睁看着他夹着漆盒扬长而去。`, end: true, summary: '你为他动了手，没打过执法堂的暗探，漆盒被夺，他被抓了。' };
+          addCond('me', 'injured', 2, '집법당 첩자와 몸싸움을 벌였다'); addHeat(20); shiftSt('law', -15);
+          p.status = 'jailed'; lifeNote(p, '집법당이 칠함을 빼앗고 자취를 쫓아 그를 잡았다.');
+          return { text: `손을 들기도 전에 철가면의 장풍이 가슴에 꽂혔다 — ${condText('me') || ''}\n너는 물건 칸을 쓰러뜨리며 칠함을 낀 채 유유히 떠나는 그를 바라만 봤다.`, end: true, summary: '그를 위해 싸웠지만 첩자에게 져 칠함을 빼앗겼고 그는 잡혔다.' };
         } },
-        { label: '先稳住他，夜里打开漆盒', hint: '看看里面是什么', run: () => {
-          remember(p, '你违背承诺，打开了他的漆盒。', -10);
-          return { text: '你说要去后院找找，请暗探明日再来。夜里，你撕开了封条。', go: ['opened', 0] };
+        { label: '일단 달래두고 밤에 칠함을 연다', hint: '안에 뭐가 있는지 본다', run: () => {
+          remember(p, '약속을 어기고 그의 칠함을 열었다.', -10);
+          return { text: '뒤뜰을 찾아봐야 한다며 첩자를 내일 오라고 돌려보냈다. 밤, 너는 봉인을 찢었다.', go: ['opened', 0] };
         } },
       ],
     },
 
     opened: {
       when: 'night',
-      text: () => '盒里是一本账册：冷长老私吞抄没、暗通仙门的往来，一笔笔记得清清楚楚。\n账册最底下压着一张抄家单——第三行，是你铺子的名字。',
+      text: () => '함 안에는 장부 한 권이 있었다. 냉 장로가 몰수품을 빼돌리고 선문과 내통한 내역이 획획 또렷이 적혀 있다.\n장부 맨 아래에는 압수 명단이 깔려 있었다 — 셋째 줄에 네 가게 이름이 있었다.',
       choices: (st, p) => [
-        { label: '把账册递给少宗主一系', hint: '执法堂权势大跌；少宗主一系好感 +25', run: () => {
-          S.cliques.law.pw = clamp(S.cliques.law.pw - 25, 0, 100); shiftSt('heir', 25); shiftSt('law', -20); earn(200, '少宗主一系为冷长老的黑账付的谢礼。');
+        { label: '장부를 소종주 일파에 넘긴다', hint: '집법당 권세 급락; 소종주 일파 호감 +25', run: () => {
+          S.cliques.law.pw = clamp(S.cliques.law.pw - 25, 0, 100); shiftSt('heir', 25); shiftSt('law', -20); earn(200, '소종주 일파가 냉 장로의 검은 장부에 치른 사례.');
           st.flags.delivered = true;
-          return { text: '天没亮，账册就到了血公子手里。他让人捎来两百灵石，还有一句话：“抄家单上那一行，划掉了。”', go: ['back', [2, 3]] };
+          return { text: '날이 밝기도 전에 장부는 혈공자 손에 들어갔다. 그는 이백 영석과 함께 한마디를 전했다: "압수 명단의 그 줄은 지웠다."', go: ['back', [2, 3]] };
         } },
-        { label: '拿账册要挟冷长老', sin: ['betray', 2], hint: `成算看你的势力（${playerPower()}）`, run: () => {
+        { label: '장부로 냉 장로를 협박한다', sin: ['betray', 2], hint: `성공 여부는 네 세력에 달렸다(${playerPower()})`, run: () => {
           if (Math.random() < clamp(playerPower() / 100, 0.1, 0.8)) {
-            earn(600, '冷长老买回自己的黑账。'); addHeat(-25); shiftSt('law', 10); st.flags.sold = true;
-            return { text: '冷长老亲自来了，一句话没说，放下六百灵石，拿走账册。抄家单当着你的面烧了。', go: ['back', [2, 3]] };
+            earn(600, '냉 장로가 자기 검은 장부를 되샀다.'); addHeat(-25); shiftSt('law', 10); st.flags.sold = true;
+            return { text: '냉 장로가 몸소 와서 아무 말 없이 육백 영석을 내려놓고 장부를 가져갔다. 압수 명단은 네 눈앞에서 태워졌다.', go: ['back', [2, 3]] };
           }
           addHeat(30); shiftSt('law', -30);
-          return { text: '你托人递话，第二天执法堂就围了你的铺子，账册被搜走。你在血狱里关了三天才被放出来。', go: ['back', [2, 3]] };
+          return { text: '사람을 시켜 말을 전했더니 이튿날 집법당이 가게를 포위하고 장부를 찾아갔다. 너는 혈옥에 사흘 갇혔다 풀려났다.', go: ['back', [2, 3]] };
         } },
-        { label: '原样封好', run: () => {
+        { label: '원래대로 봉한다', run: () => {
           st.flags.kept = true;
-          return { text: '你把账册放回去，用浆糊把封条粘好。抄家单上那一行字，你一夜没睡着。', go: ['back', [2, 3]] };
+          return { text: '장부를 도로 넣고 풀로 봉인을 붙였다. 압수 명단의 그 한 줄 때문에 밤새 잠들지 못했다.', go: ['back', [2, 3]] };
         } },
       ],
     },
@@ -134,41 +134,41 @@ defineCharacter({
     back: {
       when: 'day',
       cond: (st, p) => p.status === 'alive',
-      text: st => st.flags.knocked ? '鲁半仙来了，摸着漆盒的封条，长长出了一口气：“你为老朽打了执法堂的人。”\n他扯下蒙眼的黑布——那双眼睛好好的。“老朽从前是执法堂的书吏。这份情，老朽拿命记着。”'
-        : st.flags.delivered ? '鲁半仙来了，这回他扯下了蒙眼的黑布——那双眼睛好好的。\n“老朽从前是执法堂的书吏，冷长老灭了老朽一家。”他冲你深深一揖，“账册的去处，比老朽想的还好。”'
-        : st.flags.sold ? '鲁半仙站在门口，没进来：“账册卖了个好价钱吧？”\n他的声音很平静，“老朽算到了。”'
-          : '鲁半仙摸进铺子，伸手摸了摸漆盒的封条，笑了：“好，好。七日到了。”',
+      text: st => st.flags.knocked ? '노반선이 와서 칠함의 봉인을 더듬더니 길게 숨을 내쉬었다: "늙은이를 위해 집법당 사람을 쳤다며?"\n그는 눈가리개를 벗었다 — 그 눈은 멀쩡했다. "늙은이는 예전에 집법당 서리였소. 이 은혜는 목숨으로 기억하겠소."'
+        : st.flags.delivered ? '노반선이 와서 이번에는 눈가리개를 벗었다 — 그 눈은 멀쩡했다.\n"늙은이는 예전에 집법당 서리였고, 냉 장로가 우리 집안을 멸했소." 그가 깊이 허리를 숙였다. "장부가 간 곳이 늙은이의 생각보다 더 좋은 곳이오."'
+        : st.flags.sold ? '노반선이 문간에 서서 들어오지 않았다: "장부를 좋은 값에 팔았소?"\n그의 목소리는 담담했다. "늙은이가 점쳤던 것이오."'
+          : '노반선이 가게로 더듬어 들어와 칠함의 봉인을 만져보고 웃었다: "좋소, 좋아. 이레가 다 되었소."',
       choices: st => st.flags.sold ? [
-        { label: '……', run: (st, p) => {
-          remember(p, '你拿他用命换来的账册换了灵石。', -60, 'betrayed');
-          p.status = 'gone'; lifeNote(p, '离开了杂役区，不知所终。');
-          return { text: '他转身走了。从那以后，街口再没人算卦。', end: true, summary: '你把他的账册卖给了冷长老。' };
+        { label: '...', run: (st, p) => {
+          remember(p, '그가 목숨 걸고 만든 장부를 영석으로 바꿨다.', -60, 'betrayed');
+          p.status = 'gone'; lifeNote(p, '잡역 구역을 떠나 행방을 알 수 없다.');
+          return { text: '그는 돌아서서 갔다. 그 뒤로 어귀에서 점을 치는 이가 없었다.', end: true, summary: '그의 장부를 냉 장로에게 팔았다.' };
         } },
       ] : [
-        { label: '把漆盒还给他', run: (st, p) => {
-          earn(200, '鲁半仙付清保管的酬金。');
-          remember(p, st.flags.delivered ? '你把冷长老的黑账递到了该去的地方。' : '你守着漆盒，七日没让人拿走。', 40, 'helped');
+        { label: '칠함을 돌려준다', run: (st, p) => {
+          earn(200, '노반선이 보관 사례금을 치렀다.');
+          remember(p, st.flags.delivered ? '냉 장로의 검은 장부를 가야 할 곳에 보냈다.' : '칠함을 지켜 이레 동안 아무에게도 빼앗기지 않았다.', 40, 'helped');
           p.informant = true; p.owes = true; goodDeed(p, 3);
           // 好人好报：要你自己站得住，他才敢把命押在你身上
           if (strongEnough() && Math.random() < 0.35) {
             S.flags.savior = (S.flags.savior || 0) + 1; S.flags.deedMul *= 0.85;
-            return { text: '他压低声音：“执法堂的抄家单，往后经老朽的手，你的名字不会出现。铺契的价钱，老朽也托人压了压。”', end: true,
-              summary: '他是被清洗的执法堂书吏。他替你从抄家单上抹了名字，铺契也便宜了。' };
+            return { text: '그는 목소리를 낮췄다: "집법당 압수 명단이 앞으로 늙은이 손을 거치는 한 그대의 이름은 오르지 않을 것이오. 가게 문서 값도 사람을 시켜 눌러두었소."', end: true,
+              summary: '그는 숙청당한 집법당 서리였다. 압수 명단에서 네 이름을 지워주었고 가게 문서도 싸졌다.' };
           }
-          return { text: '他把剩下的两百灵石放在柜上：“往后街口有什么风声，老朽都替你听着。”', end: true, summary: '你守住了他的漆盒。他成了你的耳目。' };
+          return { text: '그는 남은 이백 영석을 카운터에 올렸다: "앞으로 어귀에 무슨 소문이 돌든 늙은이가 들어주겠소."', end: true, summary: '그의 칠함을 지켰다. 그가 너의 귀와 눈이 되었다.' };
         } },
       ],
     },
 
     news: {
       when: 'day',
-      who: () => ({ name: '街坊', portrait: 'ren_merchant_f1', title: '杂役区街坊', faction: 'ren' }),
-      text: () => '隔壁卖烧饼的探进头来：“听说了么？街口那个瞎子，前天夜里漂在水渠里，怀里还死死抱着个空盒子。”\n“执法堂说是失足。”他压低了声音，“哪有瞎子半夜去水渠边上的。”',
+      who: () => ({ name: '이웃', portrait: 'ren_merchant_f1', title: '잡역 구역 이웃', faction: 'ren' }),
+      text: () => '옆집 쇠빵 장수가 고개를 들이밀었다: "들었어? 어귀의 그 장님, 그저께 밤에 수로에 떠 있었대. 품에 빈 함을 꽉 끌어안은 채로."\n"집법당은 실족이라던데." 그는 목소리를 낮췄다. "장님이 한밤에 수로 가엔 무슨 볼일이 있겠어."',
       choices: (st, p) => [
         { label: '……', run: () => {
-          if (p.status === 'alive') { p.status = 'dead'; lifeNote(p, '死在水渠里，怀里抱着一只空盒子。'); }
-          if (Math.random() < 0.5) { addHeat(10); return { text: '几天后，执法堂挨家挨户查了一遍“窝藏要犯”的铺子。你的铺子也在单子上。', end: true, summary: '你没接他的漆盒。他死了，抄家单上的名字还在。' }; }
-          return { text: '你给他烧了一炷香。', end: true, summary: '你没接他的漆盒。他死在了水渠里。' };
+          if (p.status === 'alive') { p.status = 'dead'; lifeNote(p, '수로에서 죽은 채 빈 함을 품에 안고 있었다.'); }
+          if (Math.random() < 0.5) { addHeat(10); return { text: '며칠 뒤 집법당이 집집마다 "요주의 인물 은닉" 가게를 조사했다. 네 가게도 명단에 있었다.', end: true, summary: '그의 칠함을 받지 않았다. 그는 죽었고 압수 명단의 이름은 남았다.' }; }
+          return { text: '너는 그를 위해 향 한 대를 피웠다.', end: true, summary: '그의 칠함을 받지 않았다. 그는 수로에서 죽었다.' };
         } },
       ],
     },
