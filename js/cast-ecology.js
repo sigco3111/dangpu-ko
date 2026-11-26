@@ -9,11 +9,11 @@ function ecologyArrival(id) {
 }
 
 function ecologyCharacter(d) {
-  const he = d.sex === 'f' ? '她' : '他';
+  const he = d.sex === 'f' ? '그녀' : '그';
   const arrival = ecologyArrival(d.id);
   // 夜里施压的人有多硬：施压的派系越凶，越难对付
   const enforcerDc = { law: 46, war: 44, dan: 38, heir: 36 }[d.clique] || 40;
-  const address = { ren: '掌柜的', yao: '人族小掌柜', mo: '开铺的', xian: '店家' }[d.faction];
+  const address = { ren: '주인장', yao: '인족 주인장', mo: '가게 주인', xian: '점주' }[d.faction];
   const itemTitle = ITEMS[d.item].name;
   const supported = st => st.flags.backed || st.flags.tradeHelp;
   const close = (st, p, ending, text, summary) => {
@@ -25,14 +25,14 @@ function ecologyCharacter(d) {
   const healItemFor = p => condSev(p, 'injured') ? ownItem(it => ['vine_fruit', 'pill_blood'].includes(it.id) && !it.fake && !it.laced)
     : ownItem(it => ['herb_blood', 'pill_qi'].includes(it.id) && !it.fake && !it.laced);
   const expose = (st, p) => {
-    earn(160, `出卖${d.name}的证据。`); shiftSt(d.clique, 8);
-    remember(p, '你把独立样证卖给了施压的一方。', -60, 'betrayed'); st.flags.sold = true;
-    return { text: '买证的人没有留名，只留下正好的灵石。再有人来时，你只能拿出空匣。', go: ['aftermath', [3, 5]], summary: `你卖掉了${d.name}的证据。` };
+    earn(160, `${d.name}의 증거를 팔았다.`); shiftSt(d.clique, 8);
+    remember(p, '독립 증거물을 압박하는 쪽에 팔았다.', -60, 'betrayed'); st.flags.sold = true;
+    return { text: '증거를 산 사람은 이름을 남기지 않고 딱 맞는 영석만 두고 갔다. 다음 사람이 오면 너는 빈 함밖에 내밀 수 없다.', go: ['aftermath', [3, 5]], summary: `너는 ${d.name}의 증거를 팔았다.` };
   };
   return {
     // 立绘默认百炼 Qwen 画；个别重画过的写 artProvider: 'gpt'，走 cast.mjs art 的 GPT 流程（ecologyBatch 不变：并行上限照算）
     portrait: d.id, ecologyBatch: 'qwen3pro55', artProvider: 'bailian', artModel: 'qwen-image-3.0-pro', ...d,
-    bio: `${d.age}岁，${d.title}。${d.problem}`, intro: `${d.name}带来的不是一笔普通典当：${d.problem}`,
+    bio: `${d.age}세, ${d.title}. ${d.problem}`, intro: `${d.name}이(가) 가져온 것은 보통 저당이 아니다: ${d.problem}`,
     savvy: d.age < 18 ? 0.3 : 0.55, power: d.age < 18 ? 10 : d.faction === 'mo' ? 36 : 26, eye: 2,
     traits: { greed: 0.35, integrity: 0.65, caution: 0.7, wish: d.item, budgetMul: d.age < 18 ? 0.65 : 1 },
     // 登场日按原定先后压缩到第 6–38 日，让一局六十日内大多见得到；至多五个扩展故事并行；底图未安装者不提前登场；恶名在外的铺子没人来托付
@@ -41,148 +41,148 @@ function ecologyCharacter(d) {
         .filter(st => !st.done && CAST[st.tpl] && CAST[st.tpl].ecologyBatch === 'qwen3pro55').length < 5 },
     regular: true,
     lines: {
-      first: `${address}，我是${d.name}，做${d.title}这一行的，先问问${itemTitle}。`,
-      neutral: `${address}，今天的${itemTitle}是什么成色？`,
-      warm: `上回的账我记着。${address}，这回照实说价。`, close: '走过几处门，才知道这里能坐下说实话。',
-      cold: '只谈货，旧事先放着。', hostile: '这次把数目写清，别让旧账重演。',
-      buy: '想收些{cat}，是手头的活要用，不是摆着好看。', sell: '这件{item}，开价{ask}灵石。你看了成色再回话。',
+      first: `${address}, 나는 ${d.name}이오. ${d.title} 일을 하는 사람이오. 먼저 ${itemTitle}을(를) 묻고 싶소.`,
+      neutral: `${address}, 오늘 ${itemTitle}은(는) 어떤 상태요?`,
+      warm: `지난번 일은 기억하고 있소. ${address}, 이번엔 값을 솔직히 말해주시오.`, close: '여러 문턱을 넘어보니 여기만이 앉아서 사실대로 말할 수 있는 곳이오.',
+      cold: '물건 얘기만 하시오. 지난일은 잠시 접어두고.', hostile: '이번에는 숫자를 똑바로 적으시오. 지난 장부를 되풀이하지 말도록.',
+      buy: '{cat}을(를) 좀 사려 하오. 당장 일에 쓸 것이지 보기 좋으라고 사는 게 아니오.', sell: '이 {item}, 부르는 값은 {ask} 영석이오. 상태를 보고 나서 답을 주시오.',
     },
     on: {
-      start: (st, p) => { if (arrival) addCond(p, arrival, 1, arrival === 'injured' ? '被施压的人打伤' : '被人在饭食里下了药'); },
+      start: (st, p) => { if (arrival) addCond(p, arrival, 1, arrival === 'injured' ? '압박하는 자에게 맞았다' : '누군가 음식에 약을 탔다'); },
       sold: (st, p, it, price) => {
         if (st.done || st.flags.tradeHelp || it.id !== d.item || it.fake || it.laced) return;
         if (price <= knownValue(it)*priceMul(it.id)) {
           st.flags.tradeHelp = true;
-          remember(p, '纠纷未了时，你按公道价给过一件急用的货。', 8, 'fair');
+          remember(p, '분쟁이 끝나기 전, 급히 쓸 물건을 공정한 값에 넘겨주었다.', 8, 'fair');
         }
       },
       death: (st, p) => {
         if (st.done) return;
-        st.done = true; st.flags.outcome = 'death'; st.summary = `${d.name}没能等到纠纷了结。`;
-        log(`${d.name}留下的那笔事，再没有人来取证。`, 'loss');
+        st.done = true; st.flags.outcome = 'death'; st.summary = `${d.name}은(는) 분쟁이 끝나는 것을 보지 못했다.`;
+        log(`${d.name}이(가) 남긴 그 일에는 다시는 증거를 찾는 이가 없었다.`, 'loss');
       },
     },
     nodes: {
       meet: {
         when: 'day',
-        text: (st, p) => `${d.name}把随身的物件轻放在柜角，没急着开价。${condList(p).length ? `\n${he}${condSev(p, 'injured') ? '一条胳膊吊着，袖口还渗着血' : '嘴唇发紫，说两句就要停下来喘'}——${condText(p).replace(/。$/, '')}。` : ''}\n${d.problem}\n“${address}，帮我垫${d.cost}灵石，或者找一件${itemTitle}。若不放心，就先留下样证，对得上账再说。”`,
+        text: (st, p) => `${d.name}은(는) 품의 물건을 카운터 모퉁이에 살짝 내려놓고 서둘러 값을 부르지 않았다.${condList(p).length ? `\n${he}는 ${condSev(p, 'injured') ? '한쪽 팔을 걸고 있었고 소매에서 피가 배어 나왔다' : '입술이 새파랬고 두 마디만 하면 멈춰 서서 숨을 몰아쉬었다'} — ${condText(p).replace(/[.]$/, '')}.` : ''}\n${d.problem}\n"${address}, ${d.cost} 영석을 빌려주거나 ${itemTitle} 하나를 구해주시오. 마음에 걸리면 먼저 증거물을 맡겨두고, 장부가 맞는지 보고 나서 얘기해도 되오."`,
         choices: (st, p) => [
           // 他身上带着伤毒：先治人，再谈事
-          ...(condList(p).length ? [{ label: `先替${he}治${condSev(p, 'injured') ? '伤' : '毒'}`,
-            hint: `用掉一件${condSev(p, 'injured') ? '血藤果或血煞丹' : '血灵芝或回气丹'}；好感+12；${he}撑得住后面的事`,
-            req: () => !!healItemFor(p) || `手里没有${condSev(p, 'injured') ? '血藤果、血煞丹' : '血灵芝、回气丹'}`, run: () => {
+          ...(condList(p).length ? [{ label: `먼저 ${he}의 ${condSev(p, 'injured') ? '부상' : '독'}을 치료한다`,
+            hint: `${condSev(p, 'injured') ? '혈등과 또는 혈살단' : '혈영지 또는 회기단'} 하나를 쓴다; 호감 +12; ${he}는 뒷일을 버틸 수 있다`,
+            req: () => !!healItemFor(p) || `손에 ${condSev(p, 'injured') ? '혈등과, 혈살단' : '혈영지, 회기단'}이(가) 없다`, run: () => {
               takeItem(healItemFor(p)); cureCond(p, 'injured'); cureCond(p, 'poisoned'); goodDeed(p, 1);
-              remember(p, '你先替他治了伤毒，才听他说事。', 12, 'helped'); st.flags.healed = true;
-              return { text: `${he}缓过一口气：“明日我再来，把事情从头说清。”`, go: ['meet', 1] };
+              remember(p, '먼저 그의 상처와 독을 치료한 뒤에야 이야기를 들었다.', 12, 'helped'); st.flags.healed = true;
+              return { text: `${he}는 한숨 돌리고 말했다: "내일 다시 와서 일의 처음부터 말씀드리겠소."`, go: ['meet', 1] };
             } }] : []),
-          { label: '垫付材料与跑腿钱', hint: `-${d.cost}灵石；善名+2；好感+15`, req: needStones(d.cost), run: () => {
-            spend(d.cost, `替${d.name}垫付周转。`); goodDeed(p, 2); remember(p, '你先垫了这笔周转钱。', 15, 'helped');
+          { label: '재료비와 심부름 값을 대신 낸다', hint: `-${d.cost}영석; 선명 +2; 호감 +15`, req: needStones(d.cost), run: () => {
+            spend(d.cost, `${d.name}의 자금 회전을 대신 댔다.`); goodDeed(p, 2); remember(p, '먼저 회전 자금을 대신 댔다.', 15, 'helped');
             st.flags.backed = true;
-            return { text: `${he}把数目逐项记在样证背面：“这笔不能让你白垫。”`, go: ['pressure', [2, 4]], summary: `你替${d.name}垫了周转钱。` };
+            return { text: `${he}는 액수를 하나하나 증거물 뒷면에 적었다: "이 돈을 공짜로 쓰게 할 수는 없소."`, go: ['pressure', [2, 4]], summary: `너는 ${d.name}의 회전 자금을 대신 냈다.` };
           } },
-          { label: `给一件${itemTitle}应急`, hint: `失去一件真品${itemTitle}；善名+2；好感+15`,
-            req: () => !!ownItem(it => it.id === d.item && !it.fake && !it.laced) || `没有可用的真品${itemTitle}`,
+          { label: `${itemTitle} 하나를 급한 대로 준다`, hint: `진품 ${itemTitle} 하나를 잃는다; 선명 +2; 호감 +15`,
+            req: () => !!ownItem(it => it.id === d.item && !it.fake && !it.laced) || `쓸 만한 진품 ${itemTitle}이(가) 없다`,
             run: () => {
               takeItem(ownItem(it => it.id === d.item && !it.fake && !it.laced));
-              goodDeed(p, 2); remember(p, '你给了一件手头急用的真货。', 15, 'helped'); st.flags.backed = true;
-              return { text: `${he}检查封口后才收货，又把样证留了下来。`, go: ['pressure', [2, 4]] };
+              goodDeed(p, 2); remember(p, '급하게 쓸 진품 하나를 내주었다.', 15, 'helped'); st.flags.backed = true;
+              return { text: `${he}는 봉인을 확인하고 나서야 물건을 받았고, 증거물을 남겨두었다.`, go: ['pressure', [2, 4]] };
             } },
-          { label: '暂不出资，只留样证核对', hint: '不花灵石；好感+3；后续仍需承担作证风险', run: () => {
-            st.flags.examined = true; remember(p, '你没有先付钱，但肯替这件事留证。', 3);
-            return { text: `你收了样证，没有收下${he}的一句空口担保。`, go: ['pressure', [3, 5]] };
+          { label: '돈은 보지 않고 증거물만 맡아 대조한다', hint: '영석이 들지 않는다; 호감 +3; 이후에도 증언 위험은 남는다', run: () => {
+            st.flags.examined = true; remember(p, '돈을 먼저 내지는 않았지만 이 일의 증거는 맡아주었다.', 3);
+            return { text: `너는 증거물을 받았지만 ${he}의 말뿐인 보증은 받지 않았다.`, go: ['pressure', [3, 5]] };
           } },
-          { label: '不接这笔事', hint: '不花灵石；好感-5；结束此故事', run: () => {
-            remember(p, '你没有接下这笔纠纷。', -5);
-            return close(st, p, 'declined', `${d.name}收好物件走了。${d.failure}`, `你没有介入，${d.failure}`);
+          { label: '이 일은 받지 않는다', hint: '영석이 들지 않는다; 호감 -5; 이 이야기 종료', run: () => {
+            remember(p, '이 분쟁을 받아들이지 않았다.', -5);
+            return close(st, p, 'declined', `${d.name}은(는) 물건을 챙겨 돌아갔다. ${d.failure}`, `너는 끼어들지 않았고, ${d.failure}`);
           } },
         ],
       },
       pressure: {
         when: 'night',
-        text: st => `入夜，${d.name}绕过亮着灯的街口来叩后门。\n${d.pressure}\n${supported(st) ? '你先前的资助已用上，对方因此连你的铺名也问了。' : '样证还压在柜底，对方已开始沿街追问。'}\n“${address}，样证留在这里，是帮我，也是给你添事。”`,
+        text: st => `밤이 깊자 ${d.name}은(는) 불 켜진 거리 어귀를 돌아 뒷문을 두드렸다.\n${d.pressure}\n${supported(st) ? '네가 댄 돈이 이미 쓰였고, 상대는 그 때문에 네 가게 이름까지 물었다.' : '증거물은 카운터 밑에 눌러둔 채이고 상대는 이미 거리를 돌며 캐묻기 시작했다.'}\n"${address}, 증거물을 여기 두는 건 나를 돕는 일이기도 하고, 당신에게 일을 만드는 일이기도 하오."`,
         choices: (st, p) => [
-          { label: '做两份副证，留下独立存根', hint: '-20灵石；关注+5；好感+10；继续听证', req: needStones(20), run: () => {
-            spend(20, `替${d.name}留两份存根。`); addHeat(5); st.flags.copied = true;
-            remember(p, '你冒着被查问的风险替样证留了存根。', 10, 'helped');
-            return { text: '一份放在货格，一份随旧账装订。天亮前，查问的人果然来了。', go: ['hearing', [2, 3]] };
+          { label: '부본 증거 두 부를 만들어 독립 근거를 남긴다', hint: '-20영석; 주시 +5; 호감 +10; 심리 계속', req: needStones(20), run: () => {
+            spend(20, `${d.name}을(를) 위해 근거 두 부를 남겼다.`); addHeat(5); st.flags.copied = true;
+            remember(p, '심문받을 위험을 무릅쓰고 증거물의 근거를 남겼다.', 10, 'helped');
+            return { text: '한 부는 물건 칸에, 한 부는 옛 장부에 묶어두었다. 날이 밝기 전, 조사하는 자가 과연 찾아왔다.', go: ['hearing', [2, 3]] };
           } },
-          { label: '出门把追问的人打发走', hint: `成算约 ${Math.round(trialOdds(enforcerDc) * 100)}%（${condText('me') || '你状态尚好'}）；成则省掉作证风险，败则受伤、样证被抢${deathWarn('injured')}`, run: () => {
+          { label: '나가서 캐묻는 자들을 쫓아버린다', hint: `성공률 약 ${Math.round(trialOdds(enforcerDc) * 100)}%(${condText('me') || '너의 상태는 아직 괜찮다'}); 성공하면 증언 위험이 없어지고, 실패하면 부상을 입고 증거물을 빼앗긴다${deathWarn('injured')}`, run: () => {
             const t = trial('me', enforcerDc);
             if (t.ok) {
               addHeat(6); shiftSt(d.clique, -5); st.flags.public = true; st.flags.fought = true;
-              remember(p, '施压的人上门时，你出门把他们打发走了。', 18, 'helped');
-              return { text: `你提着门闩出了后门。巷子里一阵乱响，追问的人捂着脸跑了，再没回来。\n${d.name}在门里听着，半晌说不出话。`, go: ['aftermath', [2, 4]] };
+              remember(p, '압박하는 자들이 찾아오자 밖으로 나가 쫓아버렸다.', 18, 'helped');
+              return { text: `너는 빗장을 들고 뒷문으로 나섰다. 골목에서 한바탕 소란이 울리고, 캐묻던 자들은 얼굴을 감싸고 달아나 다시 오지 않았다.\n${d.name}은(는) 문 안에서 듣고 있다가 한참 말을 잇지 못했다.`, go: ['aftermath', [2, 4]] };
             }
-            addCond('me', 'injured', t.margin < -15 ? 2 : 1, '在后巷与追问的人动手'); addHeat(8);
+            addCond('me', 'injured', t.margin < -15 ? 2 : 1, '뒷골목에서 캐묻는 자들과 몸싸움을 벌였다'); addHeat(8);
             st.flags.sold = true; st.flags.robbed = true;
-            remember(p, '你想护住样证，没打过，样证被抢走了。', -10);
-            return { text: `你刚出门就挨了一记闷棍。${condText('me')}\n等你爬起来，样证已经被搜走了。`, go: ['aftermath', [3, 5]] };
+            remember(p, '증거물을 지키려 했지만 싸움에서 져 빼앗겼다.', -10);
+            return { text: `문을 나서자마자 몽둥이를 얻어맞았다. ${condText('me')}\n일어나 보니 증거물은 이미 뒤져 가져간 뒤였다.`, go: ['aftermath', [3, 5]] };
           } },
-          { label: '把原证卖给施压者', sin: ['betray', 2], hint: '+160灵石；好感-60；派系好感+8；留下后账', run: () => expose(st, p) },
-          { label: '归还样证，从此不再介入', hint: '不再花钱；好感-8；失去继续作证的机会', run: () => {
-            remember(p, '风声紧时，你把样证还了回去。', -8);
-            return close(st, p, 'withdrawn', `${d.name}把样证塞回衣内。${d.failure}`, `你在追问到来前退出，${d.failure}`);
+          { label: '원래 증거를 압박하는 쪽에 판다', sin: ['betray', 2], hint: '+160영석; 호감 -60; 파벌 호감 +8; 뒷일이 남는다', run: () => expose(st, p) },
+          { label: '증거물을 돌려주고 다시는 끼어들지 않는다', hint: '더는 돈이 들지 않는다; 호감 -8; 계속 증언할 기회를 잃는다', run: () => {
+            remember(p, '소문이 험악해지자 증거물을 돌려주었다.', -8);
+            return close(st, p, 'withdrawn', `${d.name}은(는) 증거물을 옷 속에 도로 밀어 넣었다. ${d.failure}`, `너는 캐묻기가 닥치기 전에 손을 뗐고, ${d.failure}`);
           } },
         ],
       },
       hearing: {
-        when: 'day', who: () => ({ name: '执法堂核契书吏', portrait: 'mo_enforcer', title: '核契来人', faction: 'mo' }),
-        text: () => `戴铁面的书吏摊开两张收据：“${d.name}的事，双方说辞不同。你有存根，就把原来怎样写、后来怎样改说清。”\n${d.pressure}\n他按住纸角：“这不是让我主持公道，是你愿不愿意把铺名写在证后。”`,
+        when: 'day', who: () => ({ name: '집법당 계약 심사 서리', portrait: 'mo_enforcer', title: '계약 심사관', faction: 'mo' }),
+        text: () => `철가면을 쓴 서리가 영수증 두 장을 펼쳤다: "${d.name}의 일은 양쪽 말이 다르다. 근거가 있으면 처음에 어떻게 썼고 나중에 어떻게 고쳤는지 밝혀라."\n${d.pressure}\n그는 종이 귀퉁이를 눌렀다: "이건 내가 공도를 세우는 문제가 아니라, 네가 가게 이름을 증거 뒤에 쓸 생각이 있느냐의 문제다."`,
         choices: (st, p) => [
-          { label: '请独立验手，署铺名作证', hint: `-40灵石；关注+5；施压派系好感-6；保留证据${hasCond('me', 'poisoned') || condSev('me', 'deviation') || hasCond('me', 'exhausted') ? '；你心神不宁，书吏未必信你' : ''}`, req: needStones(40), run: () => {
-            spend(40, `为${d.name}请独立验手。`); addHeat(5); shiftSt(d.clique, -6);
+          { label: '독립 감정인을 불러 가게 이름으로 증언한다', hint: `-40영석; 주시 +5; 압박 파벌 호감 -6; 증거 보존${hasCond('me', 'poisoned') || condSev('me', 'deviation') || hasCond('me', 'exhausted') ? '; 너의 마음이 어지러워 서리가 믿지 않을 수 있다' : ''}`, req: needStones(40), run: () => {
+            spend(40, `${d.name}을(를) 위해 독립 감정인을 불렀다.`); addHeat(5); shiftSt(d.clique, -6);
             // 心神不宁的证人，说话前后不一
             if (lieCaught(0.15)) {
               st.flags.compromise = true;
-              return { text: `你说到一半，${hasCond('me', 'poisoned') ? '毒气上涌，眼前一黑' : '心神一晃'}，前后两句对不上。书吏抬眼看你：“掌柜的记性不大好。”\n验手只圈出了一半改动，事情没能彻底翻过来。`, go: ['aftermath', [3, 5]] };
+              return { text: `말하던 도중 ${hasCond('me', 'poisoned') ? '독기가 치솟아 눈앞이 캄캄해졌고' : '정신이 아찔해졌고'} 앞뒤가 맞지 않았다. 서리가 눈을 들어 너를 봤다: "주인장의 기억이 그리 좋지 않은 모양이군."\n감정인은 고쳐진 곳의 절반만 표시해 일이 완전히 뒤집히지 못했다.`, go: ['aftermath', [3, 5]] };
             }
             st.flags.public = true;
-            return { text: '验手对照两份存根，圈出改动处。你的铺名也写在纸尾。', go: ['aftermath', [3, 5]] };
+            return { text: '감정인이 근거 두 부를 대조해 고쳐진 곳을 표시했다. 네 가게 이름도 종이 끝에 적혔다.', go: ['aftermath', [3, 5]] };
           } },
-          { label: '出钱作保，暂不追究旧账', hint: '-100灵石；施压派系好感+3；只保眼前，不揭旧账', req: needStones(100), run: () => {
-            spend(100, `为${d.name}出和解保钱。`); shiftSt(d.clique, 3); st.flags.compromise = true;
-            return { text: '书吏收钱，在新契上划去这一轮追索；旧契没有作废，只暂时收进柜底。', go: ['aftermath', [2, 4]] };
+          { label: '돈으로 보증을 서고 옛 장부는 덮는다', hint: '-100영석; 압박 파벌 호감 +3; 눈앞만 지키고 옛 장부는 파헤치지 않는다', req: needStones(100), run: () => {
+            spend(100, `${d.name}을(를) 위해 화해 보증금을 냈다.`); shiftSt(d.clique, 3); st.flags.compromise = true;
+            return { text: '서리는 돈을 받고 새 계약에서 이번 추궁을 지웠다. 옛 계약은 폐기되지 않은 채 잠시 찬장 밑으로 들어갔다.', go: ['aftermath', [2, 4]] };
           } },
-          { label: '交出存根，收一笔协查赏', sin: ['betray', 2], hint: '+160灵石；好感-60；施压派系好感+8', run: () => expose(st, p) },
+          { label: '근거를 넘기고 협조 포상을 받는다', sin: ['betray', 2], hint: '+160영석; 호감 -60; 압박 파벌 호감 +8', run: () => expose(st, p) },
         ],
       },
       aftermath: {
         when: 'night',
-        text: st => st.flags.robbed ? `${d.failure}\n${d.name}来看你的伤，站在门口很久：“你替我挨了这一棍，可证没了。”`
-          : st.flags.sold ? `${d.failure}\n${d.name}夜里来取原证，手停在空匣边：“钱是付清了。我的事呢？”`
-          : st.flags.public ? `${d.success}\n${d.name}带着核验过的副证来，想请你决定原证往后交给谁。`
-            : `${d.name}拿着新契来过目。眼前的追索停了，旧账上的字却仍能辨认。\n“躲过这回，不算把事情办完。”`,
+        text: st => st.flags.robbed ? `${d.failure}\n${d.name}은(는) 네 상처를 보러 와 문간에 오래 서 있었다: "나 때문에 그 몽둥이를 맞았는데, 증거마저 없어졌군요."`
+          : st.flags.sold ? `${d.failure}\n${d.name}은(는) 밤에 원래 증거를 가지러 왔다가 빈 함 곁에 손을 멈췄다: "돈은 치렀군요. 그럼 내 일은요?"`
+          : st.flags.public ? `${d.success}\n${d.name}은(는) 검증받은 부본을 가져와, 원래 증거를 앞으로 누구에게 맡길지 네게 정해달라 했다.`
+            : `${d.name}은(는) 새 계약을 가져와 보여주었다. 눈앞의 추궁은 멈췄지만 옛 장부의 글자는 여전히 읽힌다.\n"이번을 피했다고 일이 끝난 건 아니오."`,
         choices: (st, p) => st.flags.robbed ? [
-          { label: '……', hint: `${he}记着你挨的那一棍`, run: () => {
-            remember(p, '你为他挨了一棍，证还是没保住。', 15);
-            return close(st, p, 'robbed', `${d.failure}\n${d.name}没怪你，只是再没提起这件事。`, `你为${d.name}动了手，没打过，证据被抢。${d.failure}`);
+          { label: '...', hint: `${he}는 네가 대신 맞은 그 몽둥이를 기억한다`, run: () => {
+            remember(p, '그를 위해 몽둥이를 맞았지만 증거는 지키지 못했다.', 15);
+            return close(st, p, 'robbed', `${d.failure}\n${d.name}은(는) 너를 탓하지 않았지만 다시는 그 일을 꺼내지 않았다.`, `너는 ${d.name}을(를) 위해 싸웠지만 져서 증거를 빼앗겼다. ${d.failure}`);
           } },
         ] : st.flags.sold ? [
-          { label: '不追回原证，认下这笔交易', hint: '同族声望-5；关注+4；对方离开，不再登门买卖', run: () => {
+          { label: '원래 증거를 되찾지 않고 이 거래를 인정한다', hint: '동족 명성 -5; 주시 +4; 상대는 떠나고 다시 거래하러 오지 않는다', run: () => {
             adjustRep(d.faction, -5); addHeat(4); p.status = 'gone';
-            return close(st, p, 'betrayed', `${d.failure}\n${d.name}合上空匣，没再报价，也没再登门。`, `证据被你卖掉。${d.failure}`);
+            return close(st, p, 'betrayed', `${d.failure}\n${d.name}은(는) 빈 함을 닫고 다시는 값을 부르지도, 찾아오지도 않았다.`, `증거는 네가 팔았다. ${d.failure}`);
           } },
-          { label: '补付200灵石追回一份旧存根', hint: '-200灵石；关注+8；好感只恢复5；不消除卖证记忆', req: needStones(200), run: () => {
-            spend(200, `替${d.name}追回旧存根。`); addHeat(8); remember(p, '你卖证以后又花钱追回一份存根。', 5);
-            return close(st, p, 'repaired_betrayal', `${d.name}收走追回的纸：“旧账还在，只是今天先不翻。”`, '你卖证又追回一份，损失和记恨并未消失。');
+          { label: '200영석을 더 내 옛 근거 한 부를 되찾는다', hint: '-200영석; 주시 +8; 호감은 5만 회복; 증거를 판 기억은 사라지지 않는다', req: needStones(200), run: () => {
+            spend(200, `${d.name}을(를) 위해 옛 근거를 되찾았다.`); addHeat(8); remember(p, '증거를 판 뒤 돈을 내 근거 한 부를 되찾았다.', 5);
+            return close(st, p, 'repaired_betrayal', `${d.name}은(는) 되찾은 종이를 거두며 말했다: "옛 장부는 그대로요. 오늘은 넘기지 않을 뿐이오."`, '너는 증거를 팔았다가 한 부를 되찾았지만 손해와 원한은 사라지지 않았다.');
           } },
         ] : [
-          { label: '原证还本人，不收保管费', hint: st.flags.compromise ? '善名+2；同族声望+2；好感+12；仅暂缓纠纷' : '善名+2；同族声望+4；好感+22；欠下一份人情', run: () => {
+          { label: '원래 증거를 본인에게 돌려주고 보관료는 받지 않는다', hint: st.flags.compromise ? '선명 +2; 동족 명성 +2; 호감 +12; 분쟁을 잠시 미룰 뿐' : '선명 +2; 동족 명성 +4; 호감 +22; 신세를 지게 된다', run: () => {
             goodDeed(p, 2); adjustRep(d.faction, st.flags.compromise ? 2 : 4);
-            remember(p, '你归还原证，不向求助者索取额外保管费。', st.flags.compromise ? 12 : 22, 'helped');
-            if (st.flags.compromise) return close(st, p, 'truce', `${d.name}收好新契与旧证：“先把今天过完，再说下一回。”`, '你促成临时和解，旧账未清。');
+            remember(p, '원래 증거를 돌려주며 도움을 청한 이에게 보관료를 더 받지 않았다.', st.flags.compromise ? 12 : 22, 'helped');
+            if (st.flags.compromise) return close(st, p, 'truce', `${d.name}은(는) 새 계약과 옛 증거를 챙기며 말했다: "오늘을 넘기고 나서 다음을 얘기하시오."`, '너는 임시 화해를 이끌었지만 옛 장부는 남았다.');
             p.owes = true;
-            return close(st, p, 'protected', `${d.success}\n${he}带走原证，留下一个以后还能登门的理由。`, d.success);
+            return close(st, p, 'protected', `${d.success}\n${he}는 원래 증거를 가져가며 앞으로도 찾아올 이유를 남겼다.`, d.success);
           } },
-          { label: '留副证，经本人同意做长期耳目', hint: '需筑基或势力足够；善名+2；同族声望+4；好感+22；无重宝保底',
-            req: () => (strongEnough() && !!st.flags.public) || '需筑基或足够势力，且已公开核验证据', run: () => {
+          { label: '부본을 남기고 본인 동의 아래 오래 귀와 눈이 되어준다', hint: '축기 또는 충분한 세력 필요; 선명 +2; 동족 명성 +4; 호감 +22; 중보 보장 없음',
+            req: () => (strongEnough() && !!st.flags.public) || '축기 또는 충분한 세력이 필요하고, 증거를 공개 검증했어야 한다', run: () => {
               p.informant = true; p.owes = true; goodDeed(p, 2); adjustRep(d.faction, 4);
-              remember(p, '纠纷了结后，你与本人约好互通本行风声。', 22, 'helped');
+              remember(p, '분쟁이 끝난 뒤 본인과 이 바닥 소문을 주고받기로 약속했다.', 22, 'helped');
               let extra = '';
               if (strongEnough() && supported(st) && Math.random() < 0.35) {
-                extra = makeIntel('market') ? '另有一份本行行情送进了库房。' : '行情纸放不下，只得口头带过。';
+                extra = makeIntel('market') ? '이 바닥 시세 한 장이 창고로 들어왔다.' : '시세 종이를 둘 곳이 없어 말로만 전했다.';
               }
-              return close(st, p, 'informant', `${d.success}\n${d.name}同意往后带来本行风声。${extra}`, `纠纷了结，${d.name}成了本行耳目。`);
+              return close(st, p, 'informant', `${d.success}\n${d.name}은(는) 앞으로 이 바닥 소문을 가져오기로 했다. ${extra}`, `분쟁이 끝났고 ${d.name}은(는) 이 바닥의 귀와 눈이 되었다.`);
             } },
         ],
       },
