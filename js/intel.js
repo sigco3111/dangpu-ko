@@ -173,7 +173,7 @@ function intelMul(c, it) {
   }
   if (i.kind === 'treasure') return c.faction === 'ren' ? 1.2 : 0.6;
   if (i.kind === 'clique') return c.faction === 'mo' ? 1 : 0.3;
-  return c.faction === 'ren' && c.title === '凡人行商' ? 1.3 : 1;
+  return c.faction === 'ren' && c.title === '범인 행상' ? 1.3 : 1;
 }
 
 // 消息到了别人手里：把柄会要人命，行情让人发财
