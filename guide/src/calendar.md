@@ -1,29 +1,29 @@
-# 时令与战事
+# 절기와 전황
 
-[返回首页](README.md)
+[홈으로](README.md)
 
-一周 {{ WEEK_LEN }} 天，一季 {{ SEASON_LEN }} 天，一年 {{ YEAR_LEN }} 天。行情跟着星期、季节、节庆、战事起落，顶栏的日历和每日的时令播报会告诉你今天什么好卖。
+한 주는 {{ WEEK_LEN }}일, 한 계절은 {{ SEASON_LEN }}일, 한 해는 {{ YEAR_LEN }}일이다. 시세는 요일, 계절, 명절, 전황을 따라 오르내리고, 상단 바의 달력과 매일 아침의 절기 소식이 오늘 무엇이 잘 팔리는지 알려준다.
 
-## 星期
+## 요일
 
 {{ T.weekdays() }}
 
-## 季节
+## 계절
 
 {{ T.seasons() }}
 
-灵草在[[machine:herbbed]]里长得快慢、[[item:corpse]]烂成[[item:bones]]的快慢都看季节。
+영초가 [[machine:herbbed]]에서 자라는 속도, [[item:corpse]]가 [[item:bones]]로 썩어가는 속도는 계절에 따라 달라진다.
 
-## 节庆
+## 명절
 
 {{ T.annual() }}
 
-## 战事
+## 전황
 
-人、仙、魔、妖四方关系越来越紧，紧张度跨过一道坎就进入下一阶段，只升不降。{{! WAR_STAGES.every((w, i) => !i || w.at > WAR_STAGES[i - 1].at) }}
+인, 선, 마, 요 네 세력의 관계가 점점 험악해진다. 긴장도가 고비를 넘으면 다음 단계로 들어가고, 오르기만 할 뿐 내려가지 않는다.{{! WAR_STAGES.every((w, i) => !i || w.at > WAR_STAGES[i - 1].at) }}
 
 {{ T.wars() }}
 
-- 战时丹药、法器、符箓、魂魄、尸傀、妖植这些战备货越来越抢手，珍玩这类奢侈货越来越不值钱。{{! (() => WAR_CATS.length > 0 && WAR_STAGES[WAR_STAGES.length - 1].war > WAR_STAGES[0].war)() }}
-- 战事越烈，巡查越勤、货郎进价越高；打到后面来客也会变少，宗门还按周征调。
-- [[loc:battlefield]]开战以后能翻到更多战场遗物（见[拾荒、修为与擂台](adventure.md)）。
+- 전시에는 단약, 법기, 부적, 영혼, 시괴, 요식 같은 전비품이 점점 귀해지고, 진완 같은 사치품은 점점 값이 떨어진다.{{! (() => WAR_CATS.length > 0 && WAR_STAGES[WAR_STAGES.length - 1].war > WAR_STAGES[0].war)() }}
+- 싸움이 격해질수록 순찰은 잦아지고 행상의 매입가는 오른다. 후반에는 오는 손님도 줄어들고, 종문이 주 단위로 징수해 간다.
+- [[loc:battlefield]]은 개전 뒤에 더 많은 전장 유물이 나온다([노획, 수위와 뇌대](adventure.md) 참고).

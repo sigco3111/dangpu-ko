@@ -15,7 +15,7 @@
 
 {{ T.rents(10) }}
 
-- 到期时手里的灵石够就自动交掉。交不上，欠款涨到 {{ T.probe.rentGrace().mul }} 倍，宽限 {{ T.probe.rentGrace().days }} 日；宽限期满还交不上，就被扫地出门。{{! (() => { fresh(); S.stones = 0; S.flags.savior = 0; S.day = S.rentDue; rentCheck(); for (let i = 0; i < 9 && !S.over; i++) { S.day++; rentCheck(); } return S.over && S.over.title === '扫地出门'; })() }}
+- 到期时手里的灵石够就自动交掉。交不上，欠款涨到 {{ T.probe.rentGrace().mul }} 倍，宽限 {{ T.probe.rentGrace().days }} 日；宽限期满还交不上，就被扫地出门。{{! (() => { fresh(); S.stones = 0; S.flags.savior = 0; S.day = S.rentDue; rentCheck(); for (let i = 0; i < 9 && !S.over; i++) { S.day++; rentCheck(); } return S.over && S.over.title === '내쫓김'; })() }}
 - 房东可能换人，租金也可能被故事改动（帮钱执事销赃能换折扣，得罪了人租金会涨）。
 
 ## 客流与陈列

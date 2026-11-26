@@ -1,23 +1,23 @@
-# 开局与难度
+# 시작과 난도
 
-[返回首页](README.md)
+[홈으로](README.md)
 
-## 难度
+## 난도
 
-难度管四件事：铺契多贵、租金多重、货郎和设备加价多少、顾客肯出多少钱，以及执法堂来得多勤。
+난도는 네 가지를 좌우한다: 가게 문서가 얼마나 비싼지, 임대료가 얼마나 무거운지, 행상과 설비에 얼마나 웃돈이 붙는지, 손님이 얼마까지 내려 하는지, 그리고 집법당이 얼마나 자주 오는지.
 
 {{ T.diffs() }}
 
-## 开局
+## 출신
 
-每种开局都另带一块充了灵力的[[item:spirit_crystal]]，放在灵力格里。
+어떤 출신이든 영력을 채운 [[item:spirit_crystal]] 하나를 영력 칸에 두고 시작한다.
 
 {{ T.starts() }}
 
-## 怎么选
+## 고르는 법
 
-- **头一回玩选[[start:apprentice]]**：有一台[[machine:furnace]]和一点矿料，钱也宽裕，先熟悉白天收货卖货、夜里开炉的节奏。
-- **想走一条路线到底**：[[start:alchemist]]直奔丹药，[[start:water]]直奔灵泉，[[start:smith]]直奔炼器，[[start:talisman]]直奔符箓，[[start:tamer]]养灵兽，[[start:gu]]养蛊，[[start:corpse]]炼尸。各路线用到的设备见[设备与配方](production.md)。
-- **[[start:fence]]** 钱最多，但一开局就被执法堂盯着，适合想收赃、抹印、走偏门的。
-- **[[start:digger]]** 拾荒每次多翻 {{ T.probe.diggerExtra() }} 次，靠夜里去[拾荒](adventure.md)起家。
-- **[[start:nothing]]** 几乎什么都没有，留给熟手。
+- **처음이라면 [[start:apprentice]]**: [[machine:furnace]] 한 대와 약간의 광료, 넉넉한 돈으로 시작한다. 낮에 물건을 사고팔고 밤에 용광로를 돌리는 흐름을 익히기 좋다.
+- **한 길만 파고들려면**: [[start:alchemist]]는 단약으로, [[start:water]]는 영천으로, [[start:smith]]는 연기로, [[start:talisman]]은 부적으로 직행. [[start:tamer]]는 영수를 기르고, [[start:gu]]는 고충을, [[start:corpse]]는 시신을 다룬다. 각 길에 쓰이는 설비는 [설비와 제조법](production.md) 참고.
+- **[[start:fence]]**는 돈이 가장 많지만 시작부터 집법당의 주시를 받는다. 장물을 받고 낙인을 지우는 뒷길을 가려는 사람에게 맞다.
+- **[[start:digger]]**는 [노획](adventure.md)을 할 때마다 {{ T.probe.diggerExtra() }}번 더 뒤진다. 밤 노획으로 일어서는 출신.
+- **[[start:nothing]]**은 거의 아무것도 없다. 숙련자용.
