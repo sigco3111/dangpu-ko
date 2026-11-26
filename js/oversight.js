@@ -14,7 +14,7 @@ function tolerance(p) {
   if (p.integrity >= 0.7) return score >= 50 ? 'ignore' : 'report';
   return score >= 50 ? 'ignore' : score >= 5 ? 'shakedown' : 'report';
 }
-const TOLERANCE_NAME = { ignore: '视而不见', shakedown: '借机敲竹杠', report: '上报执法堂' };
+const TOLERANCE_NAME = { ignore: '못 본 척', shakedown: '기회를 틈타 갈취', report: '집법당에 보고' };
 
 function bannedStake() { return 30 + Math.round(bannedShown().reduce((s, it) => s + claimedValue(it) * 0.5, 0)); }
 
@@ -36,9 +36,9 @@ function planInspection() {
   const p = clamp(S.heat / 100, 0, 0.9) * diff().inspect * (S.market.heat || 1) * 0.55 * S.flags.inspectMul
     * (weekdayOf().inspect || 1) * warStage().inspect;
   let reason = null;
-  if (S.flags.forceInspect) { reason = '有人往执法堂递了状子'; S.flags.forceInspect = false; }
+  if (S.flags.forceInspect) { reason = '누군가 집법당에 고발장을 넣었다'; S.flags.forceInspect = false; }
   else if (S.flags.reported) { reason = S.flags.reported; }
-  else if (Math.random() < p) reason = weekdayOf().inspect > 1 ? '点卯例查' : '例行巡查';
+  else if (Math.random() < p) reason = weekdayOf().inspect > 1 ? '점호 검사' : '정기 순찰';
   S.flags.reported = null;
   S.plan = { day: S.day, inspect: !!reason, reason, tipped: null };
 }
@@ -64,9 +64,9 @@ function informants() {
 }
 
 const TIP_LINES = {
-  enforcer: '厉寒派了个小弟子来，丢下一句：“明儿我要来你那儿转转，收拾干净些。”',
-  amu: '阿木趁夜敲开后窗：“掌柜的，明日执法堂要查到这条街，您早做打算。”',
-  thug: '刘癞子的小弟跑来报信：“掌柜的，执法堂的人明天要来！”',
+  enforcer: '려한이 어린 제자 하나를 보내 한마디 남겼다: "내일 네 가게에 들를 테니 깨끗이 치워두어라."',
+  amu: '아목이 밤을 틈타 뒷창을 두드렸다: "주인장, 내일 집법당이 이 거리를 뒤집니다. 미리 대비하세요."',
+  thug: '류라자의 부하가 뛰어와 알렸다: "주인장, 집법당 놈들이 내일 옵니다!"',
 };
 
 // 夜间报告里的风声
@@ -75,8 +75,8 @@ function tipOff() {
   for (const [p, ch] of informants()) {
     if (Math.random() >= ch) continue;
     S.plan.tipped = p.name;
-    const text = TIP_LINES[p.pid] || `${p.name}悄悄捎来话：明日执法堂要来巡查（${S.plan.reason}）。`;
-    return { icon: 'ic_heat', title: '风声', text: `${text}趁开铺前把禁物、赃物撤下陈列柜吧。`, cls: 'warn' };
+    const text = TIP_LINES[p.pid] || `${p.name}이(가) 몰래 소식을 전했다: 내일 집법당이 순찰을 온다(${S.plan.reason}).`;
+    return { icon: 'ic_heat', title: '소문', text: `${text}가게를 열기 전에 금물과 장물을 진열장에서 치워두자.`, cls: 'warn' };
   }
   return null;
 }
@@ -94,12 +94,12 @@ function customerTip(c) {
 function overseeDisplay() {
   const banned = bannedShown();
   if (!banned.length || Math.random() > 0.6) return;
-  const m = landlordPerson(), names = banned.map(itemName).join('、');
+  const m = landlordPerson(), names = banned.map(itemName).join(', ');
   const t = tolerance(m);
-  if (t === 'ignore') { log(`${m.name}路过陈列柜，瞥了一眼${names}，什么也没说。`, 'gain'); return; }
+  if (t === 'ignore') { log(`${m.name}이(가) 진열장을 지나며 ${names}을(를) 힐끗 보았지만 아무 말도 하지 않았다.`, 'gain'); return; }
   if (t === 'shakedown') { startStory(`ov_${S.day}_${m.pid}`, 'oversight', 'shakedown', 0, { pid: m.pid, items: names }); return; }
-  log(`${m.name}看见你陈列的${names}，脸一沉，转身去了执法堂。`, 'loss');
-  remember(m, `看见你公然陈列${names}。`, -5);
+  log(`${m.name}이(가) 네가 진열한 ${names}을(를) 보고 얼굴을 굳히더니 집법당으로 향했다.`, 'loss');
+  remember(m, `네가 ${names}을(를) 버젓이 진열한 것을 보았다.`, -5);
   addHeat(6);
   inspectNow();
 }
@@ -111,8 +111,8 @@ function maybeReport(c) {
   const ch = clamp((-p.aff - 5) / 90, 0, 0.55) + (c.faction === 'mo' ? 0.05 : 0) + (p.integrity > 0.5 ? 0.1 : 0);
   if (Math.random() >= ch) return;
   S.reports = S.reports || [];
-  S.reports.push({ pid: p.pid, name: p.name, items: bannedShown().map(itemName).join('、'), day: S.day });
-  remember(p, '把你陈列禁物的事报给了执法堂。', -3);
+  S.reports.push({ pid: p.pid, name: p.name, items: bannedShown().map(itemName).join(', '), day: S.day });
+  remember(p, '네가 금물을 진열한 일을 집법당에 알렸다.', -3);
   c.reporting = true;
 }
 
@@ -122,16 +122,16 @@ function resolveReports() {
   const list = S.reports || [];
   S.reports = [];
   if (!list.length) return out;
-  const e = official('enforcer'), t = tolerance(e), who = list.map(r => r.name).join('、');
+  const e = official('enforcer'), t = tolerance(e), who = list.map(r => r.name).join(', ');
   if (t === 'ignore') {
-    out.push({ icon: 'ic_heat', title: '举报', text: `听说${who}向执法堂举报你陈列禁物。${e.name}把状子压了下来，连看都没看。`, cls: 'ok' });
+    out.push({ icon: 'ic_heat', title: '고발', text: `${who}이(가) 네 금물 진열을 집법당에 고발했다더군. ${e.name}이(가) 고발장을 덮어두고 쳐다보지도 않았다.`, cls: 'ok' });
   } else if (t === 'shakedown') {
     startStory(`ov_rep_${S.day}`, 'oversight', 'shakedown', 1, { pid: e.pid, items: list[0].items, reported: who });
-    out.push({ icon: 'ic_heat', title: '举报', text: `${who}向执法堂举报了你。${e.name}把状子揣进了怀里——看样子，他想先找你“聊聊”。`, cls: 'warn' });
+    out.push({ icon: 'ic_heat', title: '고발', text: `${who}이(가) 너를 집법당에 고발했다. ${e.name}은(는) 고발장을 품에 넣었다 — 보아하니 먼저 너와 '얘기'를 나눌 모양이다.`, cls: 'warn' });
   } else {
-    S.flags.reported = `${who}举报你陈列禁物`;
+    S.flags.reported = `${who}이(가) 네 금물 진열을 고발했다`;
     addHeat(5);
-    out.push({ icon: 'ic_heat', title: '举报', text: `${who}向执法堂举报你陈列禁物，${e.name}准了状子。`, cls: 'bad' });
+    out.push({ icon: 'ic_heat', title: '고발', text: `${who}이(가) 네 금물 진열을 집법당에 고발했고, ${e.name}이(가) 고발장을 받아들였다.`, cls: 'bad' });
   }
   return out;
 }
@@ -147,26 +147,26 @@ Object.assign(STORIES, {
         cond: st => S.people[st.flags.pid].status === 'alive',
         text: st => {
           const f = st.flags, p = S.people[f.pid];
-          const lead = f.reported ? `${p.name}从怀里掏出一张状子，在你眼前晃了晃：“${f.reported}告你公然陈列${f.items}。”`
-            : `${p.name}踱进铺子，在陈列柜前站定，用指节敲了敲柜门：“${f.items}……啧啧，胆子不小。”`;
+          const lead = f.reported ? `${p.name}이(가) 품에서 고발장 한 장을 꺼내 네 눈앞에서 흔들었다: "${f.reported}. 네가 ${f.items}을(를) 버젓이 진열했다는군."`
+            : `${p.name}이(가) 가게로 거들먹거리며 들어와 진열장 앞에 멈춰 서서 손가락 마디로 장문을 두드렸다: "${f.items}... 쯔쯔, 겁도 없군."`;
           return `${lead}\n“这事嘛，可大可小。”${ta(landlordPerson())}压低了声音，“我可以当没看见——就看你懂不懂事了。”`;
         },
         choices: st => {
           const p = S.people[st.flags.pid], stake = bannedStake();
           return [
             ...bribeChoices(p, stake, (n, ok) => ok
-              ? { text: `${p.name}把灵石揣进袖子，拍拍你的肩：“我什么也没看见。”`, end: true }
-              : (inspectNow(), { text: `“就这点？”${p.name}冷笑一声，“那就公事公办。”执法堂的人马上就到。`, end: true }), '封口'),
-            { label: '当面撤下', hint: '违禁品收回库房；他会记你识相', run: () => {
+              ? { text: `${p.name}이(가) 영석을 소매에 챙기고 네 어깨를 툭툭 두드렸다: "나는 아무것도 못 봤다."`, end: true }
+              : (inspectNow(), { text: `"겨우 이거야?" ${p.name}이(가) 냉소했다. "그럼 공무대로 처리하지." 집법당 사람들이 곧 도착한다.`, end: true }), '입막음'),
+            { label: '그 자리에서 치운다', hint: '금물을 창고로 거둔다; 그가 네가 눈치 있음을 기억한다', run: () => {
               const moved = bannedShown().filter(it => autoPlace(it));
-              remember(p, '你当着他的面撤下了违禁品。', 2);
-              return { text: `你把${moved.map(itemName).join('、') || '东西'}收了回去。${p.name}哼了一声：“下不为例。”`, end: true };
+              remember(p, '너는 그가 보는 앞에서 금물을 치웠다.', 2);
+              return { text: `너는 ${moved.map(itemName).join(', ') || '물건들'}을(를) 거둬들였다. ${p.name}은(는) 콧방귀를 뀌었다: "이번만 봐준다."`, end: true };
             } },
-            { label: '装糊涂', hint: '他多半会上报', run: () => {
-              remember(p, '你在他面前装糊涂。', -8);
-              if (tolerance(p) === 'ignore') return { text: `${p.name}盯了你一会儿，摇摇头走了。`, end: true };
+            { label: '모르는 척한다', hint: '그는 아마 보고할 것이다', run: () => {
+              remember(p, '너는 그의 앞에서 모르는 척했다.', -8);
+              if (tolerance(p) === 'ignore') return { text: `${p.name}이(가) 너를 한참 노려보다가 고개를 저으며 떠났다.`, end: true };
               inspectNow(); addHeat(5);
-              return { text: `“行，装。”${p.name}转身就走。不到半个时辰，执法堂的人就来了。`, end: true };
+              return { text: `"좋아, 모르는 척이라는 거지." ${p.name}이(가) 돌아서 나갔다. 반 시진도 안 되어 집법당 사람들이 왔다.`, end: true };
             } },
           ];
         },
