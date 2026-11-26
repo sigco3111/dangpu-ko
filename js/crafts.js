@@ -35,7 +35,7 @@ function salvagePills(m, inputs, emit) {
   if (countIn(inputs, 'waste_pill') < 2) return null;
   const used = takeItems(inputs, 'waste_pill', 2);
   const guided = hasMod(m, 'dan_guide');
-  if (!guided && Math.random() < 0.25) return '废丹重炼，又炸了一炉';
+  if (!guided && Math.random() < 0.25) return '폐단 재련, 또 한 가마를 날렸다';
   const id = weighted([['pill_qi', 70], ['pill_blood', 25], ['pill_found', 5]]);
   emit(makeItem(id, { q: clamp(avgQ(used) + 10 + (guided ? 25 : 0) + retreatQ(), 5, 100) }));
   return true;
@@ -46,10 +46,10 @@ function salvagePills(m, inputs, emit) {
 const dihuoFeed = inputs => countIn(inputs, 'iron_ingot') >= 3 || countIn(inputs, 'iron_ore') >= 6;
 
 function dihuoCheck(m, inputs) {
-  if (S.retreat && countIn(inputs, 'xuan_essence') >= 4) return { ok: true, msg: '闭关坐镇：今夜炼神兵胚料' };
-  if (!dihuoFeed(inputs)) return { ok: false, msg: S.retreat ? '缺料：四块玄铁精，或六块玄铁矿、三锭玄铁' : '缺料：六块玄铁矿或三锭玄铁（四块玄铁精须当夜闭关）' };
-  if (!outputHasRoom(m, 'xuan_essence')) return { ok: false, msg: '产出格与地面皆满' };
-  return { ok: true, msg: `熬玄铁精 ${hasBoostFu(m) ? 4 : 2} 炉` };
+  if (S.retreat && countIn(inputs, 'xuan_essence') >= 4) return { ok: true, msg: '폐관 좌진: 오늘 밤 신병 배료를 만든다' };
+  if (!dihuoFeed(inputs)) return { ok: false, msg: S.retreat ? '재료 부족: 현철정 4개, 또는 현철광 6개와 현철 3개' : '재료 부족: 현철광 6개 또는 현철 3개(현철정 4개는 그날 밤 폐관해야 함)' };
+  if (!outputHasRoom(m, 'xuan_essence')) return { ok: false, msg: '산출 칸과 바닥이 모두 찼다' };
+  return { ok: true, msg: `현철정 ${hasBoostFu(m) ? 4 : 2}가마` };
 }
 
 function dihuoRun(m, inputs, emit) {
@@ -105,10 +105,10 @@ function stallPrice(m) { return supplierPrice(MACHINES[m.type].stallPrice); }
 
 function buyStall(m) {
   const def = MACHINES[m.type];
-  if (stallCount(m) >= def.stallMax) return `${def.name}最多 ${def.stallMax} 栏`;
+  if (stallCount(m) >= def.stallMax) return `${def.name}은(는) 최대 ${def.stallMax}칸`
   const price = stallPrice(m);
-  if (S.stones < price) return '灵石不够';
-  spend(price, `给${def.name}加盖了第${cn(stallCount(m) + 1)}栏。`);
+  if (S.stones < price) return '영석이 부족하다';
+  spend(price, `${def.name}에 ${stallCount(m) + 1}번째 칸을 증축했다.`);
   addStall(m);
   return null;
 }
@@ -116,10 +116,10 @@ function buyStall(m) {
 // 往兽栏里放东西：饲料格只收灵宠吃的东西；灵兽格只收灵宠，且不能和栏里已有的混养
 function stallReject(m, slot, it) {
   const i = +slot.slice(1);
-  if (slot[0] === 'f') return PET_FOODS().includes(it.id) ? null : '灵宠不吃这个';
-  if (!isPet(it)) return '兽栏里只养灵宠';
+  if (slot[0] === 'f') return PET_FOODS().includes(it.id) ? null : '영충은 이걸 먹지 않는다';
+  if (!isPet(it)) return '수란에는 영충만 기른다';
   const sp = stallSpecies(m, i, it);
-  return sp && sp !== it.id ? `这一栏养的是${ITEMS[sp].name}，不能混养` : null;
+  return sp && sp !== it.id ? `이 칸에는 ${ITEMS[sp].name}을(를) 기른다. 섞어 기를 수 없다` : null;
 }
 
 // 一栏此刻的情形：养的什么、几只，饲料里有几份对得上它的口；matched 就是今夜吃得上
@@ -132,11 +132,11 @@ function stallState(m, i) {
 
 function penCheck(m) {
   const st = [...Array(stallCount(m)).keys()].map(i => stallState(m, i)).filter(x => x.pets);
-  if (!st.length) return { ok: false, msg: '兽栏里没有灵宠' };
+  if (!st.length) return { ok: false, msg: '수란에 영충이 없다' };
   const pets = st.reduce((s, x) => s + x.pets, 0);
   const hungry = st.filter(x => !x.matched);
-  if (hungry.length === st.length) return { ok: true, msg: `没有对口的饲料（${pets} 只灵宠）` };
-  return { ok: true, msg: hungry.length ? `${hungry.length} 栏缺饲料` : `${st.length} 栏 · ${pets} 只灵宠` };
+  if (hungry.length === st.length) return { ok: true, msg: `맞는 사료가 없다(영충 ${pets}마리)` };
+  return { ok: true, msg: hungry.length ? `${hungry.length}칸에 사료가 없다` : `${st.length}칸 · 영충 ${pets}마리` };
 }
 
 function penRun(m) {
@@ -175,11 +175,11 @@ function penRun(m) {
       const baby = makeItem(kind, { growth: 0, q: 50 });
       const order = [i, ...[...Array(stallCount(m)).keys()].filter(j => j !== i && stallSpecies(m, j) === kind),
         ...[...Array(stallCount(m)).keys()].filter(j => !stallSpecies(m, j))];
-      if (autoPlace(baby, order.map(j => stallGrids(m, j).pen))) notes.push(`一只小${ITEMS[kind].name}`);
-      else { destroyItem(baby); notes.push(`${ITEMS[kind].name}想下崽，兽栏满了`); }
+      if (autoPlace(baby, order.map(j => stallGrids(m, j).pen))) notes.push(`새끼 ${ITEMS[kind].name} 한 마리`);
+      else { destroyItem(baby); notes.push(`${ITEMS[kind].name}이(가) 새끼를 낳으려 했지만 수란이 꽉 찼다`); }
     }
   }
-  return notes.length ? `产出：${notes.join('、')}` : '灵宠们吃饱了，正在长';
+  return notes.length ? `산출: ${notes.join(', ')}` : '영충들이 배부르게 먹고 자라고 있다';
 }
 
 // 旧存档：灵兽圈原来是一格饲料、一格圈内混养。拆成兽栏：同种的放一栏（四只一栏），饲料跟着对口的栏走
@@ -226,33 +226,33 @@ const GU_DEVOUR_TOX = 0.3;
 // 离下一级还差什么（悬停提示用）
 function guNext(it) {
   const st = guStage(it), eat = it.eat || 0;
-  if (st === 3) return '已是蛊王';
-  if (st === 0) return eat >= GU_STAGES[2].eat ? `长满即成${GU_STAGES[guStage({ growth: 100, eat })].name}` : '长满成金蚕蛊；封盅相食也长得快';
-  return `封盅再吞 ${GU_STAGES[st + 1].eat - eat} 只成${GU_STAGES[st + 1].name}`;
+  if (st === 3) return '이미 고왕이다';
+  if (st === 0) return eat >= GU_STAGES[2].eat ? `다 자라면 ${GU_STAGES[guStage({ growth: 100, eat })].name}이(가) 된다` : '다 자라면 금잠고가 된다. 봉중 상식으로도 빨리 자란다';
+  return `봉중에서 ${GU_STAGES[st + 1].eat - eat}마리를 더 삼키면 ${GU_STAGES[st + 1].name}이(가) 된다`;
 }
 
 function gupotCheck(m, bones) {
   const pot = itemsIn(gridOf(m, 'pot')), gu = pot.filter(it => it.id === 'gu');
-  if (!pot.length) return { ok: false, msg: '蛊虫格里没有蛊' };
-  if (m.seal) return gu.length >= 2 ? { ok: true, msg: `封盅斗蛊：${gu.length} 只相食` } : { ok: false, msg: '封着盅，却只剩一只蛊，无可相食' };
+  if (!pot.length) return { ok: false, msg: '고충 칸에 고가 없다' };
+  if (m.seal) return gu.length >= 2 ? { ok: true, msg: `봉중 투고: ${gu.length}마리가 서로 먹는다` } : { ok: false, msg: '봉해 둔 항아리에 고가 한 마리뿐이라 먹을 상대가 없다' };
   const hungry = gu.filter(it => it.growth < 100 || GU_VENOM[guStage(it)]).length, n = countIn(bones, 'bones');
-  return { ok: true, msg: n < hungry ? `原料不足（腐骨 ${n}/${hungry}）` : `开盅喂养：${pot.length} 只蛊/卵` };
+  return { ok: true, msg: n < hungry ? `원료 부족(부골 ${n}/${hungry})` : `개중 포식: 고/란 ${pot.length}마리` };
 }
 
 function gupotRun(m, bones) {
   const notes = [];
   const emit = (it, note) => {
     if (autoPlace(it, [gridOf(m, 'out')])) notes.push(note);
-    else { destroyItem(it); notes.push(`产物格满了，${note}却没处放`); }
+    else { destroyItem(it); notes.push(`산출 칸이 차서 ${note}을(를) 둘 곳이 없다`); }
   };
   // 升到万毒蛊、蛊王那一夜蜕一回皮，吐出一份蛊毒
   const shed = (gu, from) => {
     if (guStage(gu) <= from || guStage(gu) < 2) return;
-    emit(makeItem('gu_venom', { tox: gu.tox }), `蜕变时吐出一份蛊毒（毒性 ${gu.tox}）`);
+    emit(makeItem('gu_venom', { tox: gu.tox }), `탈피하며 고독 한 덩이를 토했다(독성 ${gu.tox})`);
     guXp('shed');
   };
   if (m.seal) guDuel(m, notes, shed); else guFeed(m, bones, notes, emit, shed);
-  return notes.length ? notes.join('；') : '蛊虫安静地蠕动';
+  return notes.length ? notes.join('; ') : '고충이 조용히 꿈틀거린다';
 }
 
 function guFeed(m, bones, notes, emit, shed) {
@@ -260,7 +260,7 @@ function guFeed(m, bones, notes, emit, shed) {
     const pos = egg.pos;
     destroyItem(egg);
     placeItem(makeItem('gu', { growth: 0, tox: egg.tox }), pos.g, pos.x, pos.y);
-    notes.push('一枚蛊卵孵化');
+    notes.push('고란 하나가 부화했다');
     guXp('hatch');
   });
   // 蛊虫精通每重：蛊长得快、产卵勤、子代更毒
@@ -270,7 +270,7 @@ function guFeed(m, bones, notes, emit, shed) {
   if (gold && countIn(bones, 'mihun_flower') && findSpot(gridOf(m, 'out'), { id: 'love_gu' })) {
     takeItems(bones, 'mihun_flower', 1);
     destroyItem(gold);
-    emit(makeItem('love_gu', { q: clamp(40 + gold.tox, 5, 100) }), '一只金蚕蛊吃了迷魂花，通体泛红，一分为二——炼成一对情蛊');
+    emit(makeItem('love_gu', { q: clamp(40 + gold.tox, 5, 100) }), '금잠고 한 마리가 미혼화를 먹고 온몸이 붉어지며 둘로 갈라졌다 — 정고 한 쌍이 완성됐다');
     guXp('love');
   }
   let starved = 0;
@@ -279,23 +279,23 @@ function guFeed(m, bones, notes, emit, shed) {
     if (takeItems(bones, 'bones', 1).length) {
       gu.growth = Math.min(100, gu.growth + 18 + 2 * lv + Math.round(gu.tox / 8));
       guXp('feed');
-      if (gu.growth >= 100) { notes.push(`一只蛊化为${itemName(gu)}（毒性 ${gu.tox}）`); shed(gu, from); guXp('grown'); }
+      if (gu.growth >= 100) { notes.push(`고 한 마리가 ${itemName(gu)}(으)로 변했다(독성 ${gu.tox})`); shed(gu, from); guXp('grown'); }
     } else {
       gu.growth = Math.max(0, gu.growth - 5);
-      if (Math.random() < 0.15) { destroyItem(gu); notes.push('一只蛊饿死了'); } else starved++;
+      if (Math.random() < 0.15) { destroyItem(gu); notes.push('고 한 마리가 굶어 죽었다'); } else starved++;
     }
   });
-  if (starved) notes.push(`${starved} 只蛊挨饿`);
+  if (starved) notes.push(`고 ${starved}마리가 굶고 있다`);
   // 万毒蛊、蛊王食一骨吐毒；没骨头吃就不吐，也饿不死
   potGu(m).filter(it => GU_VENOM[guStage(it)]).forEach(gu => {
     if (!takeItems(bones, 'bones', 1).length) return;
-    if (Math.random() < GU_VENOM[guStage(gu)]) { emit(makeItem('gu_venom', { tox: gu.tox }), `${itemName(gu)}吐出一份蛊毒（毒性 ${gu.tox}）`); guXp('venom'); }
+    if (Math.random() < GU_VENOM[guStage(gu)]) { emit(makeItem('gu_venom', { tox: gu.tox }), `${itemName(gu)}이(가) 고독 한 덩이를 토했다(독성 ${gu.tox})`); guXp('venom'); }
   });
   const adults = potGu(m).filter(it => it.growth >= 60);
   if (adults.length >= 2 && Math.random() < 0.35 + 0.03 * lv) {
     const [a, b] = adults.sort(() => Math.random() - 0.5);
     const egg = makeItem('gu_egg', { tox: clamp(Math.round((a.tox + b.tox) / 2) + rint(-6, 12) + 2 * lv, 0, 100) });
-    emit(egg, `产下一枚蛊卵（毒性 ${egg.tox}）`);
+    emit(egg, `고란 하나를 낳았다(독성 ${egg.tox})`);
     guXp('egg');
   }
 }
@@ -303,7 +303,7 @@ function guFeed(m, bones, notes, emit, shed) {
 // 封盅斗蛊：最凶的吞掉最弱的，夺其毒性与道行（它吞过的也算进来），个头也长一截
 function guDuel(m, notes, shed) {
   const gu = potGu(m);
-  if (gu.length < 2) { notes.push('盅里只剩一只，再无可吞'); return; }
+  if (gu.length < 2) { notes.push('항아리에 한 마리뿐이라 더 삼킬 것이 없다'); return; }
   const ranked = gu.map(it => [it, guFight(it)]).sort((a, b) => b[1] - a[1]);
   const eater = ranked[0][0], prey = ranked[ranked.length - 1][0], from = guStage(eater);
   const who = itemName(eater), whom = itemName(prey);
@@ -312,7 +312,7 @@ function guDuel(m, notes, shed) {
   eater.eat = (eater.eat || 0) + 1 + (prey.eat || 0);
   destroyItem(prey);
   guXp('devour');
-  notes.push(`${who}吞了一只${whom}${guStage(eater) > from ? `，化为${itemName(eater)}` : ''}（毒性 ${eater.tox}）`);
+  notes.push(`${who}이(가) ${whom} 한 마리를 삼켰다${guStage(eater) > from ? `. ${itemName(eater)}(으)로 변했다` : ''}(독성 ${eater.tox})`);
   shed(eater, from);
 }
 
@@ -341,9 +341,9 @@ function fuRecipe(inputs) {
 
 function fudeskCheck(m, inputs) {
   const r = fuRecipe(inputs);
-  if (!r) return { ok: false, msg: '缺料：符纸与朱砂' };
-  if (!findSpot(gridOf(m, 'out'), { id: r.out })) return { ok: false, msg: '产出格已满' };
-  return { ok: true, msg: `画${ITEMS[r.out].name}，至多 ${1 + techLv('talisman')} 张` };
+  if (!r) return { ok: false, msg: '재료 부족: 부적 종이와 주사' };
+  if (!findSpot(gridOf(m, 'out'), { id: r.out })) return { ok: false, msg: '산출 칸이 찼다' };
+  return { ok: true, msg: `${ITEMS[r.out].name} 그리기, 최대 ${1 + techLv('talisman')}장` };
 }
 
 function fudeskRun(m, inputs, emit) {
@@ -360,7 +360,7 @@ function fudeskRun(m, inputs, emit) {
 
 // ───────────── 灵液 ─────────────
 
-function waterTier(p) { return p >= 99.9 ? '琼浆玉露' : p >= 99 ? '无根灵水' : p >= 80 ? '清灵水' : '浊灵水'; }
+function waterTier(p) { return p >= 99.9 ? '경장옥로' : p >= 99 ? '무근영수' : p >= 80 ? '청영수' : '탁영수'; }
 
 function waterValue(p) {
   const v = 3 + 70 * Math.pow(Math.max(0, p - 40) / 59.01, 2);
@@ -371,7 +371,7 @@ function waterValue(p) {
 const bottleMul = it => (it.bottled ? (it.purity >= 99 ? 1.8 : 1.15) : 1);
 function canBottle(it) { return it.id === 'water' && !it.bottled && !!owns('jade_bottle'); }
 function bottle(it) {
-  if (!canBottle(it)) return '没有玉净瓶了';
+  if (!canBottle(it)) return '옥정병이 없다';
   const err = exert('bottle');
   if (err) return err;
   destroyItem(owns('jade_bottle'));
@@ -394,18 +394,18 @@ const markVisible = it => !!it.mark && appraiseLevel() >= it.mark.str;
 function canErase(it) { return !!it.mark && markVisible(it) && techLv('erase') >= it.mark.str; }
 
 function eraseMark(it) {
-  if (!canErase(it)) return '抹印术不够，抹不掉这道烙印';
+  if (!canErase(it)) return '말인술이 모자라 이 낙인은 지울 수 없다';
   const err = exert('erase', it.mark.str);
   if (err) return err;
   const owner = S.people[it.mark.owner];
   if (Math.random() < 0.12) {
-    log(`抹印时烙印反噬，${owner ? owner.name : '原主'}有所感应！`, 'loss');
+    log(`말인 중 낙인이 반격해 ${owner ? owner.name : '원주인'}이(가) 느꼈다!`, 'loss');
     if (owner) startStory(`tr_${it.uid}`, 'tracker', 'claim', 1, { pid: owner.pid, uid: it.uid, name: itemName(it) });
-    return '烙印反噬，没抹干净——原主有所感应，怕是要找上门来。';
+    return '낙인이 반격해 깨끗이 지우지 못했다 — 원주인이 느꼈으니 찾아올지도 모른다.';
   }
   it.mark = null;
   it.stolen = 0;
-  log(`你抹净了${itemName(it)}上的原主烙印，来路从此干干净净。`, 'gold');
+  log(`${itemName(it)}의 원주인 낙인을 깨끗이 지웠다. 이제 출처가 완전히 깨끗하다.`, 'gold');
   return null;
 }
 
@@ -415,7 +415,7 @@ function canSeal(it) {
 }
 
 function sealItem(it) {
-  if (!canSeal(it)) return owns('seal_xian') ? '这件东西贴不了封印' : '手上没有正派封印符了';
+  if (!canSeal(it)) return owns('seal_xian') ? '이 물건에는 봉인을 붙일 수 없다' : '정파 봉인부가 없다';
   const err = exert('seal');
   if (err) return err;
   destroyItem(owns('seal_xian'));
@@ -423,7 +423,7 @@ function sealItem(it) {
   // 封印是真的，假的是来历：要看穿得认得名门的出品，做工至少二重，作伪越精越难看穿
   it.grade = Math.max(it.grade || 0, Math.min(4, 2 + Math.floor(techLv('forgery') / 2)));
   it.forged = true;
-  log(`你给${itemName(it)}贴上了正派封印，看着像名门所出。`, 'warn');
+  log(`${itemName(it)}에 정파 봉인을 붙였다. 명문가 소산처럼 보인다.`, 'warn');
   return null;
 }
 
@@ -447,42 +447,42 @@ Object.assign(STORIES, {
     nodes: {
       claim: {
         when: 'day',
-        who: st => { const p = S.people[st.flags.pid]; return { name: p.name, portrait: p.portrait, title: '循迹而来', faction: p.faction, pid: p.pid }; },
+        who: st => { const p = S.people[st.flags.pid]; return { name: p.name, portrait: p.portrait, title: '자취를 따라온 자', faction: p.faction, pid: p.pid }; },
         cond: st => S.people[st.flags.pid] && S.people[st.flags.pid].status === 'alive',
         text: st => {
           const p = S.people[st.flags.pid], held = S.items[st.flags.uid] && HELD(S.items[st.flags.uid]);
           return held
-            ? `一个${p.title}径直走到柜前，掌心一翻，一缕神识探向你的库房：“我的${st.flags.name}，上头还有我的烙印。”\n“东西是谁偷的，我不管。我只问你——还，还是不还？”`
-            : `一个${p.title}找上门来：“我的${st.flags.name}上有我的烙印，我一路循着找到了买主，买主说是从你这儿买的。”\n“这笔账，你得给我个交代。”`;
+            ? `${p.title} 하나가 곧장 카운터 앞으로 와서 손바닥을 뒤집자 신식 한 가닥이 네 창고를 더듬었다: "내 ${st.flags.name}, 아직 내 낙인이 남아 있지."\n"누가 훔쳤는지는 상관없다. 내가 묻는 건 하나뿐이다 — 돌려주겠나, 아니면 말겠나?"`
+            : `${p.title} 하나가 찾아왔다: "내 ${st.flags.name}에 내 낙인이 있어. 자취를 따라가 보니 산 사람이 네 가게에서 샀다더군."\n"이 계산은 네가 풀어줘야겠다."`;
         },
         choices: st => {
           const p = S.people[st.flags.pid], it = S.items[st.flags.uid], held = it && HELD(it);
           const val = held ? Math.round(claimedValue(it) * priceMul(it.id)) : 150;
           const pay = Math.round(val * 0.4 / 10) * 10;
           const list = [];
-          if (held) list.push({ label: '物归原主', hint: '失去这件货', run: () => {
-            destroyItem(it); remember(p, '你把他被偷的东西还给了他。', 20, 'helped');
-            return { text: '他收回东西，点点头：“你是个明白人。”', end: true };
+          if (held) list.push({ label: '주인에게 돌려준다', hint: '이 물건을 잃는다', run: () => {
+            destroyItem(it); remember(p, '도둑맞은 물건을 그에게 돌려주었다.', 20, 'helped');
+            return { text: '그는 물건을 거두며 고개를 끄덕였다: "너는 세상 물정을 아는 자로군."', end: true };
           } });
-          list.push({ label: `赔钱了事（${pay}）`, hint: costHint(pay), req: needStones(pay), run: () => {
-            spend(pay, `赔给失主${p.name} ${pay} 灵石。`); remember(p, `你赔了他 ${pay} 灵石。`, 8);
+          list.push({ label: `돈으로 무마한다(${pay})`, hint: costHint(pay), req: needStones(pay), run: () => {
+            spend(pay, `분실주 ${p.name}에게 ${pay} 영석을 배상했다.`); remember(p, `그에게 ${pay} 영석을 배상했다.`, 8);
             if (it) { it.mark = null; it.stolen = 0; }
-            return { text: '他收了灵石，抹去了自己的烙印：“这东西，从此归你了。”', end: true };
+            return { text: '그는 영석을 받고 자기 낙인을 지웠다: "이 물건은 이제 네 것이다."', end: true };
           } });
-          list.push({ label: '以势压人', hint: `成算 ${Math.round(overpowerOdds(p) * 100)}%（你的势力 ${playerPower()}，他 ${npcPower(p)}）`, run: () => {
-            if (Math.random() < overpowerOdds(p)) { remember(p, '你仗势压了下来。', -15, 'swallowed'); return { text: '他盯着你看了半晌，冷哼一声走了。', end: true }; }
+          list.push({ label: '세력으로 눌러버린다', hint: `성공률 ${Math.round(overpowerOdds(p) * 100)}%(너의 세력 ${playerPower()}, 상대 ${npcPower(p)})`, run: () => {
+            if (Math.random() < overpowerOdds(p)) { remember(p, '세를 믿고 눌러버렸다.', -15, 'swallowed'); return { text: '그는 너를 한참 노려보다가 콧방귀를 뀌고 물러났다.', end: true }; }
             if (held) destroyItem(it);
-            const dmg = retaliate(p, 50); remember(p, '你仗势欺人，没压住。', -20);
-            return { text: `“好大的口气。”他一把夺回东西走了。\n没两天——${dmg}`, end: true };
+            const dmg = retaliate(p, 50); remember(p, '세를 믿고 깔아뭉개려 했지만 누르지 못했다.', -20);
+            return { text: `"건방진 소리." 그는 물건을 빼앗아 갔다.\n며칠 안 가 — ${dmg}`, end: true };
           } });
-          list.push({ label: '抵赖', hint: '他未必信', run: () => {
+          list.push({ label: '모른 체한다', hint: '믿지 않을 수도 있다', run: () => {
             if (lieCaught(p.savvy + 0.2)) {
               if (held) destroyItem(it);
-              addHeat(10); remember(p, '你当面抵赖，被他用烙印戳穿。', -25, 'lied');
-              return { text: '他冷笑着引动烙印，那件东西在你库房里发出微光。他当场取走，还告到了执法堂。', end: true };
+              addHeat(10); remember(p, '정면으로 모른 체하다가 낙인에 들통났다.', -25, 'lied');
+              return { text: '그가 냉소하며 낙인을 움직이자 그 물건이 네 창고에서 희미하게 빛났다. 그는 그 자리에서 가져가고 집법당에 고했다.', end: true };
             }
-            remember(p, '你说没见过。', -5);
-            return { text: '他狐疑地扫了一圈，没找到，悻悻走了。', end: true };
+            remember(p, '본 적 없다고 했다.', -5);
+            return { text: '그는 의심스러운 듯 한 바퀴 둘러보고 못 찾은 채 풀이 죽어 돌아갔다.', end: true };
           } });
           return list;
         },
