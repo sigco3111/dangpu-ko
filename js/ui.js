@@ -538,7 +538,7 @@ function tradePanel(c) {
  if (it) {
  info += `<p class="small"><b>${esc(itemName(it))}</b> 개시가 ${stoneTxt(it.ask)} ${taking ? '<span class="tag real">받으려 한다</span>' : ''}
  ${ITEMS[it.id].appraise && !it.told ? '<span class="muted">· 조요경으로 감정할 수 있다, 눈앞에서 위작이라며 깎는다</span>' : ''}</p>`;
- if (dressable(it) && it.seen != null) info += `<p class="small ${flawSeen ? 'bad' : 'muted'}">${flawSeen ? `걸러냈다: 하급을 상급으로, 겉면${it.sq}, 실제로는 ~뿐${it.q}. ` : `네 안목으로는 (${LENS_NAMES[it.seen]}) 흠을 찾지 못한다. `}</p>`;
+ if (dressable(it) && it.seen != null) info += `<p class="small ${flawSeen ? 'bad' : 'muted'}">${flawSeen ? `간파했다: 하급을 상급으로 둔갑. 겉은 ${it.sq}, 실제로는 ${it.q}뿐. ` : `네 안목으로는 (${LENS_NAMES[it.seen]}) 흠을 찾지 못한다. `}</p>`;
  }
  if (d.give.length || d.take.length || d.reject.length) info += `<p class="small muted">${trayTally(c, d)}(심리가 약 ${Math.round(d.V)})${d.reject.length ? `, <span class="bad">안 산다: ${d.reject.map(itemName).join(' · ')}</span>` : ''}${d.take.length ? `; 네가 받는다 ${d.take.length}건(개시가 ${d.A})` : ''}. </p>`;
  const mid = `<div class="trade">${goods.length ? gridHTML('counter', `${ta(personOf(c))}의 물건 · 선택`) : ''}${gridHTML('tray', '네 진열판 · 물건을 끌어 올린다')}</div>${info}`;
@@ -1796,7 +1796,7 @@ const HANDLERS = {
  'inspect-own-go': () => {
  const it = S.items[sel], r = quickInspect(it);
  toast(r.laced ? `걸러냈다: ${itemName(it)}에 남이 ${LACE[r.laced].verb}! 이 손해를 삼키고, 헐값에 팔거나, 좋은 물건인 척 되팔거나, 아니면 뜯어서 그의 수법을 배운다. 네가 정한다.`
- : r.found ? `걸러냈다: ${itemName(it)}은(는) 하급을 상급으로 둔갑시켰다. 겉은 ${it.sq}, 실제로는 ${it.q}뿐!` : `네 안목으로는(${LENS_NAMES[r.lv]}) ${itemName(it)}의 흠을 찾지 못했다.`, r.found || r.laced ? 'bad' : '');
+ : r.found ? `간파했다: ${itemName(it)}은(는) 하급을 상급으로 둔갑시켰다. 겉은 ${it.sq}, 실제로는 ${it.q}뿐!` : `네 안목으로는(${LENS_NAMES[r.lv]}) ${itemName(it)}의 흠을 찾지 못했다.`, r.found || r.laced ? 'bad' : '');
  renderAll();
  },
  'inspect-item': () => tiredOr('inspect', () => HANDLERS['inspect-item-go']()),
