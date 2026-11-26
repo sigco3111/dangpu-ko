@@ -25,7 +25,7 @@ function JJ(text) {
       case '(': return bat ? '이가' : '가';
     }
     return m;
-  });
+  }).replace(/(?<![0-9])([.!?])(?=[가-힣(0-9])/g, '$1 ');
 }
 
 const FACTIONS = {

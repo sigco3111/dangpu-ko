@@ -399,7 +399,7 @@ function renderCounter() {
  : !c.probed && !pp.cleared ? `<div class="intel muted small">${icon('ic_secret')}<button class="btn tiny" data-act="probe" title="${costText('probe')}, 간파 약 ${Math.round(probeOdds(pp) * 100)}%">신식 탐지 ${Math.round(probeOdds(pp) * 100)}%</button></div>` : '';
  const dark = pp && !pp.story && ['sell', 'buy', 'plea'].includes(c.kind) && !c.refuse && killable(pp) ? `<div class="intel small">
  ${icon('ic_dao')}<span class="muted">${esc(c.name)}은(는) ${realmName(npcLevel(pp))}, 너는 ${realmName()}이다.</span>
- <button class="btn tiny danger" data-act="kill" ${canKill(pp) ? `disabled title="${esc(canKill(pp))}"` : `title="성공 확률 ${pct(killOdds(pp, false))}, ${costText('kill')}${deathWarn('injured')}"`}>문 닫고 개 패기${canKill(pp) ? '' : ` ${pct(killOdds(pp, false))}`}</button>
+ <button class="btn tiny danger" data-act="kill" ${canKill(pp) ? `disabled title="${esc(canKill(pp))}"` : `title="성공 확률 ${pct(killOdds(pp, false))}, ${costText('kill')}${deathWarn('injured')}"`}>문 닫고 개 풀기${canKill(pp) ? '' : ` ${pct(killOdds(pp, false))}`}</button>
  ${canSoulMark(pp) ? '' : `<button class="btn tiny danger" data-act="soulmark">혼인 심기 ${pct(soulMarkOdds(pp))}</button>`}</div>` : '';
  if (c.kind === 'story') {
  const node = storyNode(S.story[c.key]);
@@ -433,7 +433,7 @@ function renderCounter() {
  acts = `<button class="btn primary" data-act="appraise-commission">${icon('ic_appraise')}조요경으로 감정한다</button>
  <button class="btn ghost" data-act="dismiss">정중히 거절</button>`;
  }
- el.innerHTML = `<div class="cp-col wide">${mid}${intel}${dark}</div><div class="cp-actions">${acts}</div>`;
+ el.innerHTML = JJ(`<div class="cp-col wide">${mid}${intel}${dark}</div><div class="cp-actions">${acts}</div>`);
 }
 
 // 求助：구제한다、放贷、고역으로 부린다，或者쫓아낸다
@@ -458,7 +458,7 @@ function openDao() {
  const goods = Object.values(S.items).filter(it => HELD(it) && cultXp(seemOf(it))).sort((a, b) => cultXp(seemOf(b)) - cultXp(seemOf(a)));
  openModal(() => { const pg = pager(goods.filter(it => S.items[it.uid]), 6, 'dao'); modalHTML(`<h3>${icon('ic_dao')}수위 · ${realmName()}</h3>
  <p>${r.need ? `수위 <b>${S.cult.xp}</b> / ${r.need}, ${realmName(S.cult.lv + 1)}(으)로 돌파하려면 <b>${ITEMS[r.key].name}</b> 하나가 더 필요하다열쇠로 쓴다. 성공 확률 약 ${pct(breakOdds())}${S.retreat ? '(오늘 밤 폐관, 15% 추가)' : '(밤에 폐관하면 돌파가 더 안정된다)'}. ` : '너는 이 세계의 끝에 이르렀다.'}</p>
- <p class="small muted">경지가 높을수록, 세력이 클수록 밤에 더 회복하고 거짓말이 덜 들통난다. 수련이 상대보다 높으면, 카운터에서 “문 닫고 개 패기”를 하거나 밤에 길을 가로막아 죽일 수 있다, 그의 물건, 영석, 시신, 혼백을 빼앗는다. 수련 위압이나 혼인을 심어 사람을 복종시킬 수도 있다. 
+ <p class="small muted">경지가 높을수록, 세력이 클수록 밤에 더 회복하고 거짓말이 덜 들통난다. 수련이 상대보다 높으면, 카운터에서 “문 닫고 개 풀기”를 하거나 밤에 길을 가로막아 죽일 수 있다, 그의 물건, 영석, 시신, 혼백을 빼앗는다. 수련 위압이나 혼인을 심어 사람을 복종시킬 수도 있다. 
  혼을 삼키고 피를 마셔도 수련이 오른다, 다만 제련할수록 사람 같지 않아진다. </p>
  <div class="gift-list">${pg.items.map(it => `<div class="gift-row" data-act="cultivate" data-uid="${it.uid}">${itemHTML(Object.assign({}, it, { pos: null }), 'preview mini')}
  <span>${esc(itemName(it))}${it.id === r.key ? '<em class="laced-txt">(경지 돌파의 물건)</em>' : ''}</span><span class="good">수위 +${cultXp(seemOf(it))}</span>${(CULT_XP[it.id] || [])[1] ? '<span class="bad small">음덕 손상</span>' : ''}</div>`).join('') || '<p class="muted">손에 복용할 만한 것이 없다: 단약, 혼백, 요단, 정혈, 경장옥로……</p>'}</div>${pg.nav}
