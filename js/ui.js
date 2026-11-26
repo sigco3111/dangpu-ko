@@ -60,7 +60,7 @@ function itemTags(it) {
  const tags = [];
  if (ITEMS[it.id].contra) tags.push(['contra', '선문 금물']);
  if (ITEMS[it.id].illicit) tags.push(['stolen', '마종 금약']);
- if (lacedKnown(it)) tags.push(['laced', it.lacedBy === 'me' ? `몰래${LACE[it.laced].verb}` : `남에게${LACE[it.laced].verb} (걸러냈다)`]);
+ if (lacedKnown(it)) tags.push(['laced', it.lacedBy === 'me' ? `몰래 ${LACE[it.laced].verb}` : `남이 ${LACE[it.laced].verb} (걸러냈다)`]);
  if (it.mark) tags.push(['stolen', markVisible(it) ? `원주인의 낙인 · ${cn(it.mark.str)}중` : '남은 신식이 있는 듯하다, 제대로 보이지 않는다']);
  if (it.sealed) tags.push(['laced', `정파 봉인을 붙임 · 솜씨${GRADE_NAMES[it.grade]}`]);
  if (it.bottled) tags.push(['real', '옥정병에 담음']);
@@ -1465,7 +1465,7 @@ function openLace() {
  <div><b>${esc(itemName(a))}</b> → ${L.verb}<p class="small">${L.desc}</p>
  <p class="small muted">${L.detect ? `들통날 기본 확률 ${Math.round(L.detect * 100)}%, 상대가 영리할수록, 너를 믿지 않을수록 간파하기 쉽다${a.id === 'gu' ? '; 고가 독할수록 숨기 쉽다' : ''}. ` : '무해, 들통날 걱정이 없다. '}</p>
  ${why ? `<p class="small bad">${esc(why)}</p>` : ''}</div>
- <button class="btn small ${L.detect ? 'danger' : ''}" data-act="lace-do" data-uid="${a.uid}" ${why ? 'disabled' : ''}>${L.verb.replace('了', '')}</button></div>`;
+ <button class="btn small ${L.detect ? 'danger' : ''}" data-act="lace-do" data-uid="${a.uid}" ${why ? 'disabled' : ''}>${L.act || L.verb}</button></div>`;
  }).join('')}</div>
  <div class="h-btns"><button class="btn ghost" data-act="modal-close">그만둔다</button></div>`, 'm-lace'));
 }
@@ -1795,14 +1795,14 @@ const HANDLERS = {
  'inspect-own': () => tiredOr('inspect', () => HANDLERS['inspect-own-go']()),
  'inspect-own-go': () => {
  const it = S.items[sel], r = quickInspect(it);
- toast(r.laced ? `걸러냈다: ${itemName(it)}에 남이 ${LACE[r.laced].verb}를 해뒀다! 이 손해를 삼키고, 헐값에 팔거나, 좋은 물건인 척 되팔거나, 아니면 뜯어서 그의 수법을 배운다. 네가 정한다.`
+ toast(r.laced ? `걸러냈다: ${itemName(it)}에 남이 ${LACE[r.laced].verb}! 이 손해를 삼키고, 헐값에 팔거나, 좋은 물건인 척 되팔거나, 아니면 뜯어서 그의 수법을 배운다. 네가 정한다.`
  : r.found ? `걸러냈다: ${itemName(it)}은(는) 하급을 상급으로 둔갑시켰다. 겉은 ${it.sq}, 실제로는 ${it.q}뿐!` : `네 안목으로는(${LENS_NAMES[r.lv]}) ${itemName(it)}의 흠을 찾지 못했다.`, r.found || r.laced ? 'bad' : '');
  renderAll();
  },
  'inspect-item': () => tiredOr('inspect', () => HANDLERS['inspect-item-go']()),
  'inspect-item-go': () => {
  const it = customerItem(), r = quickInspect(it);
- toast(r.laced ? `이 물건에 남이 ${LACE[r.laced].verb}를 해뒀다!` : r.found ? `하급을 상급으로! 겉은 ${it.sq}, 실제로는 ${it.q}뿐.` : `네 안목으로는(${LENS_NAMES[r.lv]}), 흠을 찾지 못했다.`, r.found || r.laced ? 'bad' : '');
+ toast(r.laced ? `이 물건에 남이 ${LACE[r.laced].verb}!` : r.found ? `하급을 상급으로! 겉은 ${it.sq}, 실제로는 ${it.q}뿐.` : `네 안목으로는(${LENS_NAMES[r.lv]}), 흠을 찾지 못했다.`, r.found || r.laced ? 'bad' : '');
  renderAll();
  },
  'dispute-flaw': () => tiredOr('dispute', () => HANDLERS['dispute-go']()),
