@@ -4,14 +4,14 @@
 
 // likes：进献时看重的品类；eye：验货的眼力；opps：独家买卖的种类
 const CLIQUES = {
-  law:  { name: '执法堂', head: '冷长老', portrait: 'mo_enforcer', rival: 'heir', likes: ['xin', 'fu', 'ju'], eye: 3, opps: ['auction', 'launder', 'contra'],
-    desc: '管着刑名与抄没。攀上他们，抄家抄来的好货先过你的手，赃物也能过明路。' },
-  war:  { name: '战堂', head: '屠长老', portrait: 'mo_disciple', rival: 'dan', likes: ['qi', 'shi', 'hun', 'fu'], eye: 2, opps: ['order', 'captive', 'order'],
-    desc: '前线的军需都从这儿走。军械订单出价高，战俘也论斤卖。' },
-  dan:  { name: '丹房', head: '药长老', portrait: 'ren_cultivator', rival: 'war', likes: ['dan', 'cai', 'yao', 'zhi'], eye: 3, opps: ['license', 'supply', 'order'],
-    desc: '宗门的丹药生意。拿到包销，你的丹药不愁卖；珍稀药材也按配给价拨给你。' },
-  heir: { name: '少宗主一系', head: '血公子', portrait: 'noble', rival: 'law', likes: ['wan', 'qi', 'yin'], eye: 1, opps: ['salon', 'order', 'tip'],
-    desc: '少宗主和他身边那群纨绔。出手阔绰，眼力平平，最好面子——雅集上的权贵，个个是待宰的肥羊。' },
+  law:  { name: '집법당', head: '냉 장로', portrait: 'mo_enforcer', rival: 'heir', likes: ['xin', 'fu', 'ju'], eye: 3, opps: ['auction', 'launder', 'contra'],
+    desc: '형벌과 몰수를 쥐고 있다. 붙잡히면 몰수된 좋은 물건이 먼저 네 손을 거치고 장물도 출처를 세탁할 수 있다.' },
+  war:  { name: '전당', head: '도 장로', portrait: 'mo_disciple', rival: 'dan', likes: ['qi', 'shi', 'hun', 'fu'], eye: 2, opps: ['order', 'captive', 'order'],
+    desc: '전선의 군수가 전부 여기를 거친다. 군수 주문은 값을 후하게 치고 포로도 저울에 달아 판다.' },
+  dan:  { name: '단방', head: '약 장로', portrait: 'ren_cultivator', rival: 'war', likes: ['dan', 'cai', 'yao', 'zhi'], eye: 3, opps: ['license', 'supply', 'order'],
+    desc: '종문의 단약 장사. 판매권을 따내면 네 단약은 판로 걱정이 없고 진귀한 약재도 배급가로 받는다.' },
+  heir: { name: '소종주 일파', head: '혈공자', portrait: 'noble', rival: 'law', likes: ['wan', 'qi', 'yin'], eye: 1, opps: ['salon', 'order', 'tip'],
+    desc: '소종주와 그를 둘러싼 낭인들. 돈은 흥청망청 쓰고 안목은 평범하며 체면을 목숨처럼 여긴다 — 아회의 귀족들은 하나같이 잡아먹힐 양이다.' },
 };
 
 // 各系订单要的货：前几样常有，后面的要“门下”才给
@@ -33,7 +33,7 @@ function tierOf(k) {
   const st = cliqueSt(k);
   return st >= 60 ? 2 : st >= 30 ? 1 : st >= 10 ? 0 : -1;
 }
-const TIER_NAME = { '-1': '陌生', 0: '有往来', 1: '座上客', 2: '心腹', 3: '门下' };
+const TIER_NAME = { '-1': '낯선 사이', 0: '왕래 있음', 1: '객청', 2: '심복', 3: '문하' };
 
 function shiftSt(k, d) { S.cliques[k].st = clamp(Math.round(S.cliques[k].st + d), -60, 100); }
 
@@ -41,8 +41,8 @@ function shiftSt(k, d) { S.cliques[k].st = clamp(Math.round(S.cliques[k].st + d)
 
 // 孝敬灵石：越熟越难再往上走
 function cliqueTribute(k, n) {
-  if (S.stones < n) return '灵石不够';
-  spend(n, `孝敬${CLIQUES[k].head} ${n} 灵石。`);
+  if (S.stones < n) return '영석이 부족하다';
+  spend(n, `${CLIQUES[k].head}에게 바침 ${n} 영석.`);
   shiftSt(k, n / (8 + Math.max(0, cliqueSt(k)) / 4));
   shiftSt(CLIQUES[k].rival, -n / 60);
   return null;
@@ -59,24 +59,24 @@ function cliqueOffer(k, it) {
     destroyItem(it);
     shiftSt(k, -15);
     if (k === 'law') addHeat(8);
-    return { bad: true, text: `${C.head}把${name}往地上一摔：“拿这种东西糊弄我？”` };
+    return { bad: true, text: `${C.head}이(가) ${name}을(를) 바닥에 내동댕이쳤다: "이런 걸로 나를 속이려고?"` };
   }
   const v = cliqueGiftValue(k, it);
   const d = v / (20 + Math.max(0, cliqueSt(k)) / 2);
   shiftSt(k, d);
   destroyItem(it);
-  return { text: `${C.head}收下了${name}。（${C.name}好感 +${Math.round(d)}）` };
+  return { text: `${C.head}이(가) ${name}을(를) 받았다. (${C.name} 호감 +${Math.round(d)})` };
 }
 
 // 投靠：从此是这一系的人，对头一系把你当眼中钉
 function joinClique(k) {
-  if (S.cliques.joined) return '你已经有靠山了';
-  if (cliqueSt(k) < 30) return `${CLIQUES[k].name}还没把你当自己人（好感 30 才肯收）`;
+  if (S.cliques.joined) return '이미 뒷배가 있다';
+  if (cliqueSt(k) < 30) return `${CLIQUES[k].name}은(는) 아직 너를 식구로 여기지 않는다(호감 30부터 받아준다)`;
   S.cliques.joined = k;
   shiftSt(CLIQUES[k].rival, -25);
   for (const o in CLIQUES) if (o !== k && o !== CLIQUES[k].rival) shiftSt(o, -5);
   S.cliques.week = -1;
-  log(`你投到了${CLIQUES[k].head}门下。${CLIQUES[CLIQUES[k].rival].name}从此视你为敌。`, 'gold');
+  log(`너는 ${CLIQUES[k].head} 문하에 들었다. ${CLIQUES[CLIQUES[k].rival].name}은(는) 이제 너를 적으로 삼는다.`, 'gold');
   return null;
 }
 
@@ -154,16 +154,16 @@ function deliverOpp(o, it) {
     o.done = true;
     shiftSt(o.cid, -20);
     if (o.cid === 'law') addHeat(10);
-    return { bad: true, text: `${C.name}的执事验出${name}有假，当场撕了单子：“往后别再来了。”` };
+    return { bad: true, text: `${C.name}의 집사가 ${name}이(가) 가짜임을 알아채고 그 자리에서 주문서를 찢었다: "다시는 오지 마라."` };
   }
   const price = oppUnit(o, it);
   if (isFlawed(it)) S.cliques.fakes = (S.cliques.fakes || 0) + 1;
   if (ITEMS[it.id].war) fuelWar(it, price);
-  earn(price, `${name}交给${C.name}，得 ${price} 灵石。`);
+  earn(price, `${name}을(를) ${C.name}에 넘겨 ${price} 영석을 받았다.`);
   destroyItem(it);
   shiftSt(o.cid, 2);
   if (--o.left <= 0) o.done = true;
-  return { text: `${C.name}收下${name}，付 ${price} 灵石。` };
+  return { text: `${C.name}이(가) ${name}을(를) 받고 ${price} 영석을 지불했다.` };
 }
 
 function takeOpp(o) {
@@ -171,47 +171,47 @@ function takeOpp(o) {
   switch (o.type) {
     case 'auction': {
       if (S.stones < o.price) return { err: '灵石不够' };
-      spend(o.price, `在${C.name}的抄没拍卖上拍下一批货。`);
+      spend(o.price, `${C.name}의 몰수 경매에서 물건 한 조를 낙찰받았다.`);
       const got = o.items.map(id => giveItem(id, { q: rint(55, 85) })).filter(Boolean);
       o.done = true;
-      return { text: `抄没的货送到了：${got.map(itemName).join('、')}。来路干净，执法堂的封条还贴着。` };
+      return { text: `몰수품이 도착했다: ${got.map(itemName).join(', ')}. 출처는 깨끗하고 집법당 봉인이 그대로 붙어 있다.` };
     }
     case 'launder': {
       const dirty = Object.values(S.items).filter(it => HELD(it) && (it.stolen > 0 || it.mark));
-      if (!dirty.length) return { err: '你手里没有来路不明的货' };
+      if (!dirty.length) return { err: '손에 출처 불명의 물건이 없다' };
       const fee = Math.max(20, Math.round(dirty.reduce((s, it) => s + claimedValue(it), 0) * o.rate / 10) * 10);
-      if (S.stones < fee) return { err: `过明路要 ${fee} 灵石` };
-      spend(fee, `托${C.name}给 ${dirty.length} 件赃物过了明路。`);
+      if (S.stones < fee) return { err: `출처 세탁에 ${fee} 영석이 든다` };
+      spend(fee, `${C.name}에 부탁해 장물 ${dirty.length}점의 출처를 세탁했다.`);
       dirty.forEach(it => { it.stolen = 0; delete it.mark; });
       o.done = true;
-      return { text: `${dirty.length} 件货补上了执法堂的勘合，从此来路清白。` };
+      return { text: `${dirty.length}점의 물건에 집법당 증빙이 붙었다. 이제 출처가 깨끗하다.` };
     }
     case 'captive': {
       if (S.stones < o.price) return { err: '灵石不够' };
-      spend(o.price, `从${C.name}手里买下一名战俘。`);
+      spend(o.price, `${C.name}에게서 포로 한 명을 샀다.`);
       const got = [giveItem('cult_corpse', { q: rint(50, 75) }), giveItem('live_soul', { q: rint(50, 80) }), giveItem('blood_essence'), giveItem('blood_essence')].filter(Boolean);
       karmaShift(-3);
-      commitSin('harm', { w: 1, what: '买下战俘处置' });
+      commitSin('harm', { w: 1, what: '포로를 사들여 처분했다' });
       if (--o.left <= 0) o.done = true;
-      return { text: `战俘是个仙门的筑基弟子，押来时已经只剩半口气。处置完了，你得到${got.map(itemName).join('、')}。` };
+      return { text: `포로는 선문의 축기 제자였고 끌려올 때 이미 숨이 반쯤 넘어가 있었다. 처분을 마치고 ${got.map(itemName).join(', ')}을(를) 얻었다.` };
     }
     case 'supply': {
       if (S.stones < o.unit) return { err: '灵石不够' };
       const it = giveItem(o.id);
       if (!it) return { err: '库房放不下' };
-      spend(o.unit, `按丹房配给价购得${itemName(it)}。`);
+      spend(o.unit, `단방 배급가로 ${itemName(it)}을(를) 샀다.`);
       if (--o.left <= 0) o.done = true;
-      return { text: `${itemName(it)}按配给价拨给了你。` };
+      return { text: `${itemName(it)}을(를) 배급가로 받았다.` };
     }
     case 'salon': {
       S.flags.salon = { day: S.day + (S.phase === 'morning' ? 0 : 1), n: o.guests };
       o.done = true;
-      return { text: `血公子在请柬上添了你铺子的名字。${S.phase === 'morning' ? '今天' : '明天'}，会有 ${o.guests} 位权贵上门“赏玩”。` };
+      return { text: `혈공자가 초대장에 네 가게 이름을 적었다. ${S.phase === 'morning' ? '오늘' : '내일'} 귀족 ${o.guests}명이 '구경'하러 온다.` };
     }
     case 'tip': {
       const it = makeIntel('market');
       o.done = true;
-      return it ? { text: `少宗主身边的人透了个口风，你记成了一份${itemName(it)}。` } : { err: '库房放不下' };
+      return it ? { text: `소종주 측근이 슬쩍 귀띔해주었고 너는 그것을 ${itemName(it)}(으)로 적어두었다.` } : { err: '库房放不下' };
     }
   }
   return { err: '' };
@@ -219,7 +219,7 @@ function takeOpp(o) {
 
 // ───────────── 倾轧与清洗 ─────────────
 
-const PURGE_TEXT = ['被查出私通仙门', '贪墨军饷事发', '炼丹害死了一位长老的亲传', '在宗主面前失了宠', '被人告发私藏禁物'];
+const PURGE_TEXT = ['선문과 내통한 것이 드러났다', '군량 횡령이 발각됐다', '단약을 빚다 장로의 직계 제자를 죽였다', '종주 앞에서 총애를 잃었다', '금물을 숨겨둔 것이 고발됐다'];
 
 // 每周推演各系消长；有人倒台，跟着他的人一并清算，对头一系论功行赏
 function cliqueTick() {
@@ -235,13 +235,13 @@ function cliqueTick() {
     const a = pick(Object.keys(CLIQUES)), b = CLIQUES[a].rival;
     S.cliques[a].pw = clamp(S.cliques[a].pw + 5, 0, 100);
     S.cliques[b].pw = clamp(S.cliques[b].pw - 12, 0, 100);
-    worldNews(`${CLIQUES[a].name}在宗主面前参了${CLIQUES[b].name}一本。`);
-    out.push({ icon: 'ic_clique', title: '宗门倾轧', text: `${CLIQUES[a].name}在宗主面前参了${CLIQUES[b].name}一本，${CLIQUES[b].head}的位子有些不稳了。`, cls: 'warn' });
+    worldNews(`${CLIQUES[a].name}이(가) 종주 앞에서 ${CLIQUES[b].name}을(를) 탄핵했다.`);
+    out.push({ icon: 'ic_clique', title: '종문 암투', text: `${CLIQUES[a].name}이(가) 종주 앞에서 ${CLIQUES[b].name}을(를) 탄핵해 ${CLIQUES[b].head}의 자리가 흔들리기 시작했다.`, cls: 'warn' });
   }
   for (const k in CLIQUES) if (S.cliques[k].pw <= 20) out.push(purge(k));
   if (J && cliqueSt(CLIQUES[J].rival) <= -30 && Math.random() < 0.5) {
     addHeat(5);
-    out.push({ icon: 'ic_clique', title: '使绊子', text: `${CLIQUES[CLIQUES[J].rival].name}的人记恨你，在执法堂给你记了一笔（执法堂关注 +5）`, cls: 'bad' });
+    out.push({ icon: 'ic_clique', title: '견제', text: `${CLIQUES[CLIQUES[J].rival].name} 사람들이 너를 원망해 집법당에 네 일을 기록했다(집법당 주시 +5)`, cls: 'bad' });
   }
   return out;
 }
@@ -249,7 +249,7 @@ function cliqueTick() {
 function purge(k) {
   const C = CLIQUES[k], J = S.cliques.joined;
   const why = pick(PURGE_TEXT);
-  worldNews(`${C.head}${why}，${C.name}一系遭到清洗。`, 'bad');
+  worldNews(`${C.head} — ${why}. ${C.name} 일파가 숙청당했다.`, 'bad');
   S.cliques[k] = { st: Math.round(S.cliques[k].st * 0.3), pw: 50 };
   S.cliques.opps = S.cliques.opps.filter(o => o.cid !== k);
   S.cliques[C.rival].pw = clamp(S.cliques[C.rival].pw + 15, 0, 100);
@@ -261,42 +261,42 @@ function purge(k) {
       .sort((a, b) => claimedValue(b) - claimedValue(a)).slice(0, 2);
     const names = seized.map(itemName);
     seized.forEach(destroyItem);
-    return { icon: 'ic_clique', title: '靠山倒了', cls: 'bad',
-      text: `${C.head}${why}，被废去修为打入血狱。你是他门下的人——执法堂上门抄走了${names.join('、') || '你的账册'}，执法堂关注 +25，魔宗声望 -10。` };
+    return { icon: 'ic_clique', title: '뒷배가 무너졌다', cls: 'bad',
+      text: `${C.head} — ${why}. 수위를 빼앗기고 혈옥에 갇혔다. 너는 그의 문하였다 — 집법당이 와서 ${names.join(', ') || '네 장부'}를 압수해갔다. 집법당 주시 +25, 마종 명성 -10.` };
   }
   if (J === C.rival) {
     const n = rint(20, 40) * 10;
-    earn(n, `${C.name}倒台，${CLIQUES[J].head}论功行赏。`);
+    earn(n, `${C.name} 몰락. ${CLIQUES[J].head}이(가) 공을 가려 상을 내렸다.`);
     shiftSt(J, 10);
-    return { icon: 'ic_clique', title: '对头倒了', cls: 'ok', text: `${C.head}${why}，${C.name}一系树倒猢狲散。${CLIQUES[J].head}赏了你 ${n} 灵石。` };
+    return { icon: 'ic_clique', title: '라이벌 몰락', cls: 'ok', text: `${C.head} — ${why}. ${C.name} 일파가 우수수 흩어졌다. ${CLIQUES[J].head}이(가) 네게 ${n} 영석을 내렸다.` };
   }
-  return { icon: 'ic_clique', title: '宗门清洗', cls: 'warn', text: `${C.head}${why}，${C.name}一系遭到清洗。新上来的人，不认得你。` };
+  return { icon: 'ic_clique', title: '종문 숙청', cls: 'warn', text: `${C.head} — ${why}. ${C.name} 일파가 숙청당했다. 새로 올라온 사람들은 너를 모른다.` };
 }
 
 // 内幕递给对头：这一系的位子更不稳了
 function leakDirt(it, to) {
   const k = it.info.cid, C = CLIQUES[k];
-  if (to !== C.rival) return '这份内幕，只有对头一系才肯出大价钱';
+  if (to !== C.rival) return '이 내막은 라이벌 일파만이 큰돈을 낸다';
   S.cliques[k].pw = clamp(S.cliques[k].pw - 14, 0, 100);
   shiftSt(to, 15); shiftSt(k, -10);
   destroyItem(it);
-  log(`你把${C.name}的内幕递给了${CLIQUES[to].head}。`, 'warn');
+  log(`너는 ${C.name}의 내막을 ${CLIQUES[to].head}에게 넘겼다.`, 'warn');
   return null;
 }
 
 // ───────────── 权贵 ─────────────
 
 const NOBLE_LINES = [
-  '（{n}摇着折扇，眼皮都不抬）听说你这破铺子有几件像样的{item}？拿出来，别拿寒碜东西污了本公子的眼。',
-  '（{n}用帕子掩着鼻子）这股穷酸味……罢了。有什么好{item}，赶紧拿上来。',
-  '（{n}身后跟着两个家奴）本少爷的时间金贵。{item}，要最好的——价钱？你也配跟我谈价钱？',
+  '({n}, 부채를 흔들며 눈도 마주치지 않는다) 이 초라한 가게에 볼만한 {item}이(가) 몇 점 있다며? 꺼내봐라. 볼품없는 것으로 본 공자의 눈을 더럽히지 말고.',
+  '({n}, 손수건으로 코를 가린다) 이 가난뱅이 냄새는... 됐다. 좋은 {item}이(가) 있으면 어서 올려라.',
+  '({n}, 뒤에 하인 둘을 거느리고 있다) 본 도련님의 시간은 귀하다. {item}, 제일 좋은 걸로 — 값? 네놈이 나와 값을 논할 자격이 있나?',
 ];
 
 function nobleLine(c) { return fill(pick(NOBLE_LINES), { n: c.name, item: c.wantId ? ITEMS[c.wantId].name : CATS[c.wantCat] }); }
 
 function newNoble() {
-  const p = newPerson('mo', { portrait: 'noble', anyFace: true, title: '权贵', savvy: rnd(0.25, 0.45),
-    bio: '仗着长辈在内门的权势，在杂役区横着走。花钱如流水，最怕丢脸。' });
+  const p = newPerson('mo', { portrait: 'noble', anyFace: true, title: '귀족', savvy: rnd(0.25, 0.45),
+    bio: '내문에 있는 어른의 권세를 믿고 잡역 구역을 활보한다. 돈을 물 쓰듯 하고 체면 구기는 것을 가장 두려워한다.' });
   p.title = pick(NOBLE_TITLE[sexOf(p)]);
   Object.assign(p, { noble: true, pride: rnd(0.6, 1), eye: 1, budgetMul: 1.2, wish: null, secret: null });
   return p;
@@ -321,7 +321,7 @@ function flatter(c) {
   if (c.flatter > 3 || Math.random() < p.savvy * 0.25 * c.flatter) {
     c.patience--;
     c.flatter = Math.min(c.flatter, 3);
-    return { ok: false, text: `${c.name}冷笑：“马屁也要拍得像样些。”` };
+    return { ok: false, text: `${c.name}이(가) 냉소했다: "아부도 그럴듯하게 해야지."` };
   }
-  return { ok: true, text: pick([`${c.name}嘴角一扬：“算你有眼力。”`, `${c.name}啪地合上折扇：“说下去。”`, `${c.name}听得受用，下巴又抬高了三分。`]) };
+  return { ok: true, text: pick([`${c.name}의 입꼬리가 올라갔다: "보는 눈은 있군."`, `${c.name}이(가) 부채를 탁 접었다: "계속해봐라."`, `${c.name}은(는) 듣기 좋은지 턱이 삼 푼 더 올라갔다.`]) };
 }
