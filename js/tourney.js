@@ -177,7 +177,7 @@ Object.assign(STORIES, {
           } });
           list.push({ label: '기권', hint: '참가비는 돌려받지 못한다. 다치지 않는다', run: () => {
             const res = runBracket(st, false); st.flags.resolved = true;
-            return { text: `你在擂台下撕了自己的名帖。\n${res.lines.join('\n')}${betText(st, res)}`, end: true, summary: `너는 ${prizeOf(st).name}에서 기권했다.` };
+            return { text: `너는 비무대 아래에서 네 이름표를 찢었다.\n${res.lines.join('\n')}${betText(st, res)}`, end: true, summary: `너는 ${prizeOf(st).name}에서 기권했다.` };
           } });
           return list;
         },
