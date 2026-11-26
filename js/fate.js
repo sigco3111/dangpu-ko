@@ -20,12 +20,12 @@ function fateTolerance(day = S.day) {
 
 // 恶行的种类：报应从哪儿来、怎么来
 const SINS = {
-  fraud:  { name: '欺诈', who: '被你坑过的苦主', how: ['聚了一伙人堵在铺子门口讨说法', '一纸状子告到了执法堂', '找了几个混混上门“说理”'] },
-  betray: { name: '出卖', who: '被你出卖的人的旧识', how: ['摸清了是谁告的密，夜里寻上门来', '托人放出话来：这笔账迟早要算', '堵在巷口等你'] },
-  fence:  { name: '销赃包庇', who: '执法堂', how: ['顺着赃物查到了你的铺子，上门追缴', '翻出了旧账，要你把吞下的连本带利吐出来'] },
-  harm:   { name: '害人', who: '苦主的血亲', how: ['披麻戴孝闯进铺子', '带着刀寻上门来报仇', '在你的水缸边守了三夜'] },
+  fraud:  { name: '사기', who: '네게 속아 손해 본 원한의 주인', how: ['무리를 몰아 가게 문 앞을 막고 항의했다', '고발장 한 장을 집법당에 접수했다', '불량배 몇을 불러 "따지러" 찾아왔다'] },
+  betray: { name: '배신', who: '네가 배신한 사람의 옛 지인', how: ['누가 밀고했는지 알아내고 밤에 찾아왔다', '사람을 시켜 말을 흘렸다: 이 빚은 언젠가 받아내겠다고', '골목 어귀에서 너를 기다렸다'] },
+  fence:  { name: '장물 취급·비호', who: '집법당', how: ['장물을 따라 네 가게까지 찾아와 추징했다', '옛 장부를 뒤져 삼킨 것을 원금에 이자까지 토해내라 했다'] },
+  harm:   { name: '해인', who: '원한을 품은 이의 혈육', how: ['상복을 입고 가게에 들이닥쳤다', '칼을 들고 원수를 갚으러 찾아왔다', '네 물독 곁에서 사흘 밤을 지켰다'] },
 };
-const KIN = { ren: '同乡', mo: '同门师兄弟', yao: '族人', xian: '师门' };
+const KIN = { ren: '동향인', mo: '같은 문파 사형제', yao: '족인', xian: '사문' };
 
 function initFate() {
   S.fate = Object.assign({ n: 0, debts: [], infamy: 0, merit: 0, last: 0, total: 0, erupted: 0, buried: 0, busts: 0, patrons: 0 }, S.fate || {});
@@ -36,7 +36,7 @@ const fateBase = () => 40 + 4 * S.day + S.day * S.day / 20;
 function fateStake(w = 1) { return Math.round(w * fateBase() * Math.pow(FATE_GROW, S.fate.n / fateTolerance()) / 10) * 10; }
 
 // 选项提示：这是一桩恶事，赌注多大
-const sinHint = ([kind, w]) => `作恶（${SINS[kind].name}）：五成会败露，败露约赔 ${fateStake(w)} 灵石，往后作恶的本金也跟着涨`;
+const sinHint = ([kind, w]) => `악행(${SINS[kind].name}): 절반은 들통나고, 들통나면 약 ${fateStake(w)} 영석을 배상한다. 이후 악행의 원금도 함께 불어난다`;
 
 // 作了一桩恶：欠下孽债。w 是分量（1 小恶 / 2 出卖销赃 / 3 害命），virtue 是顺带扣的善名
 function commitSin(kind, { p = null, w = 1, what = '', virtue = 0 } = {}) {
@@ -46,7 +46,7 @@ function commitSin(kind, { p = null, w = 1, what = '', virtue = 0 } = {}) {
   if (virtue) karmaShift(-virtue);
   F.debts.push({ kind, w, stake, what, day: S.day, due: S.day + rint(FATE_WAIT[0], FATE_WAIT[1]),
     pid: p ? p.pid : null, name: p ? p.name : null, faction: p ? p.faction : null });
-  log(`这桩恶事（${SINS[kind].name}）记下了：几日内见分晓，若败露约要赔 ${stake} 灵石。`, 'warn');
+  log(`이 악행(${SINS[kind].name})을 기록했다: 며칠 안에 결과가 나오고, 들통나면 약 ${stake} 영석을 배상해야 한다.`, 'warn');
   return stake;
 }
 
@@ -91,7 +91,7 @@ function fateTick() {
   for (const d of due) {
     if (Math.random() >= FATE_ODDS) {
       F.buried++;
-      out.push({ icon: 'ic_secret', title: '因果', text: `${d.what ? `“${d.what}”那件事` : `那桩${SINS[d.kind].name}`}，渐渐没人再提了。这一把，你赌赢了。`, cls: 'ok' });
+      out.push({ icon: 'ic_secret', title: '인과', text: `${d.what ? `"${d.what}" 그 일` : `그 ${SINS[d.kind].name} 건`} — 점차 아무도 언급하지 않게 되었다. 이번 판은 네가 이겼다.`, cls: 'ok' });
       continue;
     }
     out.push(retribution(d));
@@ -105,28 +105,28 @@ function retribution(d) {
   const F = S.fate, K = SINS[d.kind];
   F.erupted++;
   const p = d.pid && S.people[d.pid];
-  const who = d.kind === 'fence' ? K.who : p && p.status === 'alive' ? p.name : d.name ? `${d.name}的${KIN[d.faction] || '亲友'}` : K.who;
+  const who = d.kind === 'fence' ? K.who : p && p.status === 'alive' ? p.name : d.name ? `${d.name}의 ${KIN[d.faction] || '친구'}` : K.who;
   const paid = payDebt(d.stake);
   F.infamy += d.w;
   if (d.faction) adjustRep(d.faction, -d.w);
-  let text = `${d.what ? `“${d.what}”的事` : `那桩${K.name}`}败露了：${who}${pick(K.how)}。要赔 ${d.stake} 灵石`
-    + (paid.cash ? `，你掏出 ${paid.cash} 灵石` : '') + (paid.seized.length ? `，又被抄走${paid.seized.slice(0, 4).join('、')}${paid.seized.length > 4 ? `等 ${paid.seized.length} 件货` : ''}` : '') + '。';
+  let text = `${d.what ? `"${d.what}"의 일` : `그 ${K.name} 건`}이(가) 들통났다: ${who} — ${pick(K.how)}. 배상금 ${d.stake} 영석`
+    + (paid.cash ? `, 네가 ${paid.cash} 영석을 내놓았고` : '') + (paid.seized.length ? `, 다시 압수당했다: ${paid.seized.slice(0, 4).join('、')}${paid.seized.length > 4 ? `외 ${paid.seized.length}점의 물건` : ''}` : '') + '。';
   if (paid.rest > 0) {
     // 爆仓：赔不起的那部分，拿人来抵
     F.busts++;
     const heat = Math.min(40, Math.round(paid.rest / 25));
     addHeat(heat);
-    text += `还差 ${paid.rest} 灵石赔不上——你被打得爬不起来，执法堂关注 +${heat}。`;
-    addCond('me', 'injured', 2, '赔不起孽债，被人打上门来');
+    text += `${paid.rest} 영석이 모자라 갚지 못했다. 너는 일어나지 못할 만큼 두들겨 맞았고, 집법당 주시 +${heat}.`;
+    addCond('me', 'injured', 2, '업보 빚을 갚지 못해 사람들이 찾아와 두들겨 팼다');
   }
-  text += '恶名又传开了一些。';
-  return { icon: 'ic_heat', title: '报应', text, cls: 'bad' };
+  text += '악명이 조금 더 퍼졌다.';
+  return { icon: 'ic_heat', title: '응보', text, cls: 'bad' };
 }
 
 // 先掏灵石，不够就抄货（挑最值钱的），还不够的就是窟窿
 function payDebt(amount) {
   const cash = Math.min(Math.max(0, S.stones), amount);
-  if (cash) spend(cash, `赔孽债 ${cash} 灵石。`);
+  if (cash) spend(cash, `업보 배상 ${cash} 영석.`);
   let rest = amount - cash;
   const seized = [];
   if (rest > 0) {
