@@ -2,12 +2,12 @@
 // 灵兽阁的人满杂役区捉野妖崽子——护她要担私藏妖物的罪名，卖她只值五十灵石
 'use strict';
 
-const LIER_CATCHER = { name: '灵兽阁弟子', portrait: 'mo_disciple', title: '灵兽阁捕役', faction: 'mo' };
+const LIER_CATCHER = { name: '영수각 제자', portrait: 'mo_disciple', title: '영수각 포역', faction: 'mo' };
 // 她那块玉佩还在你铺里摆着么
 const lierPendant = st => { const it = st.flags.pendant && S.items[st.flags.pendant]; return it && HELD(it) ? it : null; };
 
 defineCharacter({
-  id: 'hua_lier', name: '花狸儿', faction: 'yao', sex: 'f', title: '小猫妖',
+  id: 'hua_lier', name: '화리아', faction: 'yao', sex: 'f', title: '아기 고양이 요괴',
   portrait: 'hua_lier',
   // 孩子：画成可爱俏皮的童星，衣着严实；神态里不画成瘾、黑筋
   artSubject: 'a little girl (child actress)',
@@ -19,24 +19,24 @@ defineCharacter({
     wasted: 'sick and worn out: pale face, tired droopy eyes, ears flat and drooping, hugging herself as if cold',
     thrall: 'dazed and entranced: eyes glazed with a soft purple glow, blank sleepy face, a faint purple mist around her head',
   },
-  bio: '刚学会化形的小猫妖，耳朵尾巴还收不回去。爹娘被灵兽阁捉了去，她一个人在杂役区的屋檐上过活，靠“捡”东西换鱼干。',
-  intro: '一个耳朵尾巴还藏不住的小猫妖，拿“捡来的”东西来换吃的。',
+  bio: '화형을 갓 익힌 아기 고양이 요괴. 귀와 꼬리를 아직 집어넣지 못한다. 부모가 영수각에 잡혀갔고, 혼자 잡역 구역 처마 위에서 살며 "주운" 물건으로 생선 말린 것을 바꿔 먹는다.',
+  intro: '귀와 꼬리를 숨기지 못하는 아기 고양이 요괴. "주워온" 물건으로 먹을 것을 바꾸러 온다.',
   savvy: 0.25, power: 12, eye: 1,
   traits: { greed: 0.4, integrity: 0.4, caution: 0.3, wish: 'spirit_fruit', budgetMul: 0.4 },
   start: { day: 6, node: 'meet', chance: 0.4, cond: () => ART_SET.has('chars/hua_lier') },   // 立绘装好才登场
   regular: true,
   lines: {
-    first: '（柜台边冒出两只毛茸茸的耳朵）小掌柜，你这儿有没有鱼干呀？',
-    neutral: ['小掌柜，吾又来啦。', '今天屋顶上可冷了。'],
-    warm: ['小掌柜，吾替你看着门，坏人来了吾就挠他。', '（她蹭了蹭柜台角）你这儿暖和。'],
-    close: ['小掌柜是好人，吾记着。', '吾长大了，也要开一间铺子，就开在你隔壁。'],
-    cold: '……吾就买个东西。',
-    hostile: '（她躲在门外，只露出一只眼睛）你把吾卖了。',
-    buy: ['有{cat}吗？吾攒了好久的灵石。', '吾想要{cat}，便宜点好不好？'],
-    sell: '这个{item}是吾捡的，换{ask}灵石……不，换鱼干也行。',
+    first: '(카운터 옆으로 복슬복슬한 귀 두 개가 솟는다) 주인장, 여기 생선 말린 거 있어요?',
+    neutral: ['주인장, 이 몸 또 왔어요.', '오늘 지붕 위는 몹시 추웠어요.'],
+    warm: ['주인장, 이 몸이 문을 지켜줄게요. 나쁜 놈 오면 할퀼 거예요.', '(카운터 모퉁이에 몸을 비빈다) 여기 따뜻해요.'],
+    close: ['주인장은 좋은 사람이에요. 기억할게요.', '이 몸 크면 가게를 열 거예요. 바로 옆에다 열 거예요.'],
+    cold: '... 물건 하나만 사러 왔어요.',
+    hostile: '(문 밖에 숨어 눈 하나만 내민다) 주인장이 이 몸을 팔았어요.',
+    buy: ['{cat} 있어요? 이 몸이 오래오래 모은 영석이에요.', '{cat} 갖고 싶어요. 싸게 해주면 안 돼요?'],
+    sell: '이 {item}은(는) 이 몸이 주운 거예요. {ask} 영석이랑 바꿔요... 아니, 생선 말린 것도 좋아요.',
   },
   on: {
-    death: (st, p) => { adjustRep('yao', -10); log('那只小花猫死了。屋檐上空了。', 'loss'); },
+    death: (st, p) => { adjustRep('yao', -10); log('그 작은 고양이가 죽었다. 처마 위가 비었다.', 'loss'); },
   },
 
   nodes: {
@@ -44,25 +44,25 @@ defineCharacter({
     meet: {
       when: 'day',
       item: { id: 'jade_pendant', extra: { q: 72, fake: false } },
-      text: () => '柜台边冒出两只毛茸茸的耳朵，接着是一张脏兮兮的小脸。一个耳朵尾巴都没藏住的小猫妖踮着脚，把一块古玉佩推到柜上：'
-        + '“小掌柜，这个……捡的。换三条鱼干，行不行？”\n玉佩上的丝绦还是新的——多半是从哪位贵人腰上“捡”的。',
+      text: () => '카운터 옆으로 복슬복슬한 귀 두 개가 솟고, 이어서 꼬질꼬질한 작은 얼굴이 나타났다. 귀도 꼬리도 숨기지 못한 아기 고양이 요괴가 까치발을 들고 옥패 하나를 카운터에 밀어 올렸다:'
+        + '"주인장, 이거... 주운 거예요. 생선 말린 거 세 마리랑 바꾸면 안 돼요?"\n옥패의 비단 끈은 아직 새것이다 — 아마 어느 귀인의 허리에서 "주워온" 것이리라.',
       choices: () => [
-        { label: '收下，给她六十灵石和一包鱼干', hint: `${costHint(60)}；玉佩是赃物，卖出时小心`, req: needStones(60), run: (st, p) => {
-          spend(60, '收下花狸儿的古玉佩。'); st.flags.pendant = (keepCounterItem({ stolen: 5, cost: 60, boughtDay: S.day }) || {}).uid;
-          goodDeed(p, 1); remember(p, '你给了她六十灵石，还有一包鱼干。', 15, 'fair');
+        { label: '받고 예순 영석과 생선 말린 것 한 봉지를 준다', hint: `${costHint(60)}; 옥패는 장물이니 팔 때 조심`, req: needStones(60), run: (st, p) => {
+          spend(60, '화리아의 옥패를 받았다.'); st.flags.pendant = (keepCounterItem({ stolen: 5, cost: 60, boughtDay: S.day }) || {}).uid;
+          goodDeed(p, 1); remember(p, '예순 영석과 생선 말린 것 한 봉지를 주었다.', 15, 'fair');
           st.flags.fed = true;
-          return { text: '她抱着鱼干愣了好一会儿，尾巴慢慢竖了起来：“小掌柜……你是好人。”', go: ['chase', [2, 4]], summary: '你收下了花狸儿的玉佩，没亏待她。' };
+          return { text: '그녀는 생선 말린 것을 껴안고 한참 멍하니 있다가 꼬리가 천천히 곧추섰다: "주인장... 좋은 사람이에요."', go: ['chase', [2, 4]], summary: '화리아의 옥패를 받고 박하게 굴지 않았다.' };
         } },
-        { label: '就给三条鱼干，玉佩留下', hint: '几乎白得一块古玉佩（赃物）；她会记着', req: needStones(3), run: (st, p) => {
-          spend(3, '三条鱼干换下一块古玉佩。'); st.flags.pendant = (keepCounterItem({ stolen: 5, cost: 3, boughtDay: S.day }) || {}).uid;
-          remember(p, '你用三条鱼干换走了她的玉佩。', -6, 'lowballed');
+        { label: '생선 말린 것 세 마리만 주고 옥패를 남긴다', hint: '옥패 한 점을 거저 얻는 셈(장물); 그녀가 기억한다', req: needStones(3), run: (st, p) => {
+          spend(3, '생선 말린 것 세 마리로 옥패 한 점을 바꿨다.'); st.flags.pendant = (keepCounterItem({ stolen: 5, cost: 3, boughtDay: S.day }) || {}).uid;
+          remember(p, '생선 말린 것 세 마리로 그녀의 옥패를 바꿔치기했다.', -6, 'lowballed');
           st.flags.cheated = true;
-          return { text: '她叼着鱼干跑了，跑到门口回头看了一眼柜上的玉佩。', go: ['chase', [2, 4]], summary: '你三条鱼干换下了花狸儿的玉佩。' };
+          return { text: '그녀는 생선을 물고 달려가다가 문간에서 카운터 위의 옥패를 돌아보았다.', go: ['chase', [2, 4]], summary: '생선 말린 것 세 마리로 화리아의 옥패를 바꿨다.' };
         } },
-        { label: '不收赃物，塞给她一把灵果', hint: `${costHint(10)}；善名 +1`, req: needStones(10), run: (st, p) => {
-          spend(10, '给了花狸儿一把灵果。'); goodDeed(p, 1); remember(p, '你没收她的东西，还给了她灵果。', 10, 'helped');
+        { label: '장물은 받지 않고 영과 한 움큼을 쥐여준다', hint: `${costHint(10)}; 선명 +1`, req: needStones(10), run: (st, p) => {
+          spend(10, '화리아에게 영과 한 움큼을 주었다.'); goodDeed(p, 1); remember(p, '물건은 받지 않고 영과를 주었다.', 10, 'helped');
           st.flags.refused = true;
-          return { text: '“不要就不要嘛。”她把玉佩揣回怀里，抓起灵果，一溜烟上了对面的屋檐。', go: ['chase', [2, 4]], summary: '你没收花狸儿的赃物，给了她一把灵果。' };
+          return { text: '"싫으면 말구요." 그녀는 옥패를 도로 품에 넣고 영과를 움켜쥐더니 맞은편 처마로 휙 올라갔다.', go: ['chase', [2, 4]], summary: '화리아의 장물은 받지 않고 영과 한 움큼을 주었다.' };
         } },
       ],
     },
@@ -73,26 +73,26 @@ defineCharacter({
       who: () => LIER_CATCHER,
       text: st => {
         const pend = lierPendant(st);
-        return '一个外门弟子拎着铁笼进门，笼底垫着干草：“灵兽阁收野妖崽子。有只小花猫在这一片偷东西，耳朵尾巴都没藏住——你见过没有？”\n'
-          + '“报个信，五十灵石；藏着不报，按私藏妖物论。”'
-          + (pend ? '\n他的目光在你柜里那块古玉佩上停了一下，没说话。' : '');
+        return '외문 제자 하나가 철창을 들고 들어왔다. 창 바닥에는 마른 풀이 깔려 있다: "영수각에서 들요괴 새끼들을 거둔다. 이 동네에서 물건을 훔치는 작은 고양이가 있는데 귀도 꼬리도 못 숨겼다 — 본 적 있나?"\n'
+          + '"알려주면 쉰 영석. 숨겨주고 잠자코 있으면 요물 은닉죄로 다스린다."'
+          + (pend ? '\n그의 눈이 네 카운터 안의 옥패에서 잠시 멈췄지만 아무 말도 하지 않았다.' : '');
       },
       choices: st => [
-        { label: '说没见过', hint: `撒谎；被看穿则执法堂关注 +8${condText('me') ? `（${condText('me').replace(/。$/, '')}，更容易露馅）` : ''}`, run: () => {
+        { label: '본 적 없다고 한다', hint: `거짓말; 들통나면 집법당 주시 +8${condText('me') ? `(${condText('me').replace(/[.]$/, '')}. 들통나기 쉽다)` : ''}`, run: () => {
           const caught = lieCaught(0.35 + (lierPendant(st) ? 0.2 : 0));
           if (caught) { addHeat(8); st.flags.suspect = true; }
-          return { text: caught ? '他盯着你看了半晌，冷笑一声：“行，你没见过。”出门时，他在你门框上贴了张黄纸。' : '他“啧”了一声，拎着空笼子走了。',
+          return { text: caught ? '그는 너를 한참 노려보다가 냉소했다: "그래, 본 적 없다고." 나가면서 문설주에 노란 종이 한 장을 붙였다.' : '그는 혀를 차고 빈 철창을 들고 갔다.',
             go: ['hide', 0] };
         } },
-        { label: '塞他三十灵石，请他去别处找', hint: costHint(30), req: needStones(30), run: () => {
-          spend(30, '打点灵兽阁的捕役。'); st.flags.bribed = true;
-          return { text: '他掂了掂灵石：“这一片，我今天就不来了。”', go: ['hide', 0] };
+        { label: '서른 영석을 쥐여주고 딴 데서 찾아달라 한다', hint: costHint(30), req: needStones(30), run: () => {
+          spend(30, '영수각 포역을 매수했다.'); st.flags.bribed = true;
+          return { text: '그는 영석을 저울질했다: "이 동네는 오늘 그만둬주지."', go: ['hide', 0] };
         } },
-        { label: '指给他看她常蹲的那片屋檐', hint: '+50 灵石；妖族声望 -8', sin: ['betray', 1], run: (st, p) => {
-          earn(50, '向灵兽阁报信，得赏五十灵石。'); adjustRep('yao', -8);
-          remember(p, '你把她常蹲的屋檐指给了灵兽阁。', -100, 'betrayed');
-          lifeNote(p, '被灵兽阁装进了铁笼。'); p.status = 'gone';
-          return { text: '当天傍晚，对面屋檐上传来一阵乱响，接着是铁笼落锁的声音。\n后来，再没有小花猫来柜台边要鱼干。', end: true, summary: '你把花狸儿的去处告诉了灵兽阁。', mood: 'pleased' };
+        { label: '그녀가 늘 웅크리던 처마를 가리켜준다', hint: '+50 영석; 요족 명성 -8', sin: ['betray', 1], run: (st, p) => {
+          earn(50, '영수각에 알려 쉰 영석의 상을 받았다.'); adjustRep('yao', -8);
+          remember(p, '그녀가 늘 웅크리던 처마를 영수각에 일러주었다.', -100, 'betrayed');
+          lifeNote(p, '영수각의 철창에 갇혔다.'); p.status = 'gone';
+          return { text: '그날 저녁 맞은편 처마에서 한바탕 소란이 나더니 이어서 철창이 잠기는 소리가 났다.\n그 뒤로 카운터에 생선 말린 것을 달라는 작은 고양이는 없었다.', end: true, summary: '화리아의 거처를 영수각에 일렀다.', mood: 'pleased' };
         } },
       ],
     },
@@ -102,23 +102,23 @@ defineCharacter({
       when: 'night',
       cond: (st, p) => p.status === 'alive',
       mood: 'afraid',
-      text: st => '半夜，后窗被轻轻挠了三下。花狸儿缩在窗台上，尾巴炸成一团：“他们……把隔壁的大黄也捉走了。小掌柜，吾能不能在你这儿躲两天？”'
-        + (st.flags.cheated ? '\n她看你的眼神有点躲闪——上回那三条鱼干，她记着呢。' : '')
-        + (st.flags.suspect ? '\n你想起门框上那张黄纸。' : ''),
+      text: st => '한밤중, 뒷창을 살살 긁는 소리가 세 번 났다. 화리아가 창턱에 웅크리고 꼬리를 부풀리고 있다: "그들이... 옆집 대황이도 잡아갔어요. 주인장, 이 며칠만 숨어있으면 안 돼요?"'
+        + (st.flags.cheated ? '\n너를 보는 눈이 살짝 피한다 — 지난번 생선 말린 것 세 마리를 기억하고 있는 것이다.' : '')
+        + (st.flags.suspect ? '\n문설주에 붙은 노란 종이가 떠올랐다.' : ''),
       choices: st => [
-        { label: '收留她，让她睡在柜台底下', hint: `执法堂关注 +${st.flags.suspect ? 8 : 3}；灵兽阁可能回来搜`, run: (st, p) => {
-          addHeat(st.flags.suspect ? 8 : 3); goodDeed(p, 3); remember(p, '那晚你开了窗，收留了她。', 25, 'helped');
+        { label: '거둬서 카운터 밑에서 재운다', hint: `집법당 주시 +${st.flags.suspect ? 8 : 3}; 영수각이 뒤지러 올 수 있다`, run: (st, p) => {
+          addHeat(st.flags.suspect ? 8 : 3); goodDeed(p, 3); remember(p, '그날 밤 창을 열어 그녀를 거뒀다.', 25, 'helped');
           st.flags.kept = true;
-          return { text: '她钻进柜台底下，团成一团，不一会儿就打起了小呼噜。', go: ['raid', [2, 4]], summary: '你收留了花狸儿。', mood: 'pleased' };
+          return { text: '그녀는 카운터 밑으로 기어 들어가 둥글게 몸을 말더니 금세 작은 코골이를 시작했다.', go: ['raid', [2, 4]], summary: '화리아를 거뒀다.', mood: 'pleased' };
         } },
-        { label: '给她干粮和路钱，送她出城回妖域', hint: `${costHint(40)}；妖族声望 +5`, req: needStones(40), run: (st, p) => {
-          spend(40, '送花狸儿出城的干粮和路钱。'); adjustRep('yao', 5); goodDeed(p, 2);
-          remember(p, '你连夜送她出了城。', 20, 'helped'); lifeNote(p, '回了妖域。'); p.status = 'gone';
-          return { text: '天亮前，你把她送到城墙根的狗洞边。她钻出去，又回头冲你挥了挥爪子。', end: true, summary: '你连夜送花狸儿出了城。', mood: 'pleased' };
+        { label: '건량과 여비를 주고 성 밖 요역으로 보낸다', hint: `${costHint(40)}; 요족 명성 +5`, req: needStones(40), run: (st, p) => {
+          spend(40, '화리아의 성 밖 여비와 건량.'); adjustRep('yao', 5); goodDeed(p, 2);
+          remember(p, '밤새 그녀를 성 밖으로 보냈다.', 20, 'helped'); lifeNote(p, '요역으로 돌아갔다.'); p.status = 'gone';
+          return { text: '날이 밝기 전 성벽 밑 개 구멍까지 데려다주었다. 그녀는 기어나가다가 돌아보며 앞발을 흔들었다.', end: true, summary: '밤새 화리아를 성 밖으로 보냈다.', mood: 'pleased' };
         } },
-        { label: '把窗关上', run: (st, p) => {
-          remember(p, '那晚你没开窗。', -15);
-          return { text: '挠窗的声音停了。第二天，屋檐上空空的。', end: true, summary: '那晚你没给花狸儿开窗。', mood: 'afraid' };
+        { label: '창을 닫는다', run: (st, p) => {
+          remember(p, '그날 밤 창을 열지 않았다.', -15);
+          return { text: '창 긁는 소리가 멈췄다. 이튿날, 처마 위는 텅 비어 있었다.', end: true, summary: '그날 밤 화리아에게 창을 열어주지 않았다.', mood: 'afraid' };
         } },
       ],
     },
@@ -127,25 +127,25 @@ defineCharacter({
     raid: {
       when: 'day',
       who: () => LIER_CATCHER,
-      text: () => '灵兽阁的人又来了，这回牵着一条鼻子贴着地的灵犬：“有人看见那只小花猫往你这儿钻。搜一搜，没意见吧？”\n柜台底下，一点动静都没有。'
-        + (condSev('me', 'injured') ? '\n灵犬冲你吊着的胳膊嗅了嗅，喉咙里低低地吼。' : ''),
+      text: () => '영수각 사람들이 또 왔다. 이번에는 코를 땅에 박은 영견을 끌고 왔다: "그 작은 고양이가 네 가게로 기어들었다는 걸 본 사람이 있다. 뒤져봐도 되겠지?"\n카운터 밑에서는 아무 기척도 없었다.'
+        + (condSev('me', 'injured') ? '\n영견이 네가 걸고 있는 팔 냄새를 맡더니 목구멍에서 낮게 으르렁댔다.' : ''),
       choices: () => [
-        { label: '让他搜', hint: `藏得住多半没事${S.grids.hidden ? '（有暗格，更稳）' : ''}${condSev('me', 'injured') ? '；你身上有伤，血腥味容易引狗' : ''}`, run: (st, p) => {
-          if (!hideRoll(0.5)) return { text: '灵犬绕着柜台转了三圈，打了个喷嚏。他骂了一声，走了。', go: ['grow', [5, 8]] };
+        { label: '뒤지게 둔다', hint: `잘 숨었으면 대체로 무사하다${S.grids.hidden ? '(암격이 있어 더 안전)' : ''}${condSev('me', 'injured') ? '; 네 몸의 상처에서 나는 피 냄새가 개를 끌 수 있다' : ''}`, run: (st, p) => {
+          if (!hideRoll(0.5)) return { text: '영견이 카운터를 세 바퀴 돌더니 재채기를 했다. 그는 욕을 하고 떠났다.', go: ['grow', [5, 8]] };
           addHeat(10); adjustRep('yao', -3);
-          lifeNote(p, '被灵兽阁从当铺里搜了出去。'); p.status = 'gone';
-          return { text: '灵犬一头扎进柜台底下。铁笼落锁的时候，她一声都没叫，只是看着你。\n“私藏妖物，记你一笔。”', end: true, summary: '灵兽阁从你的柜台底下搜走了花狸儿。' };
+          lifeNote(p, '영수각이 전당포에서 찾아내 끌고 갔다.'); p.status = 'gone';
+          return { text: '영견이 카운터 밑으로 고개를 처박았다. 철창이 잠길 때 그녀는 울지도 않고 너만 바라보았다.\n"요물 은닉, 기록해두겠다."', end: true, summary: '영수각이 카운터 밑에서 화리아를 찾아갔다.' };
         } },
-        { label: '拦在门口，不让他进', hint: `成算约 ${Math.round(trialOdds(34) * 100)}%（${condText('me') || '你状态尚好'}）；拦不住要挨一顿，人也保不住`, run: (st, p) => {
+        { label: '문간을 막고 들이지 않는다', hint: `성공률 약 ${Math.round(trialOdds(34) * 100)}%(${condText('me') || '너의 상태는 아직 괜찮다'}); 못 막으면 얻어맞고 그녀도 지키지 못한다`, run: (st, p) => {
           const t = trial('me', 34);
-          if (t.ok) { addHeat(6); return { text: `你把门板一横：“我这儿是当铺，不是灵兽圈。”\n他看了看你，又看了看门外围过来的街坊，牵着狗走了。（${partsText(t.s)}）`, go: ['grow', [5, 8]] }; }
-          addCond('me', 'injured', 1, '拦灵兽阁的人'); addHeat(10);
-          lifeNote(p, '被灵兽阁从当铺里搜了出去。'); p.status = 'gone';
-          return { text: `他一掌把你推进货架。灵犬从柜台底下拖出了那团小花猫。${condText('me')}`, end: true, summary: '你没拦住灵兽阁的人，花狸儿被带走了。' };
+          if (t.ok) { addHeat(6); return { text: `너는 문짝을 가로막았다: "여기는 전당포지 영수 우리가 아니다."\n그는 너를 보고, 문 밖에 몰려든 이웃들을 보고, 개를 끌고 갔다. (${partsText(t.s)})`, go: ['grow', [5, 8]] }; }
+          addCond('me', 'injured', 1, '영수각 사람들을 막아섰다'); addHeat(10);
+          lifeNote(p, '영수각이 전당포에서 찾아내 끌고 갔다.'); p.status = 'gone';
+          return { text: `그의 손바닥이 너를 물건 칸으로 밀쳐냈다. 영견이 카운터 밑에서 작은 고양이를 끌어냈다. ${condText('me')}`, end: true, summary: '영수각 사람들을 막지 못했고 화리아는 끌려갔다.' };
         } },
-        { label: '塞他一百灵石', hint: costHint(100), req: needStones(100), run: () => {
-          spend(100, '又打点了灵兽阁一回。');
-          return { text: '他收了灵石，冲柜台底下看了一眼，牵着狗走了：“下回藏严实点。”', go: ['grow', [5, 8]] };
+        { label: '백 영석을 쥐여준다', hint: costHint(100), req: needStones(100), run: () => {
+          spend(100, '영수각을 또 한 번 매수했다.');
+          return { text: '그는 영석을 받고 카운터 밑을 힐끗 보더니 개를 끌고 갔다: "다음엔 꼭꼭 숨겨라."', go: ['grow', [5, 8]] };
         } },
       ],
     },
@@ -155,21 +155,21 @@ defineCharacter({
       when: 'day',
       cond: (st, p) => p.status === 'alive',
       mood: 'pleased',
-      text: st => '花狸儿蹲在房梁上，耳朵一抖一抖：“小掌柜，库房的老鼠吾都替你抓光了。”她跳下来，从怀里掏出一卷发黄的纸。'
-        + '\n“屋顶上捡的——这回真是捡的！”'
-        + (st.flags.cheated ? '\n“上回那块玉佩……算啦，吾不跟你计较了。”' : ''),
+      text: st => '화리아가 들보에 웅크리고 귀를 파르르 떨었다: "주인장, 창고 쥐는 이 몸이 다 잡았어요." 그녀는 폴짝 뛰어내려 품에서 누렇게 바랜 종이 한 뭉치를 꺼냈다.'
+        + '\n"지붕에서 주웠어요 — 이번엔 진짜로 주운 거예요!"'
+        + (st.flags.cheated ? '\n"지난번 그 옥패는... 됐어요. 따지지 않을게요."' : ''),
       choices: () => [
-        { label: '收下，往后这儿就是你的窝', hint: '得一份藏宝图；她替你看门、捎消息', run: (st, p) => {
+        { label: '받고, 앞으로 여기가 네 보금자리라고 한다', hint: '보물지도 한 장을 얻는다; 그녀가 문을 지키고 소식을 전한다', run: (st, p) => {
           makeIntel('treasure'); p.informant = true; adjustRep('yao', 5); goodDeed(p, 1);
-          remember(p, '你说往后这儿就是她的窝。', 20, 'helped');
-          let tail = '她在柜台底下给自己铺了个窝，夜里听见什么动静，都会跑来告诉你。';
+          remember(p, '앞으로 여기가 그녀의 보금자리라고 했다.', 20, 'helped');
+          let tail = '그녀는 카운터 밑에 보금자리를 깔았고, 밤에 무슨 기척이 나면 달려와 네게 알려준다.';
           // 够强才有的好报：她找到了爹娘的下落，妖族记下你这份情
           if (strongEnough() && Math.random() < 0.4) {
             adjustRep('yao', 15); S.flags.foxBlessing = true;
-            tail += '\n后来她顺着那卷纸找到了爹娘被关的地方。妖域那边传话过来：这间铺子，妖族护着。';
+            tail += '\n나중에 그녀는 그 종이를 따라 부모가 갇힌 곳을 찾아냈다. 요역에서 말이 전해졌다: 이 가게는 요족이 지킨다.';
           }
-          lifeNote(p, '在一间当铺的柜台底下安了家。');
-          return { text: tail, end: true, summary: '花狸儿留在了你的铺子里。' };
+          lifeNote(p, '한 전당포의 카운터 밑에 보금자리를 틀었다.');
+          return { text: tail, end: true, summary: '화리아가 네 가게에 남았다.' };
         } },
       ],
     },
