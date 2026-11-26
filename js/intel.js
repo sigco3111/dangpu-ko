@@ -3,13 +3,13 @@
 
 // type：秘密；to：该向哪一方举报；chance：各族有此秘密的几率
 const SECRETS = {
-  xian: [{ type: '仙门卧底', to: 'mo', bounty: [260, 480], merit: 3, chance: 0.55 }],
-  mo: [{ type: '猎妖人', to: 'yao', bounty: [150, 300], merit: 3, chance: 0.16 },
-       { type: '血煞宗密探', to: 'xian', bounty: [240, 440], merit: 3, chance: 0.12 },
-       { type: '临阵逃兵', to: 'mo', bounty: [120, 240], merit: 2, chance: 0.08 }],
-  yao: [{ type: '妖族细作', to: 'mo', bounty: [180, 340], merit: 3, chance: 0.3 }],
-  ren: [{ type: '逃奴', to: 'mo', bounty: [80, 160], merit: 1, chance: 0.14 },
-        { type: '魔宗眼线', to: 'ren', bounty: [100, 180], merit: 2, chance: 0.1 }],
+  xian: [{ type: '선문 잠입자', to: 'mo', bounty: [260, 480], merit: 3, chance: 0.55 }],
+  mo: [{ type: '요괴 사냥꾼', to: 'yao', bounty: [150, 300], merit: 3, chance: 0.16 },
+       { type: '혈살종 밀정', to: 'xian', bounty: [240, 440], merit: 3, chance: 0.12 },
+       { type: '전선 탈주병', to: 'mo', bounty: [120, 240], merit: 2, chance: 0.08 }],
+  yao: [{ type: '요족 첩자', to: 'mo', bounty: [180, 340], merit: 3, chance: 0.3 }],
+  ren: [{ type: '도망 노예', to: 'mo', bounty: [80, 160], merit: 1, chance: 0.14 },
+        { type: '마종 정보원', to: 'ren', bounty: [100, 180], merit: 2, chance: 0.1 }],
 };
 
 function rollSecret(p) {
@@ -25,17 +25,17 @@ function probeOdds(p) { return clamp(0.45 + appraiseLevel() * 0.1 + Math.max(0, 
 
 function probe(c) {
   const p = personOf(c);
-  if (!p || c.probed) return { err: '探不了' };
+  if (!p || c.probed) return { err: '탐지할 수 없다' };
   const err = exert('probe');
   if (err) return { err };
   c.probed = true;
   if (Math.random() >= probeOdds(p)) {
-    if (Math.random() < p.savvy * 0.4) { remember(p, '察觉你用神识窥探他。', -8, 'insulted'); return { text: `你的神识刚一探出，${p.name}眉头一皱，往后退了半步。他察觉了。`, cls: 'bad' }; }
-    return { text: `${p.name}的心思藏得很深，你什么也没看出来。` };
+    if (Math.random() < p.savvy * 0.4) { remember(p, '네가 신식으로 그를 엿본 것을 알아챘다.', -8, 'insulted'); return { text: `네 신식이 막 뻗어나가자 ${p.name}이(가) 미간을 찌푸리며 반 발짝 물러섰다. 그가 알아챘다.`, cls: 'bad' }; }
+    return { text: `${p.name}의 속마음은 깊이 숨겨져 있어 아무것도 읽지 못했다.` };
   }
-  if (!p.secret) { p.cleared = true; return { text: `你看透了${p.name}：身家清白，没什么可疑的。` }; }
+  if (!p.secret) { p.cleared = true; return { text: `너는 ${p.name}을(를) 꿰뚫어 보았다: 신상이 깨끗하고 수상한 점이 없다.` }; }
   p.secret.known = true;
-  return { text: `你的神识掠过${p.name}的识海——此人是<b>${p.secret.type}</b>！`, cls: 'good' };
+  return { text: `네 신식이 ${p.name}의 식해를 스쳤다 — 이 사람은 <b>${p.secret.type}</b>다!`, cls: 'good' };
 }
 
 // 熟到一定份上，有人会主动向你吐露
@@ -48,9 +48,9 @@ function maybeConfide(c) {
 // 当面不动声色，暗中递上去：买卖照做，等他出了门才被带走，赏金随后送到（见 settleReports）
 function reportSecret(c) {
   const p = personOf(c), s = p.secret;
-  if (!channelOpen(s.to)) return { err: `还没和${CHANNEL_NAME[s.to]}搭上线（${channelHint(s.to)}）` };
+  if (!channelOpen(s.to)) return { err: `아직 ${CHANNEL_NAME[s.to]}와(과) 연줄이 닿지 않았다(${channelHint(s.to)})` };
   c.reportedSecret = true;
-  return { text: `你借口去后堂取货，托人给${CHANNEL_NAME[s.to]}捎了个信。\n${p.name}还蒙在鼓里——买卖照做，等${ta(p)}出了这道门，自会有人接着。`, cls: 'warn' };
+  return { text: `너는 뒷방에서 물건을 가져온다는 핑계로 사람을 시켜 ${CHANNEL_NAME[s.to]}에 소식을 전했다.\n${p.name}은(는) 아직 까맣게 모른다 — 거래는 그대로 하고, ${ta(p)}이(가) 이 문을 나서면 알아서 받아줄 사람이 있다.`, cls: 'warn' };
 }
 
 function paySecret(p) {
@@ -58,20 +58,20 @@ function paySecret(p) {
   // 战事越紧，细作越值钱
   s.bounty = Math.round(s.bounty * (1 + 0.4 * S.world.stage) / 10) * 10;
   s.merit += S.world.stage >= 2 ? 1 : 0;
-  earn(s.bounty, `向${CHANNEL_NAME[s.to]}举报${s.type}${p.name}，得赏金 ${s.bounty} 灵石。`);
+  earn(s.bounty, `${CHANNEL_NAME[s.to]}에 ${s.type} ${p.name}을(를) 고발해 현상금 ${s.bounty} 영석을 받았다.`);
   S.merit[s.to] += s.merit;
   adjustRep(s.to, 4); adjustRep(p.faction, -4);
-  remember(p, `你把他是${s.type}的事告发了。`, -100, 'betrayed');
+  remember(p, `네가 그가 ${s.type}라는 것을 고발했다.`, -100, 'betrayed');
   p.status = s.to === 'mo' ? 'jailed' : 'dead';
-  lifeNote(p, s.to === 'mo' ? `被你告发是${s.type}，押入血狱。` : `被你告发是${s.type}，死在${FACTIONS[s.to].name}手里。`);
+  lifeNote(p, s.to === 'mo' ? `네 고발로 ${s.type}임이 드러나 혈옥에 갇혔다.` : `네 고발로 ${s.type}임이 드러나 ${FACTIONS[s.to].name}의 손에 죽었다.`);
   p.secret = null;
-  commitSin('betray', { p, w: 2, what: `告发${p.name}是${s.type}`, virtue: 6 });
+  commitSin('betray', { p, w: 2, what: `${p.name}이(가) ${s.type}임을 고발했다`, virtue: 6 });
   let leak = '';
   if (Math.random() < 0.2) {
     adjustRep(p.faction, -8);
-    leak = `风声走漏，${FACTIONS[p.faction].name}都知道是你告的密。`;
+    leak = `소문이 새어나가 ${FACTIONS[p.faction].name}은(는) 모두 네가 밀고한 줄 안다.`;
   }
-  return { text: `${p.name}一出门就被${CHANNEL_NAME[s.to]}的人带走了。赏金 ${s.bounty} 灵石，${FACTIONS[s.to].name}功勋 +${s.merit}。${leak}`, cls: leak ? 'bad' : 'good' };
+  return { text: `${p.name}은(는) 문을 나서자마자 ${CHANNEL_NAME[s.to]} 사람들에게 끌려갔다. 현상금 ${s.bounty} 영석, ${FACTIONS[s.to].name} 공훈 +${s.merit}. ${leak}`, cls: leak ? 'bad' : 'good' };
 }
 
 // 要挟：他掂量你的势力，给钱或翻脸
@@ -80,25 +80,25 @@ function blackmail(c) {
   const ask = Math.round(s.bounty * 0.6 * Math.max(0.5, p.budgetMul) / 10) * 10;
   tally('cruel');
   if (Math.random() < overpowerOdds(p) + 0.1) {
-    earn(ask, `${p.name}拿 ${ask} 灵石换你闭嘴。`);
-    remember(p, `你拿他${s.type}的身份要挟他，敲了 ${ask} 灵石。`, -30, 'blackmailed');
-    commitSin('betray', { p, w: 2, what: `要挟${p.name}`, virtue: 6 });
+    earn(ask, `${p.name}이(가) ${ask} 영석으로 네 입을 막았다.`);
+    remember(p, `네가 그의 ${s.type} 신분을 빌미로 협박해 ${ask} 영석을 뜯어냈다.`, -30, 'blackmailed');
+    commitSin('betray', { p, w: 2, what: `${p.name}을(를) 협박했다`, virtue: 6 });
     p.blackmailed = (p.blackmailed || 0) + 1;
     dismissCustomer(false);
-    return { text: `${p.name}脸色铁青，数了 ${ask} 灵石放在柜上：“够了吧？”`, cls: 'good' };
+    return { text: `${p.name}의 얼굴이 새파랗게 질려 ${ask} 영석을 세어 카운터에 올렸다: "됐지?"`, cls: 'good' };
   }
   const dmg = retaliate(p, 60);
-  remember(p, '你想拿他的身份要挟他。', -40, 'blackmailed');
+  remember(p, '네가 그의 신분으로 협박하려 했다.', -40, 'blackmailed');
   dismissCustomer(false);
-  return { text: `${p.name}冷冷地看着你：“你大可去告。”\n${ta(p)}转身走了——${dmg}`, cls: 'bad' };
+  return { text: `${p.name}이(가) 차갑게 너를 보았다: "고발하든지 말든지."\n${ta(p)}은(는) 돌아서 갔다 — ${dmg}`, cls: 'bad' };
 }
 
 // 守口如瓶：他欠你一个人情，往后会替你留意风声
 function keepSecret(c) {
   const p = personOf(c);
-  remember(p, `你知道他是${p.secret.type}，却替他保守了秘密。`, 18, 'helped');
+  remember(p, `네가 그가 ${p.secret.type}임을 알면서도 비밀을 지켜주었다.`, 18, 'helped');
   p.owes = true;
-  return { text: `你压低声音：“你的事，我不会说出去。”${p.name}愣了愣，郑重地点了点头。`, cls: 'good' };
+  return { text: `너는 목소리를 낮췄다: "네 일은 말하지 않겠다." ${p.name}이(가) 멈칫하더니 엄숙히 고개를 끄덕였다.`, cls: 'good' };
 }
 
 // 交好的熟客夜里会透露别人的底细
@@ -110,7 +110,7 @@ function gossipTick() {
     const t = pick(Object.values(S.people).filter(p => p !== f && p.status === 'alive' && p.secret && !p.secret.known) || []);
     if (!t) continue;
     t.secret.known = true;
-    out.push({ icon: 'ic_secret', title: '线索', text: `${f.name}悄悄告诉你：${t.name}（${t.title}）是${t.secret.type}。可在「人物」页向${CHANNEL_NAME[t.secret.to]}举报。`, cls: 'warn' });
+    out.push({ icon: 'ic_secret', title: '단서', text: `${f.name}이(가) 살며시 알려주었다: ${t.name}(${t.title})은(는) ${t.secret.type}다. [인물] 페이지에서 ${CHANNEL_NAME[t.secret.to]}에 고발할 수 있다.`, cls: 'warn' });
     if (out.length >= 2) break;
   }
   return out;
@@ -129,10 +129,10 @@ const intelExpired = it => !it.info || it.info.until < S.day;
 function intelValue(it) { return intelExpired(it) ? 2 : it.info.value; }
 
 const RUMORS = [
-  ['dan', '丹会提前开市'], ['qi', '外门大比改了日子'], ['hun', '血月祭要多炼一批魂幡'], ['shi', '战堂要补一批铁尸'],
-  ['yin', '妖族使团要进山'], ['fu', '护山大阵要换符'], ['cai', '炼器坊要赶一批军械'], ['wan', '内门长老要办寿宴'],
+  ['dan', '단약 시장이 앞당겨 열린다'], ['qi', '외문 대비 날짜가 바뀐다'], ['hun', '혈월제에 혼번을 한 벌 더 만든다'], ['shi', '전당이 철시 한 무리를 보충한다'],
+  ['yin', '요족 사절단이 산에 들어온다'], ['fu', '호산 대진의 부적을 갈아야 한다'], ['cai', '연기방이 군수품 한 조를 서둘러 만든다'], ['wan', '내문 장로가 생일 잔치를 연다'],
 ];
-const DIRT = ['私吞抄没财物', '与仙门暗通款曲', '虚报军饷', '拿活人试药', '私开灵脉'];
+const DIRT = ['몰수 재물 횡령', '선문과 내통', '군량 부정 청구', '산 사람으로 약 시험', '영맥 무단 개발'];
 
 // 造一份密报，放进库房；放不下返回 null
 function makeIntel(kind, opt = {}) {
@@ -140,22 +140,22 @@ function makeIntel(kind, opt = {}) {
   if (kind === 'market') {
     const [cat, why] = pick(RUMORS), day = S.day + rint(2, 3), up = rnd(0.35, 0.6);
     S.world.pending = S.world.pending || [];
-    S.world.pending.push({ day, cats: { [cat]: up }, days: 4, text: `${why}，${CATS[cat]}行情大涨。` });
-    Object.assign(info, { title: `密报·${CATS[cat]}`, until: day, value: Math.round(60 + up * 300),
-      text: `第${day}日前后${why}，${CATS[cat]}要涨${Math.round(up * 100)}%上下。趁消息没传开囤货；过了那天，这张纸就不值钱了。` });
+    S.world.pending.push({ day, cats: { [cat]: up }, days: 4, text: `${why}. ${CATS[cat]} 시세가 크게 오른다.` });
+    Object.assign(info, { title: `밀보·${CATS[cat]}`, until: day, value: Math.round(60 + up * 300),
+      text: `${day}일 무렵 ${why}. ${CATS[cat]}이(가) 약 ${Math.round(up * 100)}% 오른다. 소문이 퍼지기 전에 쟁여둬라. 그날이 지나면 이 종이는 휴지다.` });
   } else if (kind === 'secret') {
     const p = opt.p, s = p.secret;
-    Object.assign(info, { title: `把柄·${p.name}`, pid: p.pid, value: Math.round(s.bounty * 0.5),
-      text: `${p.name}（${p.title}）是${s.type}。卖给${FACTIONS[s.to].name}的人，他们自会动手；卖回给${ta(p)}本人，${ta(p)}肯出大价钱买你闭嘴。` });
+    Object.assign(info, { title: `약점·${p.name}`, pid: p.pid, value: Math.round(s.bounty * 0.5),
+      text: `${p.name}(${p.title})은(는) ${s.type}다. ${FACTIONS[s.to].name} 사람에게 팔면 그들이 알아서 손을 쓴다. ${ta(p)} 본인에게 되팔면 큰돈을 주고 네 입을 막을 것이다.` });
     s.filed = true;
   } else if (kind === 'treasure') {
     const loc = pick(LOCATIONS), id = pick(loc.loot.filter(([, w]) => w <= 2))[0];
-    Object.assign(info, { title: `藏宝·${loc.name}`, loc: loc.id, id, value: Math.round(ITEMS[id].base * 0.35 + 20),
-      text: `${loc.name}某处埋着一件${ITEMS[id].name}。去那儿拾荒时，头一回翻找必有所获。` });
+    Object.assign(info, { title: `보물·${loc.name}`, loc: loc.id, id, value: Math.round(ITEMS[id].base * 0.35 + 20),
+      text: `${loc.name} 어딘가에 ${ITEMS[id].name}이(가) 묻혀 있다. 그곳에서 폐품을 주울 때 첫 번째 뒤지기에서 반드시 건진다.` });
   } else if (kind === 'clique') {
     const cid = opt.cid || pick(Object.keys(CLIQUES)), C = CLIQUES[cid];
-    Object.assign(info, { title: `内幕·${C.name}`, cid, value: 180,
-      text: `${C.head}${pick(DIRT)}的凭据。递给${CLIQUES[C.rival].name}，足以动摇${C.name}的根基；卖给魔宗的人，也能换些灵石。` });
+    Object.assign(info, { title: `내막·${C.name}`, cid, value: 180,
+      text: `${C.head}의 ${pick(DIRT)} 증거. ${CLIQUES[C.rival].name}에 넘기면 ${C.name}의 근간을 흔들 수 있고, 마종 사람에게 팔아도 영석 몇 푼은 된다.` });
   }
   const it = makeItem('intel', { info, q: 60 });
   stow(it);
@@ -183,16 +183,16 @@ function deliverIntel(p, it) {
   if (i.kind === 'secret') {
     const t = S.people[i.pid];
     if (!t || t.status !== 'alive' || !t.secret) return;
-    if (t === p) { remember(p, '从你手里买回了自己的把柄。', 4); return; }
+    if (t === p) { remember(p, '네 손에서 자기 약점을 사갔다.', 4); return; }
     if (p.faction !== t.secret.to) return;
     t.status = t.secret.to === 'mo' ? 'jailed' : 'dead';
-    lifeNote(t, `${t.secret.type}的身份被人卖给了${FACTIONS[t.secret.to].name}。`);
-    remember(t, '有人把他的底细卖了出去。', -30);
-    commitSin('betray', { p: t, w: 2, what: `把${t.name}的把柄卖给${FACTIONS[t.secret.to].name}`, virtue: 6 });
+    lifeNote(t, `${t.secret.type}라는 신분이 ${FACTIONS[t.secret.to].name}에 팔려갔다.`);
+    remember(t, '누군가 그의 뒷배경을 팔아넘겼다.', -30);
+    commitSin('betray', { p: t, w: 2, what: `${t.name}의 약점을 ${FACTIONS[t.secret.to].name}에 팔았다`, virtue: 6 });
     adjustRep(t.secret.to, 2);
-    worldNews(`${t.name}（${t.title}）被揭发是${t.secret.type}，再没出现过。`);
+    worldNews(`${t.name}(${t.title})이(가) ${t.secret.type}(으)로 발각되어 다시는 나타나지 않았다.`);
     t.secret = null;
-  } else if (i.kind === 'market') remember(p, '靠你给的消息赚了一笔。', 4, 'helped');
+  } else if (i.kind === 'market') remember(p, '네가 준 정보 덕에 한몫 챙겼다.', 4, 'helped');
   else if (i.kind === 'clique' && p.faction === 'mo') S.cliques[i.cid].pw = clamp(S.cliques[i.cid].pw - 6, 0, 100);
 }
 
@@ -203,7 +203,7 @@ function pendingTick() {
     if (e.day > S.day + 1) return true;
     addShock(e.cats, e.days + 1, e.text);
     worldNews(e.text);
-    out.push({ icon: 'ic_war', title: '风声成真', text: e.text, cls: 'warn' });
+    out.push({ icon: 'ic_war', title: '소문이 현실로', text: e.text, cls: 'warn' });
     return false;
   });
   return out;
@@ -229,11 +229,11 @@ const INTEL_PRICE = { market: 130, treasure: 90, clique: 200 };
 
 function buyIntel(i) {
   const kind = S.intelShop.list[i], price = Math.round(INTEL_PRICE[kind] * (1 + diff().markup));
-  if (!kind) return '卖完了';
-  if (S.stones < price) return '灵石不够';
+  if (!kind) return '다 팔렸다';
+  if (S.stones < price) return '영석이 부족하다';
   const it = makeIntel(kind);
-  if (!it) return '库房放不下';
-  spend(price, `从消息贩子处买下${itemName(it)}。`);
+  if (!it) return '창고에 들어가지 않는다';
+  spend(price, `정보 장수에게서 ${itemName(it)}을(를) 샀다.`);
   S.intelShop.list.splice(i, 1);
   return null;
 }
