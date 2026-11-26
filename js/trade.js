@@ -67,7 +67,7 @@ function wantNeed(c, p) {
 const needUnit = c => '개';
 // 说出口的件数：两份，不说二份
 const needCn = n => cn(n);
-const needText = c => `${c.need || 1} ${needUnit(c)}`;
+const needText = c => `${c.need || 1}${needUnit(c)}`;
 // 他开口说要几件；心心念念的、冲着柜里那件来的、送礼的、权贵，一听就是一件，不必多说
 function needLine(c) {
   if (!c.wantCat || c.noble || c.attracted || c.wishId || c.wantFake) return '';

@@ -4,6 +4,30 @@
 // 格子边长：随排版变（见 ui.js fitStage）
 let CELL = 40;
 
+// 조사(은/는·이/가·을/를 등) 괄호 표기를 앞 글자 받침에 맞게 풀어주는 표시용 후처리.
+// HTML 태그로 끝나는 경우 태그 앞 글자를 본다.
+function JJ(text) {
+  if (text == null) return text;
+  return String(text).replace(/이\(가\)|을\(를\)|은\(는\)|과\(와\)|와\(과\)|은\(은\)|\(이\)가/g, (m, offset, str) => {
+    let i = offset - 1;
+    if (i >= 0 && str[i] === '>') { const lt = str.lastIndexOf('<', i); if (lt >= 0) i = lt - 1; }
+    const ch = i >= 0 ? str.charCodeAt(i) : 0;
+    let bat;
+    if (ch >= 0xAC00 && ch <= 0xD7A3) bat = (ch - 0xAC00) % 28 !== 0;
+    else if (ch >= 0x30 && ch <= 0x39) bat = '013678'.includes(String.fromCharCode(ch));
+    else bat = false;
+    switch (m[0]) {
+      case '이': return bat ? '이' : '가';
+      case '을': return bat ? '을' : '를';
+      case '은': return bat ? '은' : '는';
+      case '과': return bat ? '과' : '와';
+      case '와': return bat ? '와' : '과';
+      case '(': return bat ? '이가' : '가';
+    }
+    return m;
+  });
+}
+
 const FACTIONS = {
   ren:  { name: '인족', color: '#d9b36a', icon: 'ic_rep_ren',  desc: '범인과 산수. 예산은 넉넉지 않지만 거래는 실속 있다. 가산을 저당 잡히러 자주 온다.' },
   xian: { name: '선문', color: '#8fd3ff', icon: 'ic_rep_xian', desc: '마종에 잠입한 정도 제자. 손이 크지만, 이들과 거래하면 집법당의 주목을 받는다.' },

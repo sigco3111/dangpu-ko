@@ -49,7 +49,7 @@ function fitStage() {
 function toast(text, cls = '') {
  const el = $('#toast');
  el.className = `show ${cls}`;
- el.innerHTML = text;
+ el.innerHTML = JJ(text);
  clearTimeout(toastTimer);
  toastTimer = setTimeout(() => { el.className = ''; }, 2600);
 }
@@ -242,13 +242,13 @@ function composeLine(c) {
  const vars = { item: goods.map(itemName).join(' · '), ask: goods.reduce((s, g) => s + g.ask, 0) };
  let line = goods.some(g => ITEMS[g.id].contra) ? voice(f, 'contra', vars) : lineOf(c, 'sell', vars);
  if (goods.some(g => g.stolen)) line += voice(f, 'stolen');
- if (c.wantId) line += `겸사겸사…… ${ITEMS[c.wantId].name}이 있다면, 나도 ${needCn(c.need || 1)}${needUnit(c)} 필요하오.`;
+ if (c.wantId) line += `겸사겸사…… ${ITEMS[c.wantId].name}이(가) 있다면, 나도 ${needCn(c.need || 1)}${needUnit(c)} 필요하오.`;
  return peek + greeting(c) + line;
  }
  if (c.noble) return nobleLine(c);
  if (c.craving) return gx(personOf(c), voice(f, 'crave') + needLine(c));
  if (c.wishId) return greeting(c) + voice(f, c.wishSeen ? 'wish' : 'wishAsk', { item: ITEMS[c.wishId].name });
- if (c.forGift) return greeting(c) + ` (목소리를 낮춰)${addr}, 제가 한 부 준비하겠소${CATS[c.wantCat]}선물한다. 진짜일 필요는 없다 - 충분히 그럴듯하기만 하면, 받는 사람이 모르면 그만이다. 값이야, 당연히 진품 값으로 칠 수 없다. `;
+ if (c.forGift) return greeting(c) + ` (목소리를 낮춰)${addr}, 선물할 ${CATS[c.wantCat]} 하나 준비해야겠소. 진짜일 필요는 없다 - 충분히 그럴듯하기만 하면, 받는 사람이 모르면 그만이다. 값이야, 당연히 진품 값으로 칠 수 없다. `;
  if (c.wantFake) return greeting(c) + ` (목소리를 낮춰)${addr}, 지난번 그런 “좋은 물건” 또 있나? 진짜처럼 보이는 그런 거 말이야. `;
  if (c.kind === 'buy') return peek + greeting(c) + lineOf(c, c.attracted ? 'attracted' : 'buy', { cat: c.wantId ? ITEMS[c.wantId].name : CATS[c.wantCat] }) + needLine(c) + brought;
  return greeting(c) + voice(f, 'appraise', { item: itemName(it), fee: c.fee });
@@ -325,6 +325,7 @@ function renderScene() {
 let talk = { text: '', i: 0 };
 
 function speechParts(text) {
+ text = JJ(text);
  if (LAYOUT !== 'tall' || !text) return text ? [text] : [];
  const max = Math.max(24, Math.floor(($('#scene').clientWidth - 112) / 18) * 2 - 1); // 18px 글자 두 줄, 끝에 한 칸을 남긴다 ▼
  const out = [];
@@ -445,7 +446,7 @@ function pleaPanel(c) {
  <button class="btn small" data-act="plea-lend" ${S.stones < amt ? 'disabled' : ''} title="이레 뒤 ${Math.round(amt * 1.5)} 상환">${TA}에게 ${amt} 빌려준다</button>
  <button class="btn small danger" data-act="plea-labor">고역으로 부린다</button>
  <button class="btn ghost small" data-act="plea-away">쫓아낸다</button>`;
- return { mid, acts };
+ return { mid: JJ(mid), acts: JJ(acts) };
 }
 
 // 修为：복용 제련、破境、杀伐的规矩
@@ -536,11 +537,11 @@ function tradePanel(c) {
  : `<p>팔기만 하고 싶다, 아무것도 사지 않는다. ${patienceHTML(c)}</p>`;
  if (c.noble) info += `<p class="small laced-txt">권귀는 눈이 높다: 싼 물건을 초라하다 여긴다. 안목은 별로다. 띄워줄수록 대충 본다.${c.flatter ? `(${c.flatter}번 띄웠다)` : ''}</p>`;
  if (it) {
- info += `<p class="small"><b>${esc(itemName(it))}</b> 개시가 ${stoneTxt(it.ask)} ${taking ? '<span class="tag real">받으려 한다</span>' : ''}
+ info += `<p class="small"><b>${esc(itemName(it))}</b> 제시가 ${stoneTxt(it.ask)} ${taking ? '<span class="tag real">받으려 한다</span>' : ''}
  ${ITEMS[it.id].appraise && !it.told ? '<span class="muted">· 조요경으로 감정할 수 있다, 눈앞에서 위작이라며 깎는다</span>' : ''}</p>`;
  if (dressable(it) && it.seen != null) info += `<p class="small ${flawSeen ? 'bad' : 'muted'}">${flawSeen ? `간파했다: 하급을 상급으로 둔갑. 겉은 ${it.sq}, 실제로는 ${it.q}뿐. ` : `네 안목으로는 (${LENS_NAMES[it.seen]}) 흠을 찾지 못한다. `}</p>`;
  }
- if (d.give.length || d.take.length || d.reject.length) info += `<p class="small muted">${trayTally(c, d)}(심리가 약 ${Math.round(d.V)})${d.reject.length ? `, <span class="bad">안 산다: ${d.reject.map(itemName).join(' · ')}</span>` : ''}${d.take.length ? `; 네가 받는다 ${d.take.length}건(개시가 ${d.A})` : ''}. </p>`;
+ if (d.give.length || d.take.length || d.reject.length) info += `<p class="small muted">${trayTally(c, d)}(심리가 약 ${Math.round(d.V)})${d.reject.length ? `, <span class="bad">안 산다: ${d.reject.map(itemName).join(' · ')}</span>` : ''}${d.take.length ? `; 네가 받는다 ${d.take.length}건(제시가 ${d.A})` : ''}. </p>`;
  const mid = `<div class="trade">${goods.length ? gridHTML('counter', `${ta(personOf(c))}의 물건 · 선택`) : ''}${gridHTML('tray', '네 진열판 · 물건을 끌어 올린다')}</div>${info}`;
  const acts = `${it && ITEMS[it.id].appraise && !it.told ? `<button class="btn small" data-act="appraise-counter">${icon('ic_appraise')}조요경</button>` : ''}
  ${it && (dressable(it) || isLaceable(it.id)) && it.seen == null ? `<button class="btn small" data-act="inspect-item">${icon('ic_appraise')}검품</button>` : ''}
@@ -548,10 +549,10 @@ function tradePanel(c) {
  ${it ? `<button class="btn small" data-act="take-toggle">${taking ? '안 받는다' : '받는다'}</button>` : ''}
  ${canTray ? `<button class="btn small wide-only" data-act="to-tray">고른 것을 진열판에 올린다</button>` : ''}
  ${c.noble ? `<button class="btn small" data-act="flatter" title="${costText('flatter')}">띄운다</button>` : ''}
- <button class="btn primary" data-act="deal" ${d.give.length || d.take.length ? '' : 'disabled'}>값을 흥정성사</button>
- ${c.wanted ? c.reportedWanted ? `<span class="muted small">몰래 관에 알렸다. ${ta(personOf(c))}이(가) 나가기를 기다린다</span>` : `<button class="btn small danger" data-act="report" title="${esc(sinHint(['betray', 1]))}">몰래 신고 포상${c.wanted}</button>` : ''}
+ <button class="btn primary" data-act="deal" ${d.give.length || d.take.length ? '' : 'disabled'}>이 값에 거래한다</button>
+ ${c.wanted ? c.reportedWanted ? `<span class="muted small">몰래 관에 알렸다. ${ta(personOf(c))}이(가) 나가기를 기다린다</span>` : `<button class="btn small danger" data-act="report" title="${esc(sinHint(['betray', 1]))}">몰래 신고(포상 ${c.wanted})</button>` : ''}
  <button class="btn ghost small" data-act="dismiss">손님을 보낸다</button>`;
- return { mid, acts };
+ return { mid: JJ(mid), acts: JJ(acts) };
 }
 
 // ───────────── 侧栏分页 ─────────────
@@ -974,7 +975,7 @@ function renderAll() {
 
 function openModal(fn) { modal = fn; fn(); }
 function closeModal() { modal = null; $('#modal-layer').innerHTML = ''; $('#modal-layer').className = ''; }
-function modalHTML(html, cls = '') { $('#modal-layer').className = 'on'; $('#modal-layer').innerHTML = `<div class="modal paper ${cls}">${html}</div>`; }
+function modalHTML(html, cls = '') { $('#modal-layer').className = 'on'; $('#modal-layer').innerHTML = `<div class="modal paper ${cls}">${JJ(html)}</div>`; }
 
 // 소매를 뿌리침的机会小的时候差一点都要紧：一成以下精确到千分
 const leavePct = p => p > 0 && p < 0.1 ? `${(Math.floor(p * 1000) / 10).toFixed(1)}%` : pct(p);
@@ -1022,7 +1023,7 @@ function openDeal() {
  <div class="deal"><div class="d-col"><h4>${TA}에게 판다</h4>${(gp = pager(d.give, 4, 'deal-give')).items.map(giveRow).join('') || '<p class="muted small">진열판에 그가 원하는 게 없다.</p>'}${gp.nav}
  ${d.reject.length ? `<p class="muted small">${TA}이(가) 안 산다: ${d.reject.map(itemName).join(' · ')}</p>` : ''}</div>
  <div class="d-col"><h4>${TA}에게서 받는다</h4>${(tp = pager(d.take, 4, 'deal-take')).items.map(t => `<div class="d-row">${itemHTML(Object.assign({}, t.it, { pos: null }), 'preview mini')}<span>${esc(itemName(t.it))}</span>
- <span class="muted">개시가 ${t.a} · 네 추정 ${Math.round(knownValue(t.it) * priceMul(t.it.id))}</span></div>`).join('') || '<p class="muted small">그의 물건은 받지 않는다.</p>'}${tp.nav}</div></div>
+ <span class="muted">제시가 ${t.a} · 네 추정 ${Math.round(knownValue(t.it) * priceMul(t.it.id))}</span></div>`).join('') || '<p class="muted small">그의 물건은 받지 않는다.</p>'}${tp.nav}</div></div>
  ${c.wantCat ? `<div class="tip-row"><span>${TA}이(가) 원한다: ${needText(c)}</span><span>${trayTally(c, d)}</span></div>` : ''}
  ${compliant(c) ? `<div class="tip-row laced-txt"><span>${TA}은(는) 네 뜻에 따른다</span><span>어떤 값을 불러도 인정한다, 다만 돈주머니에 없는 건 낼 수 없다</span></div>` : ''}
  <div class="tip-row"><span>${TA}마음속 공정 차액</span><span>${netTxt(d.N0)}</span></div>
@@ -1167,7 +1168,7 @@ function openAppraise(mode, uid) {
  closeModal();
  if (caught && c.patience <= 0) { dismissCustomer(false); toast(`${c.name}네 술수를 간파했다, 소매를 뿌리며 떠난다`, 'bad'); }
  else if (caught) toast(`들통났다! ${FACTIONS[c.faction].name} 평판 -6, 상대가 도리어 값을 올렸다`, 'bad');
- else toast(`상대가 믿었다, 개시가를 낮췄다 ${customerItem().ask} 영석`, 'good');
+ else toast(`상대가 믿었다, 제시가를 낮췄다 ${customerItem().ask} 영석`, 'good');
  renderAll();
  };
 }
@@ -1812,7 +1813,7 @@ const HANDLERS = {
  if (r.angry || r.caught) {
  toast(r.angry ? `${c.name}화가 나서 소리쳤다: “무슨 뜻이야? ”` : `${c.name}네가 잡은 흠을 하나하나 반박했다. `, 'bad');
  if (c.patience <= 0) dismissCustomer(false);
- } else toast(r.bluff ? `${c.name}네 말에 찔려, 3할을 깎아줬다. ` : `${c.name}인정했다, 개시가를 낮췄다 ${customerItem().ask}. `, 'good');
+ } else toast(r.bluff ? `${c.name}네 말에 찔려, 3할을 깎아줬다. ` : `${c.name}인정했다, 제시가를 낮췄다 ${customerItem().ask}. `, 'good');
  renderAll();
  },
  consume: () => { const err = consume(S.items[sel]); if (err) toast(err, 'bad'); else sel = null; renderAll(); },

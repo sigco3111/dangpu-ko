@@ -296,7 +296,7 @@ const MEMLINES = {
   betrayed:  { ren: '너…… 네가 나를 팔아넘긴 거냐.', mo: '나를 판 놈들은, 다 죽었다.', xian: '네가 나를 팔았구나.', yao: '배신자!' },
 };
 
-function fill(tpl, vars) { return tpl.replace(/\{(\w+)\}/g, (_, k) => vars[k] != null ? vars[k] : ''); }
+function fill(tpl, vars) { return JJ(tpl.replace(/\{(\w+)\}/g, (_, k) => vars[k] != null ? vars[k] : '')); }
 
 function voice(faction, key, vars = {}) {
   const v = VOICE[faction] && VOICE[faction][key];

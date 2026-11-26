@@ -19,7 +19,7 @@ let S = null;
 const SAVE_KEY = 'mmdp-save-v1';
 
 function diff() { return DIFFICULTIES.find(d => d.id === S.diff); }
-function log(text, cls = '') { S.log.push({ day: S.day, text, cls }); if (S.log.length > 80) S.log.shift(); }
+function log(text, cls = '') { S.log.push({ day: S.day, text: JJ(text), cls }); if (S.log.length > 80) S.log.shift(); }
 
 // ───────────── 开局 ─────────────
 
